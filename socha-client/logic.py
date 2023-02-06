@@ -10,7 +10,7 @@ class Logic(IClientHandler):
 
     def calculate_move(self) -> Move:
         
-        print(self.simulate_perform_move(self.game_state, self.game_state.possible_moves[random.randint(0, len(self.game_state.possible_moves) - 1)]))
+        #print(self.simulate_perform_move(self.game_state, self.game_state.possible_moves[random.randint(0, len(self.game_state.possible_moves) - 1)]))
         """print("- board -")
         print("get field: ", self.game_state.board.get_field(HexCoordinate(1, 1)))
         print("- current pieces -")
@@ -55,64 +55,58 @@ class Logic(IClientHandler):
                     eval = mini_max(child,depth - 1, True)
                     minEval = min(minEval,eval)
                 return minEval
-        '''INITIALIZATIONS'''
+        '''INITIALIZATIONS'''   
         #evaluate()
         self.debug()
-        self.get_map(state = self.game_state)
         print("\n --------------------------------------------------- \n")
         if (self.game_state.last_move != None):
-            self.get_map(self.game_state)
-            #print(map)
+            self.print_map(self.game_state)
         # -> return possible_moves[random.randint(0, len(possible_moves) - 1)]
         return greedy()
+
+
     '''---------------'''
-    def get_map(self, state: GameState) ->Board:
+    """def get_map(self, state: GameState) ->Board:
         new_board = []
-        #TEST
-        turn = state.turn
-        print("#-#", state.turn)
-        turn += 1
-        print("#-#",turn, "||", state.turn)
-        #TEST
-        for y in state.board._game_field:
-            new_board.append([])
+        for y in state.board:
+            new_board.append([])            REMOVE
             for x in y:
                 new_board[-1].append(x)
-        return Board(new_board)
+        return Board(new_board)"""
 
     def print_map(self, state: GameState):
 
         for y in range(0,8):
             line = ""
             for x in range(0,8):
-                value = str(state.board._get_field(x,y).get_value())
-                line +="  .  ".replace(".",value) if type(value) == int else "  .  ".replace(" . ",value)
+                value = state.board._get_field(x,y).get_team().value if state.board._get_field(x,y).get_team() != None else state.board._get_field(x,y).fish
+                line +="  .  ".replace(" . ",str(value)) if type(value) == str else "  .  ".replace(".",str(value))
             if y%2 == 1:
                 print(" ",line) 
             else:
                 print(line)
             
-    def simulate_perform_move(self, state: GameState, move: Move, add_turn: bool = True) -> GameState:
+    """def simulate_perform_move(self, state: GameState, move: Move, add_turn: bool = True) -> GameState:
 
         if state.is_valid_move(move):
             new_state = copy.deepcopy(state)
             add_fish = state.board.get_field(move.to_value).get_fish()
             new_state.board = self.simulate_move(state,move)
             new_state.turn +=1 if add_turn else 0
-            if state.current_team == Team('ONE'): new_state.fishes.fishes_one += add_fish
-            else: new_state.fishes.fishes_two += add_fish
+            new_state.current_team.fish += add_fish
             return new_state
 
         raise Exception(f"Invalid move: {move}")
 
     def simulate_move(self, state: GameState, move: Move) -> Board:
-        new_board : Board = self.get_map(state)
+        new_board : Board = state.board
         to_coordinate = move.to_value.to_cartesian()
-        new_board._game_field[to_coordinate.y][to_coordinate.x].field = state.current_team.color()
+        print("----------- ",new_board.board[to_coordinate.y][to_coordinate.x].penguin)
+        new_board.board[to_coordinate.y][to_coordinate.x].penguin.team_enum = state.current_team.team()
         if move.from_value != None:
             from_coordinate = move.from_value.to_cartesian()
-            new_board._game_field[from_coordinate.y][from_coordinate.x].field = 0
-        return new_board
+            new_board.board[from_coordinate.y-1][from_coordinate.x-1].fish = 0
+        return new_board"""
 
     def on_update(self, state: GameState):
 
@@ -124,23 +118,28 @@ class Logic(IClientHandler):
             new_tile.i = 4
             print(new_tile.i, "||", tile1.i)
         test_print(tile1)
+
     def debug(self):
         table = []
         headers =["parameter", "value", "type"]
         print("\n ---------------------- GAMESTATE ---------------------- \n")
         
         for all in self.game_state.__dict__:
-            if all not in ["fishes", "possible_moves", "board"]:
+            if all not in ["first_team.", "second_team", "possible_moves", "board"]:
                 table.append((all, self.game_state.__dict__[all], type(self.game_state.__dict__[all])))
-            if all == "fishes":
-                for ell in self.game_state.fishes.__dict__:
-                    table.append(("fishes."+ell, self.game_state.fishes.__dict__[ell], type(self.game_state.fishes.__dict__)))
+            if all == "first_team":
+                for ell in self.game_state.first_team.__dict__:
+                    table.append(("first_team."+ell, self.game_state.first_team.__dict__[ell], type(self.game_state.first_team.__dict__)))
+            if all == "second_team":
+                for ell in self.game_state.second_team.__dict__:
+                    table.append(("second_team."+ell, self.game_state.second_team.__dict__[ell], type(self.game_state.second_team.__dict__)))
             if all == "possible_moves":
                 for ell in self.game_state.possible_moves:
                     table.append(("possible_move",ell, type(self.game_state.__dict__[all])))
 
         print(tabulate(table, headers=headers))
         print("\n --------------------------------------------------- \n")
+    
 logic = Logic()
 
 """New Classes"""
