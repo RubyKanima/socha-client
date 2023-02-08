@@ -7,5 +7,5 @@
 [![Documentation](https://img.shields.io/badge/Software--Challenge%20-Documentation-%234299e1)](https://docs.software-challenge.de/)
 
 <h3> ペンギンの神 (Pengin no Kami) </h3>
-Generally speaking, this is just for storing all clients with a nice Overview of the progress. <br>
+Generally speaking, this is just for storing all clients with a nice overview of the progress. <br>
 Edits will follow
