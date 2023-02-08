@@ -1,6 +1,6 @@
 <a target="_blank" rel="noopener noreferrer" href="https://www.software-challenge.de"><p align="center"><img width="128" src="https://software-challenge.de/site/themes/freebird/img/logo.png" alt="Software-Challenge Logo"></p></a>
 
-<h1> Socha Client from team: ペンギンの神 (Pengin no Kami)
+<h3> ペンギンの神 (Pengin no Kami) </>
 
 [![Read the Docs](https://img.shields.io/readthedocs/software-challenge-python-client?label=Docs)](https://software-challenge-python-client.readthedocs.io/en/latest/)
 [![Socha](https://img.shields.io/badge/Socha-Packages-green)](https://software-challenge-python-client.readthedocs.io/en/latest/socha.html)
