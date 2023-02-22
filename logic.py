@@ -40,19 +40,24 @@ class Logic(IClientHandler):
             #enemy_fish = self.game_state.fishes.get_fish_by_team(self.game_state.other_team.team())
             #return own_fish - enemy_fish + extra_fish
 
-        def mini_max( depth: int, maximizing: bool, new_state: GameState, new_move: Move): #
+        def evaluate(state: GameState):
+            first = -(self.game_state.current_team.fish) 
+            second = self.game_state.current_team.fish 
+            #etc.
+
+        def mini_max(new_state: GameState, new_move: Move, depth: int, maximizing: bool): #
             if depth == 0 or new_state.board.possible_moves_from(new_move.to_value) == []: 
                 return self.evaluate(new_state) #  value berechnen
             if maximizing:
                 maxEval = -100000 # replacement (- inf)
                 for child in new_state.board.possible_moves_from(new_move.to_value): #possible_moves is wrong
-                    eval = mini_max(child,depth - 1, False)
+                    eval = mini_max(GameState.perform_move(child), child, depth - 1, False)
                     maxEval = max(maxEval,eval)
                 return maxEval
             else:
                 minEval = 100000 # replacement (- inf)
                 for child in new_state.board.possible_moves_from(new_move.to_value): #possible_moves is wrong
-                    eval = mini_max(child,depth - 1, True)
+                    eval = mini_max(GameState.perform_move(child), child, depth - 1, True)
                     minEval = min(minEval,eval)
                 return minEval
         '''INITIALIZATIONS'''   
