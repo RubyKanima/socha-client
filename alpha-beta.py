@@ -5,15 +5,19 @@ from socha import *
 class Logic(IClientHandler):
     game_state: GameState
 
-    def min_max(self, new_state: GameState, depth: int, alpha, beta, move = Move) -> int :
+    def min_max(self, new_state: GameState, depth: int, alpha, beta, memo = {}) -> int :
+            hash_list = set(new_state.first_team.moves + new_state.second_team.moves) # Move not hashable !FIX!
+            if hash_list in memo:
+                return memo[hash_list]
+
             if depth == 0 or new_state.current_team == None:
                 return self.evaluate(new_state) #  value berechnen
             maximizing = (new_state.current_team.name == self.game_state.current_team.name)
             
-            logging.info("Maximizing: "+ str(maximizing) +";  "+ str(new_state.current_team.name) +"|"+ str(self.game_state.current_team.name))#,"| Teams :", new_state.current_team, self.game_state.current_team)
-            logging.info("Possible: "+ str(new_state.possible_moves))
-            logging.info("Move-To: " + str(move.to_value))
-            logging.info(str(new_state.board.pretty_print()))
+            #logging.info("Maximizing: "+ str(maximizing) +";  "+ str(new_state.current_team.name) +"|"+ str(self.game_state.current_team.name))#,"| Teams :", new_state.current_team, self.game_state.current_team)
+            #logging.info("Possible: "+ str(new_state.possible_moves))
+            #logging.info("Move-To: " + str(move.to_value))
+            #logging.info(str(new_state.board.pretty_print()))
             if maximizing:
                 if new_state.possible_moves == []:
                     return self.evaluate(new_state)
@@ -24,6 +28,7 @@ class Logic(IClientHandler):
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break
+                memo[hash_list] = maxEval
                 return maxEval
             
             else:
@@ -34,6 +39,7 @@ class Logic(IClientHandler):
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break
+                memo[hash_list] = minEval
                 return minEval
     
     def evaluate(self, state: GameState):
@@ -48,6 +54,7 @@ class Logic(IClientHandler):
     def max_move(self):
         max_move = None
         max_val = -1000
+        # actual min_max:
         ''''       
         for child in self.game_state.possible_moves:
             val = self.min_max(self.game_state, 3, True, max_val, 100, child)
@@ -55,7 +62,7 @@ class Logic(IClientHandler):
             if val > max_val:
                 max_move = child
                 max_val = val
-            '''
+        '''
         child = self.game_state.possible_moves[random.randint(0, len(self.game_state.possible_moves)-1)]
         val = self.min_max(self.game_state, 2, max_val, 100, child)
         #logging.info(val, child)
@@ -76,4 +83,4 @@ class Logic(IClientHandler):
         self.game_state = state
     
 if __name__ == "__main__":
-    Starter(logic = Logic(), log = True)
+    Starter(logic = Logic())
