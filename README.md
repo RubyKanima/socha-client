@@ -6,7 +6,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/socha?label=Python)](https://pypi.org/project/socha/)
 [![Documentation](https://img.shields.io/badge/Software--Challenge%20-Documentation-%234299e1)](https://docs.software-challenge.de/)
 
-<h1> ペンギンの神 (Pengin no Kami) <sub>Changelog of all the different clients</sub> </h1>
+<h1> ペンギンの神 (Pengin no Kami)</h1>
 
 <h3> Introduction </h3>
 Each changelog should contain general changes of the bot's behaviour. Furhtermore it should also contain all files, classes, functions and variable changes.
