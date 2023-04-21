@@ -100,7 +100,7 @@ The code should be viewable wihtout any confusion which leads to following rules
     <summary> logic.py </summary>
 
   - Logic
-    - __init__
+    - `__init__`
     - on_update
     - calculate_move
     - max_move (not working)
