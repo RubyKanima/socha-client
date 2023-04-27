@@ -6,6 +6,9 @@ from tabulate import tabulate
 import logging
 import random
 
+import cProfile
+import pstats
+
 class Logic(IClientHandler):
     def __init__(self):     
         self.game_state: GameState
@@ -28,6 +31,14 @@ class Logic(IClientHandler):
             self.inters_to = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
 
     def calculate_move(self) -> Move:
+        """with cProfile.Profile() as pr:
+            self.calc()
+        stats = pstats.Stats(pr)
+        stats.sort_stats(pstats.SortKey.TIME)
+        stats.print_stats()"""
+        return self.calc()
+        
+    def calc(self):
         if self.game_state.turn < 4:                            # Beginning Moves
             logging.info("most_possible_move")
             return Alpha_Beta.get_most_possible_move(self)
@@ -140,7 +151,7 @@ class Logic(IClientHandler):
             team = state.current_team
         possible_fields = []
         penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
-        logging.info(f"\n team, penguins: {team, penguins} \n")
+        #logging.info(f"\n team, penguins: {team, penguins} \n")
         for penguin in penguins:
             possible_fields.extend(Logic.get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
         return possible_fields
