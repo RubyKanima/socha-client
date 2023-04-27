@@ -192,25 +192,43 @@ class Logic(IClientHandler):
                 best_val = val
                 best_move = each
         return best_move
+    
 
     def depth_search(self, new_state: GameState, depth: int):
         maximizing = (new_state.current_team.name == self.game_state.current_team.name)
+        this_possibles = self.penguin_possibles(new_state)
         if new_state.current_team == None:
             return depth
         if maximizing:
             if new_state.possible_moves == []:
                     return depth
-            for each in new_state.possible_moves:
-                return self.depth_search(new_state.perform_move(each), depth+1)
+            for each in this_possibles:
+                eval = self.depth_search(new_state.perform_move(each), depth + 1)
+                maxEval = max(maxEval, eval)
+                return maxEval
         else:
-            for each in new_state.possible_moves:
-                return self.depth_search(new_state.perform_move(each), depth)
+            for each in this_possibles:
+                eval = self.depth_search(new_state.perform_move(each), depth)
+                maxEval = max(maxEval, eval)
+                return maxEval
     
     def _depth_search(self, new_state: GameState, depth: int):
-        if new_state.current_team == None or new_state.possible_moves == []:
+        this_possibles = self.penguin_possibles(new_state)
+        if new_state.current_team == None or new_state.possible_moves == [] or this_possibles == None:
             return depth
-        for each in new_state.possible_moves:
-                return self._depth_search(new_state.perform_move(each), depth+1)
-     
+        for each in this_possibles:
+            eval = self.depth_search(new_state.perform_move(each), depth + 1)
+            maxEval = max(maxEval, eval)
+            return maxEval
+        
+    def penguin_possibles(self, new_state: GameState) -> list[Move]:
+        penguin_list = new_state.board.get_teams_penguins(new_state.current_team)
+        try:
+            for penguin in penguin_list:
+                if new_state.board.possible_moves_from(penguin.coordinate) != []:
+                    return new_state.board.possible_moves_from(penguin.coordinate)
+        except:
+            logging.info(penguin_list)
+
 if __name__ == "__main__":
     Starter(Logic())
