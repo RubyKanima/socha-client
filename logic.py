@@ -7,7 +7,6 @@ class Logic(IClientHandler):
     game_state: GameState
 
     def __init__(self):
-        self.my_last_move = None
         self.enemy_copy_rate = []
 
     def on_update(self, state: GameState):
@@ -25,9 +24,12 @@ class Logic(IClientHandler):
         if self.game_state.turn < 8:
             #return self.best_possible_field()
             return self.rand_move
-        self.my_move = self.max_move() if self.inner_join == [] else self.intersect_move()
-        self.my_last_move = self.my_move
-        return self.my_move
+        self.my_move: Move = None
+        if not self.other_poss_moves:
+            return self.get_depth_move()
+        if not self.inner_join:
+            return self.max_move()
+        return self.intersect_move()
 
     def intersect_move(self):
         logging.info("INTERSECT")
@@ -162,11 +164,7 @@ class Logic(IClientHandler):
         max_val = -1000
         # actual alpha_beta:
         for child in self.game_state.possible_moves:
-            if len(self.game_state.board.get_empty_fields()) > 68:
-                mini_max = self.alpha_beta(self.game_state.perform_move(child), 6, max_val, 100)
-            elif len(self.game_state.board.get_empty_fields()) > 55:
-                mini_max = self.alpha_beta(self.game_state.perform_move(child), 4, max_val, 100)
-            elif len(self.game_state.board.get_empty_fields()) > 45:
+            if len(self.game_state.board.get_empty_fields()) > 50:
                 mini_max = self.alpha_beta(self.game_state.perform_move(child), 2, max_val, 100)
             else:
                 mini_max = self.alpha_beta(self.game_state.perform_move(child), 1, max_val, 100)
@@ -175,22 +173,6 @@ class Logic(IClientHandler):
                 max_move = child
                 max_val = val
         return max_move
-    """
-    def best_possible_field(self) -> Move:
-        best_val = 0
-        best_move = None
-        for each in self.poss_moves:
-            logging.info(each)
-            val = self.possible_length_evaluate(each.to_value)
-            if val > best_val:
-                best_move = each
-            logging.info(str(val))
-        return best_move
-    
-    def possible_length_evaluate(self, coordinate: HexCoordinate) -> int:
-        possible_moves = self.game_state.board.possible_moves_from(coordinate)
-        return len(possible_moves)   
-        """
 
     def fish_evaluate(self, state: GameState) -> int:
         if (self.game_state.current_team.name == self.game_state.first_team.name):
@@ -200,6 +182,35 @@ class Logic(IClientHandler):
             min = state.first_team.fish
             max = state.second_team.fish
         return max - min
+
+    def get_depth_move(self):
+        best_move: Move = None
+        best_val: int = 0
+        for each in self.poss_moves:
+            val = self._depth_search(self.game_state.perform_move(each), 1)
+            if val > best_val:
+                best_val = val
+                best_move = each
+        return best_move
+
+    def depth_search(self, new_state: GameState, depth: int):
+        maximizing = (new_state.current_team.name == self.game_state.current_team.name)
+        if new_state.current_team == None:
+            return depth
+        if maximizing:
+            if new_state.possible_moves == []:
+                    return depth
+            for each in new_state.possible_moves:
+                return self.depth_search(new_state.perform_move(each), depth+1)
+        else:
+            for each in new_state.possible_moves:
+                return self.depth_search(new_state.perform_move(each), depth)
+    
+    def _depth_search(self, new_state: GameState, depth: int):
+        if new_state.current_team == None or new_state.possible_moves == []:
+            return depth
+        for each in new_state.possible_moves:
+                return self._depth_search(new_state.perform_move(each), depth+1)
      
 if __name__ == "__main__":
     Starter(Logic())
