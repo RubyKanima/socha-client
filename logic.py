@@ -21,19 +21,13 @@ class Logic(IClientHandler):
             hash_list = self.move_hash(new_state)
             value = self.evaluate(new_state)
             if hash_list in memo:
-                #logging.info("!!!!!!!!!!!!!!!!!!!!!!")
                 if end:
                     return [memo[hash_list], memo]
                 return memo[hash_list]
-            #logging.info(str(self.move_hash(new_state)))
             if depth == 0 or new_state.current_team == None:
                 return value #  value berechnen
             maximizing = (new_state.current_team.name == self.game_state.current_team.name)
             
-            #logging.info("Maximizing: "+ str(maximizing) +";  "+ str(new_state.current_team.name) +"|"+ str(self.game_state.current_team.name))#,"| Teams :", new_state.current_team, self.game_state.current_team)
-            #logging.info("Possible: "+ str(new_state.possible_moves))
-            #logging.info("Move-To: " + str(move.to_value))
-            #logging.info(str(new_state.board.pretty_print()))
             if maximizing:
                 if new_state.possible_moves == []:
                     if end:
@@ -96,12 +90,6 @@ class Logic(IClientHandler):
             if val > max_val:
                 max_move = child
                 max_val = val
-        '''child = self.game_state.possible_moves[random.randint(0, len(self.game_state.possible_moves)-1)]
-        val = self.min_max(self.game_state, 2, max_val, 100, {})
-        #logging.info(val, child)
-        if val > max_val:
-            max_move = child
-            max_val = val'''
         return max_move
     
     def calculate_move(self) -> Move:
