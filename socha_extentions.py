@@ -66,13 +66,6 @@ class Blob():
     
     def _create_blob(self, _board: Board):
         new_board = CustomBoard.del_ones(_board)
-'''
-
-Alpha Beta
-
-
-'''
-
 
 class Alpha_Beta():
 
@@ -119,9 +112,9 @@ class Alpha_Beta():
         else:
             move_list = Intersection.get_last_intersections(logic.game_state, logic.game_state.current_team)
         addition_turn = 1 if logic.game_state.turn > 8 else 0
-        addition_len = 1 if len(move_list) < 5 else -1 if len(move_list) > 8 else 0
+        addition_len = 1 if len(move_list) < 5 else -1 if len(move_list) > 12 else 0
         logging.info(f"addition: {addition_len}, {addition_turn}")
-        #Logic.print_moves(move_list)
+        Logic.print_moves(move_list)
         for each in move_list:
             mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len + addition_turn, max_val, 100)
             val = mini_max
@@ -238,7 +231,7 @@ class Alpha_Beta():
             move_list = Joins.left_inner_join_on(left, right, "to_value") if right != [] else left
         else:
             move_list = Intersection.get_last_intersections(state, state.current_team)
-        #Logic.print_moves(move_list)
+        Logic.print_moves(move_list)
         #logging.info(f"\n left: {left} \n right: {right} \n")
 
         if hash_list in memo:
@@ -442,13 +435,7 @@ class Intersection():
             for direction in Vector().directions:
                 ''' get moves in direction'''
                 origin = penguin.coordinate
-                final_destination = origin.add_vector(direction.scalar_product(1))
-
-                if state.board._is_destination_valid(final_destination):
-                    if state.board.get_field(final_destination).fish == 0:
-                        final_destination: HexCoordinate = None
-                else:
-                    final_destination: HexCoordinate = None
+                final_destination = None
 
                 for i in range(1, state.board.width()):
                     destination = origin.add_vector(direction.scalar_product(i))

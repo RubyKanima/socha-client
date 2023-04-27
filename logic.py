@@ -2,7 +2,7 @@ from socha import *
 from socha_extentions import *
 from joins import Joins
 from typing import List, Optional, Any
-#from tabulate import tabulate
+from tabulate import tabulate
 import logging
 import random
 
@@ -35,15 +35,11 @@ class Logic(IClientHandler):
             logging.info("get_alpha_beta_cut_move")
             return Alpha_Beta.get_alpha_beta_cut_move(self)
         if self.inters_to == []:                                # Following Moves if no moves possible against enemies
-            logging.info("get_most_possible_move")
-            return Alpha_Beta.get_most_possible_move(self)
-        if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
-            logging.info("get_most_possible_move")
-            return Alpha_Beta.get_most_possible_move(self)
-            '''
             logging.info("get_alpha_beta_fish_move")
             return Alpha_Beta.get_alpha_beta_fish_move(self)
-            '''
+        if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
+            logging.info("get_alpha_beta_fish_move")
+            return Alpha_Beta.get_alpha_beta_fish_move(self)
             '''
             logging.info("_get_depth_move")
             return Tree._get_depth_move(self)
@@ -144,11 +140,11 @@ class Logic(IClientHandler):
             team = state.current_team
         possible_fields = []
         penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
-        #logging.info(f"\n team, penguins: {team, penguins} \n")
+        logging.info(f"\n team, penguins: {team, penguins} \n")
         for penguin in penguins:
             possible_fields.extend(Logic.get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
         return possible_fields
-"""
+
     def print_moves(list: List[Move]):
         table = [["Team", "From Cart.", "To Cart."]]
         for each in list:
@@ -159,6 +155,6 @@ class Logic(IClientHandler):
             to_string = str(each.to_value.to_cartesian().x)+", "+str(each.to_value.to_cartesian().y)
             table.append([str(each.team_enum.name),from_string, to_string])
         logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
-"""
+
 if __name__ == "__main__":
     Starter(Logic())
