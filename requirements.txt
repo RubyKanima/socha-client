@@ -1,2 +1,2 @@
 xsdata==22.7
-socha==1.0.3
+socha==1.0.4
