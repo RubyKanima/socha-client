@@ -1,8 +1,13 @@
-from socha import Board, Field, GameState, HexCoordinate, Penguin, TeamEnum, Vector, HexCoordinate
+from socha import Board, Field, GameState, HexCoordinate, Penguin, TeamEnum, Vector, HexCoordinate, Move
 from typing import Optional, List
-
+import math
     
 def get_possible_movements(state: GameState, team: TeamEnum = None):
+    ''' 
+    gets the possible moves from a team if the penguins could be move
+    
+    this is only worth using before turn 9
+    '''
     if team == None:
         team = state.current_team
     possible_movements = []
@@ -22,7 +27,7 @@ def get_fields_in_direction(board: Board, origin: HexCoordinate, direction: Vect
         team_enum: Team to make moves for.
 
     Returns:
-            List[Field]: List of moves that can be made in the given direction from the given index,
+            `List[Field]`: List of moves that can be made in the given direction from the given index,
                         for the given team_enum
     """
     if team_enum is None:
@@ -58,3 +63,10 @@ def get_possible_fields(state: GameState, team: TeamEnum = None)-> List[Field]:
     for penguin in penguins:
         possible_fields.extend(get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
     return possible_fields
+
+def get_dir(move: Move):
+  r_x = move.from_value.x - move.to_value.x
+  r_y = move.from_value.y - move.to_value.y
+  direction_x = r_x / math.sqrt(r_x ** 2)
+  direction_y = r_y / math.sqrt(r_y ** 2) if not r_y == 0 else 0
+  return Vector(direction_x, direction_y)

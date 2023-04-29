@@ -40,19 +40,20 @@ class Logic(IClientHandler):
         return self.calc()
         
     def calc(self):
-        if self.game_state.turn < 4:                            # Beginning Moves
+        if self.game_state.turn < 9:                            # Beginning Moves
             logging.info("most_possible_move")
             return Alpha_Beta.get_most_possible_move(self)
+        if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
+            logging.info("get_alpha_beta_cut_move")
+            return Alpha_Beta.get_alpha_beta_cut_move(self)
         if not self.inters_to == []:                            # Following Moves against enemy
             logging.info("get_alpha_beta_cut_move")
             return Alpha_Beta.get_alpha_beta_cut_move(self)
         if self.inters_to == []:                                # Following Moves if no moves possible against enemies
-            logging.info("get_most_possible_move")
-            return Alpha_Beta.get_most_possible_move(self)
-        if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
-            logging.info("get_most_possible_move")
-            return Alpha_Beta.get_most_possible_move(self)
+            logging.info("get_alpha_beta_cut_move")
+            return Alpha_Beta.get_alpha_beta_cut_move(self)
         if not self.game_state.possible_moves == []:            # Following Moves if he is clueles
+            logging.error("UNAVOIDABLE ERROR")
             return random.choice(self.game_state.possible_moves)
         else:                                                   # No Move possible
             return None
