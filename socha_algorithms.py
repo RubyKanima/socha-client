@@ -314,7 +314,7 @@ class Intersection():
                     final_destination: HexCoordinate = None
                 final_destination = None
 
-                for i in range(1, state.board.width()):
+                for i in range(1, 8):
                     destination = origin.add_vector(direction.scalar_product(i))
                     if state.board._is_destination_valid(destination):
                         destination_field = state.board.get_field(destination)

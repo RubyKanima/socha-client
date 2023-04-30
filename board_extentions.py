@@ -36,7 +36,7 @@ def get_fields_in_direction(board: Board, origin: HexCoordinate, direction: Vect
         return []
 
     fields = []
-    for i in range(1, board.width()):
+    for i in range(1, 8):
         destination = origin.add_vector(direction.scalar_product(i))
         if board._is_destination_valid(destination):
             fields.append(board.get_field(destination))

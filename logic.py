@@ -2,13 +2,8 @@ from socha import *
 from socha_algorithms import *
 from socha_extentions import *
 from joins import Joins
-from typing import List, Optional, Any
-from tabulate import tabulate
 import logging
 import random
-
-import cProfile
-import pstats
 
 class Logic(IClientHandler):
     def __init__(self):     
@@ -30,16 +25,8 @@ class Logic(IClientHandler):
             self.full_inters = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", False)
             self.left_inters = [each[0] for each in self.full_inters]
             self.inters_to = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
-        
-    def calculate_move(self) -> Move:
-        """with cProfile.Profile() as pr:
-            self.calc()
-        stats = pstats.Stats(pr)
-        stats.sort_stats(pstats.SortKey.TIME)
-        stats.print_stats()"""
-        return self.calc()
-        
-    def calc(self):
+           
+    def calculate_move(self):
         if self.game_state.turn < 8:                            # Beginning Moves
             logging.info("most_possible_move")
             return Alpha_Beta.get_most_possible_move(self)
@@ -57,5 +44,7 @@ class Logic(IClientHandler):
             return random.choice(self.game_state.possible_moves)
         else:                                                   # No Move possible
             return None
+        
 if __name__ == "__main__":
     Starter(Logic())
+
