@@ -29,7 +29,7 @@ class Alpha_Beta():
 
         # if turn <= 8 deleted
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
-        #move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
         addition_len = 1 if len(move_list) < 6 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
@@ -271,7 +271,6 @@ class Intersection():
             val = len(get_possible_movements(state, logic.game_state.first_team)) - len(get_possible_movements(state, logic.game_state.second_team))
         else:
             val = len(get_possible_movements(state, logic.game_state.second_team)) - len(get_possible_movements(state, logic.game_state.first_team))
-        #logging.info(val)
         return val
     
     def delta_fish_possibles(logic:Logic, state: GameState) -> int:
