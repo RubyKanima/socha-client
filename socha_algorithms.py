@@ -29,14 +29,13 @@ class Alpha_Beta():
 
         # if turn <= 8 deleted
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
-        tabulate_moves(move_list)
-        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        #move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
-        logging.info("MOVE LSIT"+ str(move_list))
-        tabulate_moves(move_list)
         addition_len = 1 if len(move_list) < 6 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
         
+        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "O", "T")
+        own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
         for each in move_list:
             mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
             val = mini_max
@@ -203,6 +202,7 @@ class Alpha_Beta():
         if depth == 0 or state.current_team == None:
             return value
         move_list = Intersection.get_first_intersections(state, state.other_team)
+        move_list = Intersection.add_missing_direction_moves(state, move_list, state.current_team)
         #tabulate_moves(move_list)
         #logging.info(f"\n left: {left} \n right: {right} \n")
 
@@ -356,12 +356,9 @@ class Intersection():
         if team == None:
             team = state.other_team
         possible_moves = state._get_possible_moves(team.opponent)
-        possible_moves = Intersection.add_missing_direction_moves(state, possible_moves, team)
 
         first_intersections = []
-        logging.info(team.penguins)
         for penguin in team.penguins:
-            logging.info(f"Penguin: {penguin}")
             for direction in Vector().directions:
                 stop = False
                 for i in range(1, 8):
@@ -369,7 +366,7 @@ class Intersection():
 
                     destination = penguin.coordinate.add_vector(direction.scalar_product(i))
                     if state.board._is_destination_valid(destination): # stop if end of board/ axis
-                        for each in state.possible_moves: # add move if intersect
+                        for each in possible_moves: # add move if intersect
                             if destination == each.to_value:
                                 """logging.info("!!!!!!!!!!!")
                                 logging.info(str(destination)+ "  " + str(each))"""
@@ -384,6 +381,7 @@ class Intersection():
 
 
 class Tree():
+
     def get_depth_move(logic: Logic) -> Move:
         '''
         returns a `Move` which leads to the most accessable Fields as possible

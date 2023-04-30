@@ -30,7 +30,7 @@ class Logic(IClientHandler):
             self.full_inters = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", False)
             self.left_inters = [each[0] for each in self.full_inters]
             self.inters_to = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
-
+        
     def calculate_move(self) -> Move:
         """with cProfile.Profile() as pr:
             self.calc()
@@ -40,7 +40,7 @@ class Logic(IClientHandler):
         return self.calc()
         
     def calc(self):
-        if self.game_state.turn < 9:                            # Beginning Moves
+        if self.game_state.turn < 8:                            # Beginning Moves
             logging.info("most_possible_move")
             return Alpha_Beta.get_most_possible_move(self)
         if not self.other_possible_moves:                       # Following Moves if the enemies don't matter

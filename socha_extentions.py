@@ -54,13 +54,27 @@ class CustomBoard(Board):
             new_board.append(row_list)
         return Board(new_board)
     
-    def filter_fields(_board: Board, filter: int):
+    def filter_moves(board: Board, move_list: List[Move]):
+        move_list_to = [each.to_value for each in move_list]
+        new_board = []
+        for row in board.board:
+            row_list = []
+            for field in row:
+                if field.coordinate in move_list_to or field.penguin:
+                    row_list.append(field)
+                else:
+                    row_list.append(Field(field.coordinate, None, 0))
+            new_board.append(row_list)
+        return Board(new_board)
+
+    def filter_fields(board: Board, filter: int):
         filter_list = [0,1,2,3,4].remove(filter)
-        return CustomBoard.del_fields(_board, filter_list)
+        return CustomBoard.del_fields(board, filter_list)
     
-    def filter_fields(_board: Board, filter: list = [0,1]):
+    def filter_fields(board: Board, filter: list = [0,1]):
         filter_list = [[0,1,2,3,4].remove(each) for each in filter]
-        return CustomBoard.del_fields(_board, filter_list)
+        return CustomBoard.del_fields(board, filter_list)
+
 
 class Blob():
     
