@@ -10,8 +10,8 @@ class Logic(IClientHandler):
         self.game_state: GameState
         self.all_fields: list[Field]
         self.other_possible_moves: list[Move]
-        self.full_inters: list[list[Move, Move]]
-        self.left_inters: list[Move]
+        #self.full_inters: list[list[Move, Move]]
+        #self.left_inters: list[Move]
         self.inters_to: list
 
     def on_update(self, state: GameState):
@@ -22,11 +22,12 @@ class Logic(IClientHandler):
                 self.other_possible_moves = self.game_state._get_possible_moves(self.game_state.current_team.opponent)
         self.game_state.board.get_all_fields()
         if not self.other_possible_moves == [] and not self.game_state.possible_moves == []:
-            self.full_inters = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", False)
-            self.left_inters = [each[0] for each in self.full_inters]
+            #self.full_inters = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", False)
+            #self.left_inters = [each[0] for each in self.full_inters]
             self.inters_to = Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
-           
+
     def calculate_move(self):
+        logging.info(self.game_state.turn)
         if self.game_state.turn < 8:                            # Beginning Moves
             logging.info("most_possible_move")
             return Alpha_Beta.get_most_possible_move(self)
