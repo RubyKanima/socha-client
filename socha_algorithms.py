@@ -26,11 +26,6 @@ class Alpha_Beta():
     def get_alpha_beta_cut_move(logic: Logic):
         max_val = -1000
         max_move: Move = logic.game_state.possible_moves[0]
-
-        # if turn <= 8 deleted
-        import cProfile
-        import pstats
-
         add = 0
 
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
@@ -42,8 +37,8 @@ class Alpha_Beta():
         addition_len = 1 if len(move_list) < 6 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
         
-        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
-        own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
+        #print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
+        #own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
         for each in move_list:
             mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
             val = mini_max
