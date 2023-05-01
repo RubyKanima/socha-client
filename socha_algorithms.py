@@ -26,11 +26,7 @@ class Alpha_Beta():
     def get_alpha_beta_cut_move(logic: Logic):
         max_val = -1000
         max_move: Move = logic.game_state.possible_moves[0]
-
         # if turn <= 8 deleted
-        import cProfile
-        import pstats
-
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
         move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
