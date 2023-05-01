@@ -12,7 +12,6 @@ def get_possible_movements(state: GameState, team: TeamEnum = None):
         team = state.current_team
     possible_movements = []
     penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
-    #logging.info(f"\n team, penguins: {team, penguins} \n")
     for penguin in penguins:
         possible_movements.extend(state.board.possible_moves_from(penguin.coordinate, penguin.team_enum))
     return possible_movements
@@ -59,14 +58,23 @@ def get_possible_fields(state: GameState, team: TeamEnum = None)-> List[Field]:
         team = state.current_team
     possible_fields = []
     penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
-    #logging.info(f"\n team, penguins: {team, penguins} \n")
     for penguin in penguins:
         possible_fields.extend(get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
     return possible_fields
 
-def get_dir(move: Move):
-  r_x = move.from_value.x - move.to_value.x
-  r_y = move.from_value.y - move.to_value.y
-  direction_x = r_x / math.sqrt(r_x ** 2)
-  direction_y = r_y / math.sqrt(r_y ** 2) if not r_y == 0 else 0
-  return Vector(direction_x, direction_y)
+def get_dir(r: Vector):
+  '''
+  `get_dir_()` is faster
+  '''
+  direction_x = r.d_x / math.sqrt(r.d_x ** 2) if not r.d_x == 0 else 0
+  direction_y = r.d_y / math.sqrt(r.d_y ** 2) if not r.d_y == 0 else 0
+  return Vector(math.floor(direction_x), math.floor(direction_y))
+
+def get_dir_(r: Vector):
+    '''
+    `get_dir_()` is a specified version of the directional vector for socha
+    '''
+    n_y = -1 if r.d_y < 0 else 0 if r.d_y == 0 else 1    
+    n_x = -1 if r.d_x < 0 else 1
+    n_x = n_x*2 if n_y == 0 else n_x
+    return Vector(n_x, n_y)
