@@ -91,3 +91,10 @@ class Blob():
     
     def _create_blob(self, _board: Board):
         new_board = CustomBoard.del_fields(_board, 1)
+
+class Triangle():
+
+    def __init__(self) -> None:
+        
+        pass
+    
