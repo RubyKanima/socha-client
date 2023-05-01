@@ -46,6 +46,8 @@ class Logic(IClientHandler):
         else:                                                   # No Move possible
             return None
         
+logic = Logic()
+
 if __name__ == "__main__":
-    Starter(Logic())
+    Starter(logic)
 

@@ -28,13 +28,16 @@ class Alpha_Beta():
         max_move: Move = logic.game_state.possible_moves[0]
 
         # if turn <= 8 deleted
+        import cProfile
+        import pstats
+
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
         move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
         addition_len = 1 if len(move_list) < 6 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
         
-        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "O", "T")
+        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
         own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
         for each in move_list:
             mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
@@ -332,15 +335,16 @@ class Intersection():
         if not team:
             team = state.current_team
         
-        for penguin in team.penguins:
-            inters_to = [each.from_value for each in move_list]
+        for penguin in team.penguins:   # jeder pinguin
+            inters_to = [each.from_value for each in move_list] # alle from values in move_list
             if penguin.coordinate in inters_to:   #if the penguin has no intersection
                 penguin_moves = [each for each in move_list if each.from_value == penguin.coordinate]
-                penguin_missing_dir : List[Vector] = Vector().directions
+                penguin_missing_dir : List[Vector] = Vector().directions    #beinhaltet alle richtungen
 
-                for move in penguin_moves:
-                    if get_dir(move) in penguin_missing_dir:
-                        penguin_missing_dir.remove(get_dir(move))
+                for move in penguin_moves:  #richtungen in der der pinguin schon einen move hat
+                    direction = get_dir_(Vector(move.to_value.x - move.from_value.x, move.to_value.y - move.from_value.y))
+                    if direction in penguin_missing_dir:
+                        penguin_missing_dir.remove(direction)
 
                 if not penguin_missing_dir == []:
                     for direction in penguin_missing_dir:
