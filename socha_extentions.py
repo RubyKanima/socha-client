@@ -94,7 +94,41 @@ class Blob():
 
 class Triangle():
 
-    def __init__(self) -> None:
+    def __init__(self, root, orientation) -> None:
+        self.root: Field = root
+        self.orientation: int = orientation # y coord: 1 for down || -1 for up
+        self.right: Field                   # x coord: 1
+        self.left: Field                    # x coord: -1
         
+        self.intersect_field: list[Field]
+        self.intersect_tri: list[Triangle]
+        self.neighbor_field: list[Field]
+        self.neighbor_tri: list[Triangle]
+    
+    def on_update(self):
+        self.check()
+        self.intersect_field = self.get_intersection_field()
+        self.intersect_tri = self.get_intersection_tri()
+        self.neighbor_field = self.get_neighbor_field()
+        self.neighbor_tri = self.get_neighbor_tri()
+
+    def check(self):
+        pass
+
+    def get_intersection_field(self):
         pass
     
+    def get_intersection_tri(self):
+        pass
+
+    def get_neighbor_field(self):
+        pass
+
+    def get_neighbor_tri(self):
+        pass
+
+    
+class Boomerang():
+    
+    def __init__(self) -> None:
+        pass
