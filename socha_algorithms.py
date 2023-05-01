@@ -31,8 +31,13 @@ class Alpha_Beta():
         import cProfile
         import pstats
 
+        add = 0
+
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
-        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        if not move_list == []:
+            move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        else:
+            move_list = get_penguin_neighbor_moves(logic.game_state.board, logic.game_state.current_team.penguins)
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
         addition_len = 1 if len(move_list) < 6 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
@@ -205,7 +210,11 @@ class Alpha_Beta():
         if depth == 0 or state.current_team == None:
             return value
         move_list = Intersection.get_first_intersections(state, state.other_team)
-        move_list = Intersection.add_missing_direction_moves(state, move_list, state.current_team)
+        if not move_list == []:
+            move_list = Intersection.add_missing_direction_moves(state, move_list, state.current_team)
+        else:
+            move_list = get_penguin_neighbor_moves(state.board, state.current_team.penguins)
+                
         #tabulate_moves(move_list)
         #logging.info(f"\n left: {left} \n right: {right} \n")
 
