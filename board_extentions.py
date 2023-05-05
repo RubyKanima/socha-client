@@ -62,6 +62,20 @@ def get_possible_fields(state: GameState, team: TeamEnum = None)-> List[Field]:
         possible_fields.extend(get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
     return possible_fields
 
+def get_penguin_neighbor_moves(board: Board,penguins: List[Penguin]):
+    neighbor_moves = []
+    for penguin in penguins:
+        neighbors = [each for each in get_neighbor_fields_coordinate(board, penguin.coordinate) if each.fish >= 1]
+        for each in neighbors:
+            neighbor_moves.append(Move(penguin.team_enum, each.coordinate, penguin.coordinate))
+    return neighbor_moves    
+
+def get_neighbor_fields_coordinate(board: Board, coordinate: HexCoordinate):
+    return [board.get_field(each) for each in coordinate.get_neighbors() if board.is_valid(each)]
+
+def get_neighbor_fields(board: Board, field: Field) -> List[Field]:
+    return [board.get_field(each) for each in field.coordinate.get_neighbors() if board.is_valid(each)]
+        
 def get_dir(r: Vector):
   '''
   `get_dir_()` is faster
@@ -78,3 +92,14 @@ def get_dir_(r: Vector):
     n_x = -1 if r.d_x < 0 else 1
     n_x = n_x*2 if n_y == 0 else n_x
     return Vector(n_x, n_y)
+
+def remove_solo_fields(state: GameState, move_list: list[Move]):
+    for move in move_list:
+        count = 0
+        for each in move.to_value.get_neighbors(): 
+            count += 1 if state.board._is_destination_valid(each) else 0
+        if count == 0:
+            move_list.remove(move)
+    return move_list    
+                    
+
