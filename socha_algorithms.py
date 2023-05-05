@@ -26,21 +26,17 @@ class Alpha_Beta():
     def get_alpha_beta_cut_move(logic: Logic):
         max_val = -1000
         max_move: Move = logic.game_state.possible_moves[0]
-        add = 0
-
+        # if turn <= 8 deleted
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
-        if not move_list == []:
-            move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
-        else:
-            move_list = get_penguin_neighbor_moves(logic.game_state.board, logic.game_state.current_team.penguins)
+        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
-        addition_len = 1 if len(move_list) < 6 else 0
+        addition_len = 1 if len(move_list) <= 24 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
         
-        #print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
-        #own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
+        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
+        own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
         for each in move_list:
-            mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
+            mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), addition_len, max_val, 100)
             val = mini_max
             if val > max_val:
                 max_move = each
@@ -59,6 +55,18 @@ class Alpha_Beta():
                 max_move = move
         return max_move
     
+    """def get_alpha_beta_least_neighbors_move(logic: Logic):
+        max_val = -1
+        max_move = logic.game_state.possible_moves[0]
+        turn_addition = 2 if logic.game_state.turn > 45 else 1 if logic.game_state.turn > 35 else 0
+
+        for move in logic.game_state.possible_moves:
+            val = Alpha_Beta.alpha_beta_least_N(logic, logic.game_state.perform_move(move), 1 + turn_addition, max_val, 100)
+            if val >= max_val:
+                max_val = val
+                max_move = move
+        return max_move"""
+    
     def get_most_possible_move(logic: Logic):
         max_val = -1
         max_move = logic.game_state.possible_moves[0]
@@ -68,6 +76,23 @@ class Alpha_Beta():
             val = len(state.board.possible_moves_from(move.to_value))
             if val >= max_val:
                 max_val = val
+                max_move = move
+        return max_move
+    
+    def get_least_neighbor_move(logic: Logic):
+        min_val = 10
+        max_move = logic.game_state.possible_moves[0]
+
+        for move in logic.game_state.possible_moves:
+            #state = logic.game_state.perform_move(move)
+            valid_n = []
+            for each in move.to_value.get_neighbors(): 
+                if logic.game_state.board._is_destination_valid(each):
+                    valid_n.append(each)
+            val = len(valid_n)
+            logging.info(str(val)+ str(valid_n))
+            if val <= min_val and not val == 0:
+                min_val = val
                 max_move = move
         return max_move
     
@@ -205,11 +230,7 @@ class Alpha_Beta():
         if depth == 0 or state.current_team == None:
             return value
         move_list = Intersection.get_first_intersections(state, state.other_team)
-        if not move_list == []:
-            move_list = Intersection.add_missing_direction_moves(state, move_list, state.current_team)
-        else:
-            move_list = get_penguin_neighbor_moves(state.board, state.current_team.penguins)
-                
+        move_list = Intersection.add_missing_direction_moves(state, move_list, state.current_team)
         #tabulate_moves(move_list)
         #logging.info(f"\n left: {left} \n right: {right} \n")
 
