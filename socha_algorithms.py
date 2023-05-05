@@ -7,21 +7,6 @@ from board_extentions import *
 from print_extentions import *
 
 class Alpha_Beta():
-
-    def get_alpha_beta_fish_move(logic: Logic):
-        max_val = -1000
-        max_move: Move = logic.game_state.possible_moves[0]
-        # actual alpha_beta:
-        for each in logic.game_state.possible_moves:
-            if len(logic.game_state.board.get_empty_fields()) > 50:
-                mini_max = Alpha_Beta.alpha_beta_fish(logic, logic.game_state.perform_move(each), 2, max_val, 100)
-            else:
-                mini_max = Alpha_Beta.alpha_beta_fish(logic, logic.game_state.perform_move(each), 1, max_val, 100)
-            val = mini_max
-            if val > max_val: 
-                max_move = each
-                max_val = val
-        return max_move
     
     def get_alpha_beta_cut_move(logic: Logic):
         max_val = -1000
@@ -29,44 +14,25 @@ class Alpha_Beta():
         # if turn <= 8 deleted
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
         move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        del_list = remove_solo_fields(logic.game_state, move_list)
+        if not del_list == []:
+            move_list = del_list
         #addition_turn = 1 if logic.game_state.turn > 8 else 0
-        addition_len = 1 if len(move_list) <= 24 else 0
+        length = len(move_list)
+        addition_len = 1 if length <= 12 else 2 if length <= 2 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
         
-        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
-        own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
+        #print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
+        #own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
+        logging.info(addition_len)
         for each in move_list:
-            mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), addition_len, max_val, 100)
+            mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
             val = mini_max
             if val > max_val:
                 max_move = each
                 max_val = val
         return max_move
-      
-    def get_alpha_beta_most_possible_move(logic: Logic):
-        max_val = -1
-        max_move = logic.game_state.possible_moves[0]
-        turn_addition = 2 if logic.game_state.turn > 45 else 1 if logic.game_state.turn > 35 else 0
 
-        for move in logic.game_state.possible_moves:
-            val = Alpha_Beta.alpha_beta_most(logic, logic.game_state.perform_move(move), 1 + turn_addition, max_val, 100)
-            if val >= max_val:
-                max_val = val
-                max_move = move
-        return max_move
-    
-    """def get_alpha_beta_least_neighbors_move(logic: Logic):
-        max_val = -1
-        max_move = logic.game_state.possible_moves[0]
-        turn_addition = 2 if logic.game_state.turn > 45 else 1 if logic.game_state.turn > 35 else 0
-
-        for move in logic.game_state.possible_moves:
-            val = Alpha_Beta.alpha_beta_least_N(logic, logic.game_state.perform_move(move), 1 + turn_addition, max_val, 100)
-            if val >= max_val:
-                max_val = val
-                max_move = move
-        return max_move"""
-    
     def get_most_possible_move(logic: Logic):
         max_val = -1
         max_move = logic.game_state.possible_moves[0]
@@ -105,65 +71,7 @@ class Alpha_Beta():
             move_str = str(move.to_value.x)+str(move.to_value.y)+str(move.team_enum.name)
             move_list.append(move_str)
         return str(set(move_list))
-
-    def evaluate_fish(logic: Logic, state: GameState) -> int:
-        if (logic.game_state.current_team.name == logic.game_state.first_team.name):
-            max = state.first_team.fish
-            min = state.second_team.fish
-        else:
-            min = state.first_team.fish
-            max = state.second_team.fish
-        return max - min
     
-    def alpha_beta_most(logic: Logic, state: GameState, depth: int, alpha: int, beta: int, memo : dict = {}):
-        '''
-        `alpha_beta_fish()` only uses the `fish` value for the evaluation aswell as the `possible_moves`
-
-        Arguments needed are:
-            - `GameState`using the new calculated GameState
-            - `depth`    defining the depth of the algorithm
-            - `alpha`    for the biggest value achieved during the algorithm
-            - `beta`     for the smallest value achieved during the algorithm
-            - `memo`     used as a memory `dict` to remember similar paths
-
-        '''
-        hash_list = Alpha_Beta.move_hash(state)
-        value = len(state.possible_moves) + sum([state.board.get_field(each.to_value).fish for each in state.possible_moves])
-
-        if hash_list in memo:
-            return memo[hash_list]
-        
-        if depth == 0 or state.current_team == None:
-            return value
-        
-        maximizing = (state.current_team.name == logic.game_state.current_team.name)
-        if maximizing:
-            if state.possible_moves == []:
-                return value
-            
-            maxEval = -100 # replacement (- inf)
-            for child in state.possible_moves:
-                eval = Alpha_Beta.alpha_beta_most(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
-                maxEval = max(maxEval, eval)
-                alpha = max(alpha, eval)
-                if beta <= alpha:
-                    break
-
-            memo[hash_list] = maxEval
-            return maxEval
-
-        else:
-            minEval = 100 # replacement ( inf)
-            for child in state.possible_moves:
-                eval = Alpha_Beta.alpha_beta_most(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
-                minEval = min(minEval, eval)
-                beta = min(beta, eval)
-                if beta <= alpha:
-                    break
-
-            memo[hash_list] = minEval
-            return minEval
-
     def alpha_beta_fish(logic: Logic, state: GameState, depth: int, alpha, beta, memo : dict = {}):
         '''
         `alpha_beta_fish()` only uses the `fish` value for the evaluation aswell as the `possible_moves`
@@ -231,6 +139,9 @@ class Alpha_Beta():
             return value
         move_list = Intersection.get_first_intersections(state, state.other_team)
         move_list = Intersection.add_missing_direction_moves(state, move_list, state.current_team)
+        del_list = remove_solo_fields(state, move_list)
+        if not del_list == []:
+            move_list = del_list
         #tabulate_moves(move_list)
         #logging.info(f"\n left: {left} \n right: {right} \n")
 
@@ -264,7 +175,80 @@ class Alpha_Beta():
 
             memo[hash_list] = minEval
             return minEval    
-          
+    
+    """
+    def evaluate_fish(logic: Logic, state: GameState) -> int:
+        if (logic.game_state.current_team.name == logic.game_state.first_team.name):
+            max = state.first_team.fish
+            min = state.second_team.fish
+        else:
+            min = state.first_team.fish
+            max = state.second_team.fish
+        return max - min
+
+    def alpha_beta_most(logic: Logic, state: GameState, depth: int, alpha: int, beta: int, memo : dict = {}):
+        '''
+        `alpha_beta_fish()` only uses the `fish` value for the evaluation aswell as the `possible_moves`
+
+        Arguments needed are:
+            - `GameState`using the new calculated GameState
+            - `depth`    defining the depth of the algorithm
+            - `alpha`    for the biggest value achieved during the algorithm
+            - `beta`     for the smallest value achieved during the algorithm
+            - `memo`     used as a memory `dict` to remember similar paths
+
+        hash_list = Alpha_Beta.move_hash(state)
+        value = len(state.possible_moves) + sum([state.board.get_field(each.to_value).fish for each in state.possible_moves])
+
+        if hash_list in memo:
+            return memo[hash_list]
+        
+        if depth == 0 or state.current_team == None:
+            return value
+        
+        maximizing = (state.current_team.name == logic.game_state.current_team.name)
+        if maximizing:
+            if state.possible_moves == []:
+                return value
+            
+            maxEval = -100 # replacement (- inf)
+            for child in state.possible_moves:
+                eval = Alpha_Beta.alpha_beta_most(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
+                maxEval = max(maxEval, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+
+            memo[hash_list] = maxEval
+            return maxEval
+
+        else:
+            minEval = 100 # replacement ( inf)
+            for child in state.possible_moves:
+                eval = Alpha_Beta.alpha_beta_most(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
+                minEval = min(minEval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+
+            memo[hash_list] = minEval
+            return minEval
+    
+    def get_alpha_beta_fish_move(logic: Logic):
+        max_val = -1000
+        max_move: Move = logic.game_state.possible_moves[0]
+        # actual alpha_beta:
+        for each in logic.game_state.possible_moves:
+            if len(logic.game_state.board.get_empty_fields()) > 50:
+                mini_max = Alpha_Beta.alpha_beta_fish(logic, logic.game_state.perform_move(each), 2, max_val, 100)
+            else:
+                mini_max = Alpha_Beta.alpha_beta_fish(logic, logic.game_state.perform_move(each), 1, max_val, 100)
+            val = mini_max
+            if val > max_val: 
+                max_move = each
+                max_val = val
+        return max_move
+    """      
 class Intersection():
 
     def __init__(self, game_state, move):
@@ -273,14 +257,6 @@ class Intersection():
         self.betweens: int = self._get_betweens()
         self.after: int = self._get_after()
 
-    '''
-    def get_intersection_move(logic: Logic):
-        max_val = 0
-        max_move: Move
-
-        for each in logic.inters:
-            val = Intersection.evaluate()'''
-    
     def get_delta_cut_move(logic: Logic):
         max_val = 1000
         max_move: Move = None
@@ -301,6 +277,15 @@ class Intersection():
             val = len(get_possible_movements(state, logic.game_state.second_team)) - len(get_possible_movements(state, logic.game_state.first_team))
         return val
     
+    def cut_eval(logic: Logic, state: GameState) -> int: #could work with a non-quantonian function
+        '''
+        '''
+        if (logic.game_state.current_team.name == logic.game_state.first_team.name):
+            val = -len(get_possible_movements(state, logic.game_state.second_team))
+        else:
+            val = -len(get_possible_movements(state, logic.game_state.first_team))
+        return val
+
     def delta_fish_possibles(logic:Logic, state: GameState) -> int:
         '''
         `delta_cut` returns the discrepancy of current's `fish` and the opponent's `fish`
@@ -406,7 +391,6 @@ class Intersection():
         #tabulate_moves(first_intersections)
         return first_intersections
            
-
 
 class Tree():
 
