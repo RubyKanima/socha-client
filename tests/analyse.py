@@ -43,19 +43,19 @@ class Logic(IClientHandler):
         
         if self.game_state.turn < 8:                            # Beginning Moves
             logging.info("most_possible_move")
-            return Alpha_Beta.get_most_possible_move(self)
+            return AlphaBeta.get_most_possible_move(self)
         
         if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
             logging.info("least")
-            return Alpha_Beta.get_least_neighbor_move(self)
+            return AlphaBeta.get_least_neighbor_move(self)
         
         if not self.inters_to:                            # Following Moves against enemy
             logging.info("least2")
-            return Alpha_Beta.get_least_neighbor_move(self)
+            return AlphaBeta.get_least_neighbor_move(self)
         
         if self.inters_to:                                # Following Moves if no moves possible against enemies
             logging.info("get_alpha_beta_cut_move")
-            return Alpha_Beta.get_alpha_beta_cut_move(self)
+            return AlphaBeta.get_alpha_beta_cut_move(self)
     
         logging.error("UNAVOIDABLE ERROR")
         return random.choice(self.game_state.possible_moves)

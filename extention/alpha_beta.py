@@ -6,7 +6,7 @@ from extention.board_extentions import *
 from extention.print_extentions import *
 from extention.intersections import *
 
-class Alpha_Beta():
+class AlphaBeta():
     
     def get_alpha_beta_cut_move(logic: Logic):
         max_val = -1000
@@ -26,7 +26,7 @@ class Alpha_Beta():
         #own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
         logging.info(addition_len)
         for each in move_list:
-            mini_max = Alpha_Beta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
+            mini_max = AlphaBeta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
             val = mini_max
             if val > max_val:
                 max_move = each
@@ -84,8 +84,8 @@ class Alpha_Beta():
             - `memo`     used as a memory `dict` to remember similar paths
 
         '''
-        hash_list = Alpha_Beta.move_hash(state)
-        value = Alpha_Beta.evaluate_fish(logic, state)
+        hash_list = AlphaBeta.move_hash(state)
+        value = AlphaBeta.evaluate_fish(logic, state)
 
         if hash_list in memo:
             return memo[hash_list]
@@ -100,7 +100,7 @@ class Alpha_Beta():
             
             maxEval = -100 # replacement (- inf)
             for child in state.possible_moves:
-                eval = Alpha_Beta.alpha_beta_fish(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
+                eval = AlphaBeta.alpha_beta_fish(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
                 maxEval = max(maxEval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
@@ -112,7 +112,7 @@ class Alpha_Beta():
         else:
             minEval = 100 # replacement ( inf)
             for child in state.possible_moves:
-                eval = Alpha_Beta.alpha_beta_fish(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
+                eval = AlphaBeta.alpha_beta_fish(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
                 minEval = min(minEval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
@@ -133,7 +133,7 @@ class Alpha_Beta():
             - `memo`        used as a memory `dict` to remember similar paths
         '''
 
-        hash_list = Alpha_Beta.move_hash(state)
+        hash_list = AlphaBeta.move_hash(state)
         value = Intersection.delta_possibles(logic, state)
         if depth == 0 or state.current_team == None:
             return value
@@ -155,7 +155,7 @@ class Alpha_Beta():
             
             maxEval = -100 # replacement (- inf)
             for child in move_list:
-                eval = Alpha_Beta.alpha_beta_cut(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
+                eval = AlphaBeta.alpha_beta_cut(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
                 maxEval = max(maxEval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
@@ -167,7 +167,7 @@ class Alpha_Beta():
         else:
             minEval = 100 # replacement ( inf)
             for child in move_list:
-                eval = Alpha_Beta.alpha_beta_cut(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
+                eval = AlphaBeta.alpha_beta_cut(logic, state.perform_move(child), depth - 1, alpha, beta, memo)
                 minEval = min(minEval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
