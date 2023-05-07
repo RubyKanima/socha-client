@@ -2,12 +2,15 @@ from socha import Field
 
 from dataclasses import dataclass, field
 
-@dataclass(eq=False, order=True) # adds __eq__ function
-class Triangle:
+@dataclass(order=True)
+class Shape:
     root: Field
+
+@dataclass(order=True, eq=False)
+class Triangle(Shape):
     left: Field
     right: Field
-    
+
     orient: int = field(default=1)
 
     @property
@@ -43,4 +46,14 @@ class Triangle:
         if not isinstance(self.root, other):
             return TypeError
         return self.root.coordinate == other.coordinate
-        
+
+    def __hash__(self):
+        return str(self.root.coordinate.x) + str(self.root.coordinate.y)
+     
+@dataclass(order=True, eq=False)
+class Line(Shape):
+    buddy: Field
+
+@dataclass(order=True)
+class Group:
+    childs: dict
