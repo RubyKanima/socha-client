@@ -1,9 +1,10 @@
 from socha import *
-from socha_algorithms import *
-from socha_extentions import *
-from joins import Joins
+
 import logging
 import random
+
+from extention import *
+from utils import *
 
 class Logic(IClientHandler):
     def __init__(self):     

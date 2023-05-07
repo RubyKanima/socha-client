@@ -1,11 +1,13 @@
 from socha import *
-from socha_algorithms import *
-from socha_extentions import *
-from joins import Joins
+
 import logging
 import random
 import cProfile
 import pstats
+
+from extention import *
+from utils import *
+
 class Logic(IClientHandler):
     def __init__(self):     
         self.game_state: GameState
@@ -14,7 +16,7 @@ class Logic(IClientHandler):
     def other_possible_moves(self):
          if not self.game_state.current_team == None:
             if not self.game_state.current_team.opponent == None:
-                self.other_possible_moves = self.game_state._get_possible_moves(self.game_state.current_team.opponent)
+                return self.game_state._get_possible_moves(self.game_state.current_team.opponent)
 
     @property
     def all_field(self):
