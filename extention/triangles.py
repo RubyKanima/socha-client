@@ -7,7 +7,7 @@ class Triangle:
     root: Field
     left: Field
     right: Field
-<<<<<<< HEAD
+    
     orient: int = field(default=1)
 
     @property
@@ -44,13 +44,3 @@ class Triangle:
             return TypeError
         return self.root.coordinate == other.coordinate
         
-=======
-    orient: int # 1 or -1
-
-    @property
-    def fish(self):
-        return sum(self.root.fish, self.left.fish, self.right.fish)
-     
-
-
->>>>>>> fe6fbe5a2cebbb98d58ee2b02cd61d64d79e0086
