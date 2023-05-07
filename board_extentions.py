@@ -1,4 +1,4 @@
-from socha import Board, Field, GameState, HexCoordinate, Penguin, TeamEnum, Vector, HexCoordinate, Move
+from socha import *
 from typing import Optional, List
 import math
     
