@@ -57,6 +57,3 @@ class Line(Shape):
 @dataclass(order=True)
 class Group:
     childs: dict
-    
-    
-        
