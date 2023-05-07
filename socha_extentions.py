@@ -1,6 +1,8 @@
 from socha import *
 from typing import List
 
+from dataclasses import dataclass
+
 class Tile(Field):
 
     def __init__(self):
@@ -17,17 +19,10 @@ class Tile(Field):
     def is_valuable(_tile) -> bool:
         return _tile.fish in [2,3,4]
 
+@dataclass
 class CustomBoard(Board):
-    def __init__(self):
-        self.blobs = self._get_all_blobs(self)
 
-    def _get_all_blobs(_board):
-        '''missing code'''
-
-
-    def _create_blob(_board: Board):
-        '''missing code'''
-            
+    board: Board
 
 
     def del_fields(board: Board, _del: List[int]) -> Board:
