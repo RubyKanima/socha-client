@@ -134,7 +134,7 @@ class AlphaBeta():
         '''
 
         hash_list = AlphaBeta.move_hash(state)
-        value = Intersection.delta_possibles(logic, state)
+        value = Intersection.delta_fish_possibles(logic, state)
         if depth == 0 or state.current_team == None:
             return value
         move_list = Intersection.get_first_intersections(state, state.other_team)

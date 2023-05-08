@@ -2,16 +2,16 @@ from socha import *
 from typing import Optional, List
 import math
     
-def get_possible_movements(state: GameState, team: TeamEnum = None):
+def get_possible_movements(state: GameState, team: TeamEnum = None) -> list[Move]:
     ''' 
     gets the possible moves from a team if the penguins could be move
     
     this is only worth using before turn 9
     '''
     if team == None:
-        team = state.current_team
+        team = state.current_team.name
     possible_movements = []
-    penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
+    penguins: list[Penguin] = state.board.get_teams_penguins(team)
     for penguin in penguins:
         possible_movements.extend(state.board.possible_moves_from(penguin.coordinate, penguin.team_enum))
     return possible_movements

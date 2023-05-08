@@ -1,15 +1,20 @@
 from socha import *
 
 from logic import Logic
+from utils.joins import Joins
 from extention.board_extentions import *
-
+from extention.print_extentions import *
 class Intersection():
 
     def get_delta_cut_move(logic: Logic):
-        max_val = 1000
+        max_val = -1000
         max_move: Move = None
-        for move in logic.left_inters:
-            val = Intersection.delta_possibles(logic, logic.game_state.perform_move(move))
+        left_inters = Joins.left_inner_join_on(logic.game_state.possible_moves, get_possible_movements(logic.game_state, logic.game_state.current_team.opponent.name), "to_value", False)
+        if left_inters == []:
+            left_inters = logic.game_state.possible_moves
+        for move in left_inters:
+            perform = logic.game_state.perform_move(move)
+            val = Intersection.delta_fish_possibles(logic, perform)
             if val > max_val:
                 max_val = val
                 max_move = move
@@ -20,18 +25,18 @@ class Intersection():
         `delta_cut` returns the discrepancy of the current's `.possible_moves` and the opponent's `possible_moves`
         '''
         if (logic.game_state.current_team.name == logic.game_state.first_team.name):
-            val = len(get_possible_movements(state, logic.game_state.first_team)) - len(get_possible_movements(state, logic.game_state.second_team))
+            val = len(get_possible_movements(state, logic.game_state.first_team.name)) - len(get_possible_movements(state, logic.game_state.second_team.name))
         else:
-            val = len(get_possible_movements(state, logic.game_state.second_team)) - len(get_possible_movements(state, logic.game_state.first_team))
+            val = len(get_possible_movements(state, logic.game_state.second_team.name)) - len(get_possible_movements(state, logic.game_state.first_team.name))
         return val
     
     def cut_eval(logic: Logic, state: GameState) -> int: #could work with a non-quantonian function
         '''
         '''
         if (logic.game_state.current_team.name == logic.game_state.first_team.name):
-            val = -len(get_possible_movements(state, logic.game_state.second_team))
+            val = -len(get_possible_movements(state, logic.game_state.second_team.name))
         else:
-            val = -len(get_possible_movements(state, logic.game_state.first_team))
+            val = -len(get_possible_movements(state, logic.game_state.first_team.name))
         return val
 
     def delta_fish_possibles(logic:Logic, state: GameState) -> int:
@@ -39,11 +44,11 @@ class Intersection():
         `delta_cut` returns the discrepancy of current's `fish` and the opponent's `fish`
         '''
         if (logic.game_state.current_team.name == logic.game_state.first_team.name):
-            max = sum([state.board.get_field(move.to_value).fish for move in state._get_possible_moves(logic.game_state.first_team)])
-            min = sum([state.board.get_field(move.to_value).fish for move in state._get_possible_moves(logic.game_state.second_team)])
+            max = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.first_team.name)])
+            min = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.second_team.name)])
         else:
-            min = sum([state.board.get_field(move.to_value).fish for move in state._get_possible_moves(logic.game_state.first_team)])
-            max = sum([state.board.get_field(move.to_value).fish for move in state._get_possible_moves(logic.game_state.second_team)])
+            min = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.first_team.name)])
+            max = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.second_team.name)])
         return max - min
         #test needed
         
