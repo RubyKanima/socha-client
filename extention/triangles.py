@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 class Shape:
     root: Field
     children: dict
+    orient: int = -1 | 0 | 1
 
     @property
     def fish(self):
@@ -13,6 +14,10 @@ class Shape:
             return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
         if self.__class__.__name__ == Line:
             return sum(self.root.fish, self.right.fish or 0)
+
+    @property
+    def hash(self):
+        return str(self.root.coordinate.x) + str(self.root.coordinate.y) + str(self.orient)
 
     def __feq__(self, other: 'Triangle') -> bool:
         if not isinstance(self, other):
@@ -44,22 +49,13 @@ class Shape:
             return TypeError
         return self.root.coordinate == other.coordinate
 
-    def __hash__(self):
-        return str(self.root.coordinate.x) + str(self.root.coordinate.y)
-
 @dataclass(order=True)
 class Triangle(Shape):
     children: dict[str, Field]
-    orient: int = -1 | 1
-    tzest: int = 1
-
-    def __hash__(self):
-        pass
      
 @dataclass(order=True)
 class Line(Shape):
     right: Field = 0
-    orient: int = -1 | 0 | 1
 
 @dataclass(order=True)
 class Group:
@@ -96,7 +92,11 @@ class Group:
 
 test_tri = Triangle(Field(HexCoordinate(3, 7), None, 3), {'left': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0), 'right': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0)}, -1)
 test_line = Line(Field(HexCoordinate(3, 7), None, 3), Field(HexCoordinate(4, 8), None, 1), 1)
+print(test_tri.hash)
+print(test_line.hash)
 
+test = {test_tri.hash: 123}
 
+print(test)
 
 '''print(test_tri.__class__.__name__) # important!!'''
