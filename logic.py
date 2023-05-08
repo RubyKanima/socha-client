@@ -32,9 +32,9 @@ class Logic(IClientHandler):
     def calculate_move(self):
         logging.info(self.game_state.turn)
 
-        if self.game_state.turn < 2:                            # Beginning Moves
+        if self.game_state.turn < 4:                            # Beginning Moves
             logging.info("most_possible_move")
-            return AlphaBeta.get_most_possible_move(self)
+            return AlphaBeta.get_most_possible_fish_move(self)
         
         if self.game_state.turn <8:
             return Intersection.get_delta_cut_move(self)
