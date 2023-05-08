@@ -1,15 +1,18 @@
-from socha import Field
+from socha import *
 
 from dataclasses import dataclass, field
 
 @dataclass(order=True)
 class Shape:
     root: Field
-    orient: int = field(default=-1)
+    children: dict
 
     @property
     def fish(self):
-        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+        if self.__class__.__name__ == Triangle:
+            return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+        if self.__class__.__name__ == Line:
+            return sum(self.root.fish, self.right.fish or 0)
 
     def __feq__(self, other: 'Triangle') -> bool:
         if not isinstance(self, other):
@@ -42,23 +45,58 @@ class Shape:
         return self.root.coordinate == other.coordinate
 
     def __hash__(self):
-        return str(self.root.coordinate.x) + str(self.root.coordinate.y) + str(self.orient)
+        return str(self.root.coordinate.x) + str(self.root.coordinate.y)
 
-@dataclass(order=True, eq=False)
+@dataclass(order=True)
 class Triangle(Shape):
-    left: Field
-    right: Field
+    children: dict[str, Field]
+    orient: int = -1 | 1
+    tzest: int = 1
+
+    def __hash__(self):
+        pass
      
-@dataclass(order=True, eq=False)
+@dataclass(order=True)
 class Line(Shape):
-    right: Field
+    right: Field = 0
+    orient: int = -1 | 0 | 1
 
 @dataclass(order=True)
 class Group:
-    shapes: dict
-    fields: dict
+    shapes: dict[str, Triangle | Line]
+    fields: dict[str, list[str]]
+
+    def build_group(self):
+        '''
+        build a group from given list of fields (board)
+        '''
+
+    def remove_field(self):
+        '''
+        removes given field by key and mods the shapes
+        '''
+
+    def tri_to_line(self):
+        '''
+        converts triangle to line by given key and removed field
+        '''
+
+    def get_subgroup(self):
+        '''
+        get subgroup from key and its missing neighbors
+        '''
 
     def search_group(self):
         '''
+        search the group for something (dont know yet)
         '''
-        pass
+
+
+#### TESTING ####
+
+test_tri = Triangle(Field(HexCoordinate(3, 7), None, 3), {'left': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0), 'right': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0)}, -1)
+test_line = Line(Field(HexCoordinate(3, 7), None, 3), Field(HexCoordinate(4, 8), None, 1), 1)
+
+
+
+'''print(test_tri.__class__.__name__) # important!!'''
