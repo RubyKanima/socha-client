@@ -5,13 +5,7 @@ from dataclasses import dataclass, field
 @dataclass(order=True)
 class Shape:
     root: Field
-
-@dataclass(order=True, eq=False)
-class Triangle(Shape):
-    left: Field
-    right: Field
-
-    orient: int = field(default=1)
+    orient: int = field(default=-1)
 
     @property
     def fish(self):
@@ -48,12 +42,23 @@ class Triangle(Shape):
         return self.root.coordinate == other.coordinate
 
     def __hash__(self):
-        return str(self.root.coordinate.x) + str(self.root.coordinate.y)
+        return str(self.root.coordinate.x) + str(self.root.coordinate.y) + str(self.orient)
+
+@dataclass(order=True, eq=False)
+class Triangle(Shape):
+    left: Field
+    right: Field
      
 @dataclass(order=True, eq=False)
 class Line(Shape):
-    buddy: Field
+    right: Field
 
 @dataclass(order=True)
 class Group:
-    childs: dict
+    shapes: dict
+    fields: dict
+
+    def search_group(self):
+        '''
+        '''
+        pass
