@@ -45,6 +45,18 @@ class AlphaBeta():
                 max_move = move
         return max_move
     
+    def get_most_possible_fish_move(logic: Logic):
+        max_val = -1
+        max_move = logic.game_state.possible_moves[0]
+
+        for move in logic.game_state.possible_moves:
+            state = logic.game_state.perform_move(move)
+            val = get_possible_fish(logic.game_state, logic.game_state.current_team.name)
+            if val >= max_val:
+                max_val = val
+                max_move = move
+        return max_move
+    
     def get_least_neighbor_move(logic: Logic):
         min_val = 10
         max_move = logic.game_state.possible_moves[0]
@@ -134,7 +146,7 @@ class AlphaBeta():
         '''
 
         hash_list = AlphaBeta.move_hash(state)
-        value = Intersection.delta_fish_possibles(logic, state)
+        value = Intersection.delta_possibles(logic, state)
         if depth == 0 or state.current_team == None:
             return value
         move_list = Intersection.get_first_intersections(state, state.other_team)

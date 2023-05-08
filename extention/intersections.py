@@ -44,14 +44,14 @@ class Intersection():
         `delta_cut` returns the discrepancy of current's `fish` and the opponent's `fish`
         '''
         if (logic.game_state.current_team.name == logic.game_state.first_team.name):
-            max = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.first_team.name)])
-            min = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.second_team.name)])
+            max = get_possible_fish(logic.game_state, logic.game_state.first_team.name)
+            min = get_possible_fish(logic.game_state, logic.game_state.second_team.name)
         else:
-            min = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.first_team.name)])
-            max = sum([state.board.get_field(move.to_value).fish for move in get_possible_movements(state, logic.game_state.second_team.name)])
-        return max - min
-        #test needed
+            max = get_possible_fish(logic.game_state, logic.game_state.second_team.name)
+            min = get_possible_fish(logic.game_state, logic.game_state.first_team.name)
         
+        return max - min
+
     def _get_betweens():
         '''missing code'''
 
@@ -121,7 +121,7 @@ class Intersection():
     def get_first_intersections(state: GameState, team: Team = None) -> List[Move]:
         if team == None:
             team = state.other_team
-        possible_moves = state._get_possible_moves(team.opponent)
+        possible_moves = state.possible_moves
 
         first_intersections = []
         for penguin in team.penguins:
