@@ -117,4 +117,6 @@ def remove_solo_fields(state: GameState, move_list: list[Move]):
             move_list.remove(move)
     return move_list    
                     
-
+def own_is_valid(coordinates: HexCoordinate) -> bool:
+    array_coordinates = coordinates.to_cartesian()
+    return 0 <= array_coordinates.x < 8 and 0 <= array_coordinates.y < 8

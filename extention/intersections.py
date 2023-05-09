@@ -52,46 +52,32 @@ class Intersection():
         
         return max - min
 
-    def _get_betweens():
-        '''missing code'''
+    def get_move(logic: Logic):
+        max_val = -1000
+        max_move = logic.game_state.possible_moves[0]
+        #print("full print")
+        #own_pretty_print_custom(logic.game_state.board, " ", "B", "E")
+        move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
+        #print("first inters")
+        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
+        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
+        del_list = remove_solo_fields(logic.game_state, move_list)
+        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
+        if not del_list == []:
+            move_list = del_list
+        
+        #print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
 
-    def _get_after():
-        '''missing code'''
+        for move in move_list:
+            val = Intersection.get_fish_evaluate(logic.game_state, move.to_value)
+            if val >= max_val:
+                max_val = val
+                max_move = move
+        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
+        return max_move
 
-    def get_last_intersections(state: GameState, team: Team = None) -> List[Move]:
-        '''only usable after 4th turn'''
-        if team == None:
-            team = state.current_team
 
-        other_possible_fields = get_possible_fields(state, team.opponent)
-        last_intersections = []
-
-        for penguin in team.penguins:
-            for direction in Vector().directions:
-                ''' get moves in direction'''
-                origin = penguin.coordinate
-                final_destination = origin.add_vector(direction.scalar_product(1))
-
-                if state.board._is_destination_valid(final_destination):
-                    if state.board.get_field(final_destination).fish == 0:
-                        final_destination: HexCoordinate = None
-                else:
-                    final_destination: HexCoordinate = None
-                final_destination = None
-
-                for i in range(1, 8):
-                    destination = origin.add_vector(direction.scalar_product(i))
-                    if state.board._is_destination_valid(destination):
-                        destination_field = state.board.get_field(destination)
-                        if destination_field in other_possible_fields:
-                            final_destination = destination
-                    else:
-                        if final_destination:
-                            last_intersections.append(Move(team.name, final_destination, origin))
-                        break
-        return last_intersections
-    
-             
     def add_missing_direction_moves(state: GameState, move_list: list[Move], team: Team = None):
         add_list = []
 
@@ -143,3 +129,99 @@ class Intersection():
                         break
         #tabulate_moves(first_intersections)
         return first_intersections
+    
+    def get_last_intersections(state: GameState, team: Team = None) -> List[Move]:
+        '''only usable after 4th turn'''
+        if team == None:
+            team = state.current_team
+
+        other_possible_fields = get_possible_fields(state, team.opponent)
+        last_intersections = []
+
+        for penguin in team.penguins:
+            for direction in Vector().directions:
+                ''' get moves in direction'''
+                origin = penguin.coordinate
+                final_destination = origin.add_vector(direction.scalar_product(1))
+
+                if state.board._is_destination_valid(final_destination):
+                    if state.board.get_field(final_destination).fish == 0:
+                        final_destination: HexCoordinate = None
+                else:
+                    final_destination: HexCoordinate = None
+                final_destination = None
+
+                for i in range(1, 8):
+                    destination = origin.add_vector(direction.scalar_product(i))
+                    if state.board._is_destination_valid(destination):
+                        destination_field = state.board.get_field(destination)
+                        if destination_field in other_possible_fields:
+                            final_destination = destination
+                    else:
+                        if final_destination:
+                            last_intersections.append(Move(team.name, final_destination, origin))
+                        break
+        return last_intersections
+
+
+    def get_first_inters_from_with(state: GameState, origin: HexCoordinate, other_list: list[Move]) ->List[HexCoordinate]:
+        first_intersections = []
+        for direction in Vector().directions:
+            stop = False
+            for i in range(1, 8):
+                if stop: 
+                    break 
+
+                destination = origin.add_vector(direction.scalar_product(i))
+
+                if not own_is_valid(destination):
+                    break
+
+                if state.board.get_field(destination).fish != 0: # stop if end of board/ axis
+                    for each in other_list: # add move if intersect
+                        if destination == each.to_value:
+                            first_intersections.append(each.to_value)
+                            stop = True
+                            break   # stop at first instance
+                else:
+                    break
+        return first_intersections
+    
+    def get_last_inters_from_with(state: GameState, origin: HexCoordinate, other_list: list[Move]) ->List[HexCoordinate]:
+        last_intersections = []
+
+        for direction in Vector().directions:
+            last_coord = None
+            for i in range(1, 8):
+                if not own_is_valid(destination): 
+                    break 
+                destination = origin.add_vector(direction.scalar_product(i))
+                if state.board.get_field(destination).fish != 0:
+                    for each in other_list: # add move if intersect
+                        if destination == each.to_value:
+                            last_coord = destination
+                else:
+                    if last_coord:
+                        last_intersections.append(last_coord)
+                    break
+        return last_intersections
+    
+
+
+    def get_fish_evaluate(state: GameState, origin: HexCoordinate):
+        value = 0
+        intersections = Intersection.get_first_inters_from_with(state, origin, state._get_possible_moves(state.current_team.opponent))
+        for direction in Vector().directions:
+            factor = 1
+            for i in range(1,8):
+                destination = origin.add_vector(direction.scalar_product(i))
+                if not own_is_valid(destination):
+                    break
+
+                if state.board.get_field(destination).fish == 0:
+                    break
+                if destination in intersections:
+                    facter = -1
+                value += state.board.get_field(destination).fish
+        return value
+                    

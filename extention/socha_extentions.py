@@ -19,11 +19,10 @@ class Tile(Field):
     def is_valuable(_tile) -> bool:
         return _tile.fish in [2,3,4]
 
-@dataclass
 class CustomBoard(Board):
-
-    board: Board
-
+    
+    def __init__(self):
+        self.board = self
 
     def del_fields(board: Board, _del: List[int]) -> Board:
         new_board: List[List[Field]] = []

@@ -49,13 +49,11 @@ class Logic(IClientHandler):
         
         if self.inters_to:                                # Following Moves if no moves possible against enemies
             logging.info("get_alpha_beta_cut_move")
-            return AlphaBeta.get_alpha_beta_cut_move(self)
+            return Intersection.get_move(self)
     
         logging.error("UNAVOIDABLE ERROR")
         return random.choice(self.game_state.possible_moves)
         
-logic = Logic()
-
 if __name__ == "__main__":
-    Starter(logic)
+    Starter(Logic())
 
