@@ -89,6 +89,8 @@ class Logic(IClientHandler):
                 + i[0]['f_score']       * 0.05 \
                 + len(i[1]['behind'])   * 2 \
                 - len(i[1]['between'])  * 1.5 \
+                
+            print(calc_val)
 
             if calc_val > best_val:
                 best_val = calc_val
