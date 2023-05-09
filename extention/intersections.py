@@ -60,15 +60,8 @@ class Intersection():
     def get_move(logic: Logic):
         max_val = -1000
         max_move = logic.game_state.possible_moves[0]
-        #print("full print")
-        #own_pretty_print_custom(logic.game_state.board, " ", "B", "E")
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
-        #print("first inters")
-        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
-        #move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
-        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
         del_list = remove_solo_fields(logic.game_state, move_list)
-        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
         if not del_list == []:
             move_list = del_list
         
@@ -79,7 +72,6 @@ class Intersection():
             if val >= max_val:
                 max_val = val
                 max_move = move
-        #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
         return max_move
 
 
@@ -129,7 +121,6 @@ class Intersection():
                                 break   # stop at first instance
                     else:
                         break
-        #tabulate_moves(first_intersections)
         return first_intersections
     
     def get_last_intersections(state: GameState, team: Team = None) -> List[Move]:

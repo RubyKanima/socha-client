@@ -39,7 +39,6 @@ class AlphaBeta():
             filter = logic.game_state.possible_moves
         max_val = -1
         max_move = logic.game_state.possible_moves[0]
-        print_moves_board_custom(logic.game_state.board, filter," ", "-", "B", "E" )
         for move in logic.game_state.possible_moves:
             state = logic.game_state.perform_move(move)
             val = len(state.board.possible_moves_from(move.to_value))
@@ -65,13 +64,11 @@ class AlphaBeta():
         max_move = logic.game_state.possible_moves[0]
 
         for move in logic.game_state.possible_moves:
-            #state = logic.game_state.perform_move(move)
             valid_n = []
             for each in move.to_value.get_neighbors(): 
                 if logic.game_state.board._is_destination_valid(each):
                     valid_n.append(each)
             val = len(valid_n)
-            #logging.info(str(val)+ str(valid_n))
             if val <= min_val and not val == 0:
                 min_val = val
                 max_move = move
@@ -157,8 +154,6 @@ class AlphaBeta():
         del_list = remove_solo_fields(state, move_list)
         if not del_list == []:
             move_list = del_list
-        #tabulate_moves(move_list)
-        #logging.info(f"\n left: {left} \n right: {right} \n")
 
         if hash_list in memo:
             return memo[hash_list]
