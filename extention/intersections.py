@@ -9,12 +9,17 @@ class Intersection():
     def get_delta_cut_move(logic: Logic):
         max_val = -1000
         max_move: Move = None
-        left_inters = Joins.left_inner_join_on(logic.game_state.possible_moves, get_possible_movements(logic.game_state, logic.game_state.current_team.opponent.name), "to_value", False)
+        filter = neighbor_filter(logic.game_state.board, logic.game_state.possible_moves)
+        if not filter:
+            filter = logic.game_state.possible_moves
+        print_moves_board(logic.game_state.board, filter)
+        left_inters = Joins.left_inner_join_on(filter, get_possible_movements(logic.game_state, logic.game_state.current_team.opponent.name), "to_value", False)
+        print_moves_board_custom(logic.game_state.board, left_inters," ", "-", "B", "E" )
         if left_inters == []:
             left_inters = logic.game_state.possible_moves
         for move in left_inters:
             perform = logic.game_state.perform_move(move)
-            val = Intersection.delta_fish_possibles(logic, perform)
+            val = Intersection.delta_possibles(logic, perform)
             if val > max_val:
                 max_val = val
                 max_move = move
@@ -60,14 +65,14 @@ class Intersection():
         move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
         #print("first inters")
         #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
-        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        #move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
         #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
         del_list = remove_solo_fields(logic.game_state, move_list)
         #print_moves_board_custom(logic.game_state.board , [max_move], one_char="B", two_char="E")
         if not del_list == []:
             move_list = del_list
         
-        #print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
+        print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
 
         for move in move_list:
             val = Intersection.get_fish_evaluate(logic.game_state, move.to_value)
@@ -115,13 +120,10 @@ class Intersection():
                 stop = False
                 for i in range(1, 8):
                     if stop: break 
-
                     destination = penguin.coordinate.add_vector(direction.scalar_product(i))
                     if state.board._is_destination_valid(destination): # stop if end of board/ axis
                         for each in possible_moves: # add move if intersect
                             if destination == each.to_value:
-                                """logging.info("!!!!!!!!!!!")
-                                logging.info(str(destination)+ "  " + str(each))"""
                                 first_intersections.append(each)
                                 stop = True
                                 break   # stop at first instance
@@ -211,6 +213,9 @@ class Intersection():
     def get_fish_evaluate(state: GameState, origin: HexCoordinate):
         value = 0
         intersections = Intersection.get_first_inters_from_with(state, origin, state._get_possible_moves(state.current_team.opponent))
+        print(" inters ")
+        print_list = [Move("ONE",each,None) for each in intersections]
+        print_moves_board(state.board, print_list)
         for direction in Vector().directions:
             factor = 1
             for i in range(1,8):

@@ -91,6 +91,9 @@ def get_neighbor_fields_coordinate(board: Board, coordinate: HexCoordinate):
 def get_neighbor_fields(board: Board, field: Field) -> List[Field]:
     return [board.get_field(each) for each in field.coordinate.get_neighbors() if board.is_valid(each)]
         
+def get_valid_neighbor_fields(board: Board, field: Field) -> List[Field]:
+    return [board.get_field(each) for each in field.coordinate.get_neighbors() if board._is_destination_valid(each)]
+
 def get_dir(r: Vector):
   '''
   `get_dir_()` is faster
@@ -120,3 +123,12 @@ def remove_solo_fields(state: GameState, move_list: list[Move]):
 def own_is_valid(coordinates: HexCoordinate) -> bool:
     array_coordinates = coordinates.to_cartesian()
     return 0 <= array_coordinates.x < 8 and 0 <= array_coordinates.y < 8
+
+def neighbor_filter(board: Board, move_list: list[Move] ) -> list[Move]:
+    filter = []
+    if move_list == []:
+        return None
+    for move in move_list:
+        if len(get_valid_neighbor_fields(board, board.get_field(move.to_value))) < 6:
+            filter.append(move)
+    return filter
