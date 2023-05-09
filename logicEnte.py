@@ -70,7 +70,8 @@ class Logic(IClientHandler):
                     'vector': None,
                     'direction': None,
                     'between': [],
-                    'behind': []
+                    'behind': [],
+                    'f_score': self.score(p.to_value)
                     })
 
         else:
@@ -82,11 +83,12 @@ class Logic(IClientHandler):
         best_val = 0
         best_move = None
         for i in intersects:
-            #print(i)
-            if (i[0]['move'].from_value == None):
-                calc_val = len(i[0]['between'])   + len(i[1]['behind']) - len(i[1]['between'])
-            else:
-                calc_val = len(i[0]['between'])+1 + len(i[1]['behind']) - len(i[1]['between'])
+            calc_val = 0 \
+                + len(i[0]['behind'])   * 0.5 \
+                + len(i[0]['between'])  * 1 \
+                + i[0]['f_score']       * 0.05 \
+                + len(i[1]['behind'])   * 2 \
+                - len(i[1]['between'])  * 1.5 \
 
             if calc_val > best_val:
                 best_val = calc_val
@@ -136,7 +138,8 @@ class Logic(IClientHandler):
                             'vector': vector,
                             'direction': self.get_norm_from_vector(vector),
                             'between': [],
-                            'behind': []
+                            'behind': [],
+                            'f_score': self.score(move.to_value)
                             }
 
                         betweens = []
@@ -163,9 +166,23 @@ class Logic(IClientHandler):
         -> [Move, to, Vector, direction Vector, list[Field] between from and to, list[Field] after to]
         '''
 
+    def score(self, start: HexCoordinate):
+
+        score = self.gameState.board.get_field(start).fish
+        
+        for v in Vector().directions:
+            for i in range(1, 8):
+                destination = start.add_vector(v.scalar_product(i))
+                if self.gameState.board._is_destination_valid(destination):
+                    score += self.gameState.board.get_field(destination).fish
+                else:
+                    break
+
+        return score
+
     def get_least_neighbor_move(logic: 'Logic'):
         min_val = 10
-        max_move = logic.gameState.possible_moves[0]
+        min_move = logic.gameState.possible_moves[0]
 
         for move in logic.gameState.possible_moves:
             #state = logic.game_state.perform_move(move)
@@ -177,8 +194,8 @@ class Logic(IClientHandler):
             #logging.info(str(val)+ str(valid_n))
             if val <= min_val and not val == 0:
                 min_val = val
-                max_move = move
-        return max_move
+                min_move = move
+        return min_move
 
     # //////////////// tools ////////////////
 
