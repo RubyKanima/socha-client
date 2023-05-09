@@ -2,7 +2,7 @@ from socha import *
 
 from dataclasses import dataclass, field
 
-@dataclass(order=True)
+'''@dataclass(order=True)
 class Shape:
     root: Field
     children: dict
@@ -41,11 +41,13 @@ class Shape:
     def __roe__(self, other: Field) -> bool:
         if not isinstance(self.root, other):
             return TypeError
-        return self.root.coordinate == other.coordinate
+        return self.root.coordinate == other.coordinate'''
 
 @dataclass(order=True)
-class Triangle(Shape):
-    children: dict[str, Field]
+class Triangle:
+    root: Field
+    left: Field
+    right: Field
     
     @property
     def fish(self):
@@ -53,8 +55,9 @@ class Triangle(Shape):
 
 
 @dataclass(order=True)
-class Line(Shape):
-    right: Field = 0
+class Line:
+    root: Field
+    right: Field
     
     @property
     def fish(self):
