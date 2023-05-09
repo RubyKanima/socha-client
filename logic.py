@@ -34,9 +34,10 @@ class Logic(IClientHandler):
 
         if self.game_state.turn < 4:                            # Beginning Moves
             logging.info("most_possible_move")
-            return AlphaBeta.get_most_possible_fish_move(self)
+            return AlphaBeta.get_most_possible_move(self)
         
         if self.game_state.turn <8:
+            logging.info("delta_cut")
             return Intersection.get_delta_cut_move(self)
         
         if not self.other_possible_moves:                       # Following Moves if the enemies don't matter

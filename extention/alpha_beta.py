@@ -34,9 +34,12 @@ class AlphaBeta():
         return max_move
 
     def get_most_possible_move(logic: Logic):
+        filter = neighbor_filter(logic.game_state.board, logic.game_state.possible_moves)
+        if not filter:
+            filter = logic.game_state.possible_moves
         max_val = -1
         max_move = logic.game_state.possible_moves[0]
-
+        print_moves_board_custom(logic.game_state.board, filter," ", "-", "B", "E" )
         for move in logic.game_state.possible_moves:
             state = logic.game_state.perform_move(move)
             val = len(state.board.possible_moves_from(move.to_value))
