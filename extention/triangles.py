@@ -7,13 +7,7 @@ class Shape:
     root: Field
     children: dict
     orient: int = -1 | 0 | 1
-
-    @property
-    def fish(self):
-        if self.__class__.__name__ == Triangle:
-            return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
-        if self.__class__.__name__ == Line:
-            return sum(self.root.fish, self.right.fish or 0)
+    _fish: int
 
     @property
     def hash(self):
@@ -52,10 +46,19 @@ class Shape:
 @dataclass(order=True)
 class Triangle(Shape):
     children: dict[str, Field]
-     
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+
+
 @dataclass(order=True)
 class Line(Shape):
     right: Field = 0
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.right.fish or 0)
 
 @dataclass(order=True)
 class Group:
