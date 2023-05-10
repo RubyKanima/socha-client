@@ -1,4 +1,5 @@
 import os
+import sys
 from time import sleep
 from typing import List
 
@@ -10,6 +11,8 @@ setups = {
     'test1': {
         'p1_name': 'Test1',
         'p2_name': 'Test2',
+        'p1_cmd': 'python ../logic.py',
+        'p2_cmd': 'python ../logicEnte.py',
     }
 }
 
@@ -35,4 +38,8 @@ class Logic(IClientHandler):
 
 
 if __name__ == "__main__":
+    try:
+        setup = setups[sys.argv[1]]
+    except:
+        raise TypeError("arg went wrong")
     Starter(logic=Logic(), password="examplepassword", verbose=False)

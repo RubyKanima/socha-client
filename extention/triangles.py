@@ -2,18 +2,12 @@ from socha import *
 
 from dataclasses import dataclass, field
 
-@dataclass(order=True)
+'''@dataclass(order=True)
 class Shape:
     root: Field
     children: dict
     orient: int = -1 | 0 | 1
-
-    @property
-    def fish(self):
-        if self.__class__.__name__ == Triangle:
-            return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
-        if self.__class__.__name__ == Line:
-            return sum(self.root.fish, self.right.fish or 0)
+    _fish: int
 
     @property
     def hash(self):
@@ -47,15 +41,27 @@ class Shape:
     def __roe__(self, other: Field) -> bool:
         if not isinstance(self.root, other):
             return TypeError
-        return self.root.coordinate == other.coordinate
+        return self.root.coordinate == other.coordinate'''
 
 @dataclass(order=True)
-class Triangle(Shape):
-    children: dict[str, Field]
-     
+class Triangle:
+    root: Field
+    left: Field
+    right: Field
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+
+
 @dataclass(order=True)
-class Line(Shape):
-    right: Field = 0
+class Line:
+    root: Field
+    right: Field
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.right.fish or 0)
 
 @dataclass(order=True)
 class Group:
