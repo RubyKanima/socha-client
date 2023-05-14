@@ -88,25 +88,12 @@ class TriBoard:
     def construct(self):
         '''stuff'''
 
-    def build_group(self):
-        '''
-        build a group from given list of fields (board)
-        '''
-    def __init__(self, board: Board, current_team: Team):   
-        self.board = board
-        self.current_team = current_team
-
-    @property
-    def groups(self): 
-        return self.groups or self.build_groups(self.current_team)
-
     def build_groups(self):
         groups = []
         for penguin in self.current_team.penguins:
             if not self.hash(penguin.coordinate) in groups:
                 groups.append(self.extend_shape(penguin.coordinate))
         return groups
-
 
     def extend_shape(self, root: HexCoordinate, memory= []):
         new_neighbors = [each for each in root.get_neighbors if self.board._is_destination_valid(each) and self.hash(each) not in memory]
