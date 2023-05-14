@@ -83,6 +83,7 @@ class Group:
 class TriBoard:
 
     board: Board
+    current_team: Team
     groups: list[Group]
 
     def construct(self):
