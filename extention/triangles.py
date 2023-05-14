@@ -118,7 +118,7 @@ class TriBoard:
                     if n_field.penguin.team_enum.name == self.current_team.name.name:
                         neighbors_bool.append(True)
             
-            if not neighbors_bool[i]:
+            if len(neighbors_bool) <= i:
                 neighbors_bool.append(False)
 
         [print(each) for each in neighbors_bool]
