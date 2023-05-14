@@ -119,7 +119,7 @@ class TriBoard:
         return new_list
 
     def hash_dict_shape(self, root: HexCoordinate):
-        
+        pass
 
     def remove_field(self):
         '''
