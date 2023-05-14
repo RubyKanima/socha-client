@@ -104,7 +104,7 @@ class TriBoard:
         '''
         calcs tiles for that given Field
         '''
-
+        shape_list = []
         neighbors = field.coordinate.get_neighbors()
         n_bools = []
         for i in range(len(neighbors)):
@@ -119,19 +119,26 @@ class TriBoard:
             
             if len(n_bools) <= i:
                 n_bools.append(False)
-
+        
         tri_up = False
         tri_down = False
         line_up = False
         line_side = False
         line_down = False
 
-        if n_bools[0] and n_bools[5]: tri_up = True             # up right & up left
-        if n_bools[2] and n_bools[3]: tri_down = True           # down right & down left
+        if n_bools[0] and n_bools[5]: 
+            tri_up = True 
+            shape_list.append(Shape(field, []))         # up right & up left
+        if n_bools[2] and n_bools[3]: 
+            tri_down = True
+            shape_list.append(Shape(field, []))          # down right & down left
         if not n_bools[4]:                                      # not right
-            if not tri_up and n_bools[0]: line_up = True        # not up tri & up right
-            if not tri_down and n_bools[2]: line_down = True    # not down tri & down right
-        elif not (n_bools[0] or n_bools[2]): line_side = True   # not (up right | down right)
+            if not tri_up and n_bools[0]: 
+                shape_list.append(Shape(field, []))        # not up tri & up right
+            if not tri_down and n_bools[2]: 
+                shape_list.append(Shape(field, []))    # not down tri & down right
+        elif not (n_bools[0] or n_bools[2]): 
+            shape_list.append(Shape(field, []))   # not (up right | down right)
 
         [print(each) for each in n_bools]
         print("\n")
