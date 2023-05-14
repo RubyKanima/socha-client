@@ -7,7 +7,7 @@ class Shape:
     root: Field
     children: list[Field] = field(default_factory=[])
     orient: int = 1
-    shape: str = "Triangle"
+    shape: str = 'Triangle'
 
     @property
     def fish(self):
@@ -17,8 +17,10 @@ class Shape:
         return f
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         return str(self.root.coordinate.x) + str(self.root.coordinate.y)
+
+
 
     '''
     def __feq__(self, other: 'Triangle') -> bool:
@@ -95,6 +97,24 @@ class TriBoard:
 
 
 #### TESTING ####
+
+test_shape_1 = Shape(
+    root=Field(HexCoordinate(3, 7), None, 3),
+    children=[Field(HexCoordinate(2, 6), None, 1), Field(HexCoordinate(4, 8), None, 4)],
+    orient=-1,
+    shape='Triangle'
+)
+
+print(test_shape_1.fish)
+
+# __repr__ idea
+string = ""
+string += "  3   O  \n"
+string += "   \ /   \n"
+string += "    4---3\n"
+string += "         \n"
+string += "         \n"
+#print(string)
 
 
 '''print(test_tri.__class__.__name__) # important!!'''
