@@ -1,5 +1,5 @@
 from socha import *
-from .board_extentions import *
+from board_extentions import *
 import random
 
 from dataclasses import dataclass, field
