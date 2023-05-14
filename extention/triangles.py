@@ -168,7 +168,32 @@ test_group_1 = Group(
 )
 
 rng_field = random.choice(random.choice(test_board_1.board))
-print(test_group_1.calc_shapes(field=rng_field))
+#print(test_group_1.calc_shapes(field=rng_field))
 
 
 '''print(test_tri.__class__.__name__) # important!!'''
+
+left_up = True
+right_up = False
+right = True
+right_down = False
+left_down = False
+
+tri_up = False
+tri_down = False
+line_up = False
+line_side = False
+line_down = False
+
+if right_up and left_up: tri_up = True
+if right_down and left_down: tri_down = True
+if not right:
+    if not tri_up and right_up: line_up = True
+    if not tri_down and right_down: line_down = True
+elif not tri_up and not tri_down: line_side = True
+
+print("tri_up:", tri_up)
+print("tri_down:", tri_down)
+print("line_up:", line_up)
+print("line_side:", line_side)
+print("line_down:", line_down)
