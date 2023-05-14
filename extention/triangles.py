@@ -1,6 +1,7 @@
 from socha import *
 import random
 
+from board_extentions import own_is_valid
 from dataclasses import dataclass, field
 
 @dataclass(order=True)
@@ -58,33 +59,18 @@ class Shape:
 @dataclass(order=True)
 class Tile:
 
+    root: Field
+    penguin: Penguin
     children: dict[Shape] = field(default_factory={})
-    fields: dict[list[str]] = field(default_factory={})
-    penguins: list[Penguin] = field(default_factory=[])
     fish: int = 0
 
 @dataclass(order=True)
 class Group:
 
-    board: Board
     children: dict[Tile] = field(default_factory={})
     fields: dict[list[str]] = field(default_factory={})
     penguins: list[Penguin] = field(default_factory=[])
     fish: int = 0
-
-    def calc_tile(self, field: Field):
-        '''
-        calcs shapes for that Field
-        '''
-        
-        up_right    = self.board.get_field(field.coordinate.add_vector(Vector().directions[0])) # PROBLEM: might be out of bounds ._.
-        left        = self.board.get_field(field.coordinate.add_vector(Vector().directions[1]))
-        down_right  = self.board.get_field(field.coordinate.add_vector(Vector().directions[2]))
-        down_left   = self.board.get_field(field.coordinate.add_vector(Vector().directions[3]))
-        right       = self.board.get_field(field.coordinate.add_vector(Vector().directions[4]))
-        up_left     = self.board.get_field(field.coordinate.add_vector(Vector().directions[5]))
-
-        print(up_right, left)
 
         
 @dataclass(order=True)
@@ -113,6 +99,28 @@ class TriBoard:
             add_list = self.extend_shape(self, neighbor)
             new_list.update(add_list)
         return new_list
+    
+    def calc_tile(self, field: Field):
+        '''
+        calcs tiles for that given Field
+        '''
+
+        neighbors = field.coordinate.get_neighbors()
+        neighbors_bool = []
+        for i in range(len(neighbors)):
+            if own_is_valid(neighbors[i]):
+                n_field = self.board.get_field(neighbors[i])
+
+                if n_field.fish > 0:
+                    neighbors_bool.append(True)
+                elif n_field.penguin != None:
+                    if n_field.penguin.team_enum.name == self.current_team.name.name:
+                        neighbors_bool.append(True)
+            
+            if not neighbors_bool[i]:
+                neighbors_bool.append(False)
+
+        [print(each) for each in neighbors_bool]
 
     def hash_dict_shape(self, root: HexCoordinate):
         pass
@@ -171,20 +179,20 @@ test_shape_1 = Shape(
 
 test_board_1 = generate_board()
 #test_board_1.pretty_print()
-test_group_1 = Group(
-    children={},
-    fields={},
-    penguins=[],
-    fish=0,
-    board=test_board_1
+test_triboard_1 = TriBoard(
+    board=test_board_1,
+    current_team=Team(TeamEnum('ONE'), 0, [], []),
+    groups=[]
 )
 
-rng_field = random.choice(random.choice(test_board_1.board))
-#print(test_group_1.calc_shapes(field=rng_field))
+rng_field = test_board_1.board[random.randint(0, 7)][random.randint(0, 7)]
+test_board_1.pretty_print()
+print(rng_field)
+test_triboard_1.calc_tile(rng_field)
 
 
 '''print(test_tri.__class__.__name__) # important!!'''
-
+'''
 left_up = True
 right_up = True
 right = False
@@ -208,4 +216,4 @@ print("tri_up:", tri_up)
 print("tri_down:", tri_down)
 print("line_up:", line_up)
 print("line_side:", line_side)
-print("line_down:", line_down)
+print("line_down:", line_down)'''
