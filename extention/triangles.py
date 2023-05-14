@@ -43,7 +43,52 @@ class Shape:
             return TypeError
         return self.root.coordinate == other.coordinate'''
 
-@dataclass
+
+        
+
+
+
+    
+
+
+
+
+#### TESTING ####
+
+test_tri = Triangle(Field(HexCoordinate(3, 7), None, 3), {'left': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0), 'right': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0)}, -1)
+test_line = Line(Field(HexCoordinate(3, 7), None, 3), Field(HexCoordinate(4, 8), None, 1), 1)
+print(test_tri.hash)
+print(test_line.hash)
+
+test = {test_tri.hash: 123}
+
+@dataclass(order=True)
+class Triangle:
+    root: Field
+    left: Field
+    right: Field
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+
+
+@dataclass(order=True)
+class Line:
+    root: Field
+    right: Field
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.right.fish or 0)
+    
+print(test)
+@dataclass(order=True)
+class Group:
+    shapes: dict[str, Triangle | Line]
+    fields: dict[str, list[str]]
+
+'''print(test_tri.__class__.__name__) # important!!'''@dataclass
 class TriBoard:
 
     board: Board
@@ -79,45 +124,3 @@ class TriBoard:
         '''
         search the group for something (dont know yet)
         '''
-        
-
-@dataclass(order=True)
-class Group:
-    shapes: dict[str, Triangle | Line]
-    fields: dict[str, list[str]]
-
-    
-@dataclass(order=True)
-class Triangle:
-    root: Field
-    left: Field
-    right: Field
-    
-    @property
-    def fish(self):
-        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
-
-
-@dataclass(order=True)
-class Line:
-    root: Field
-    right: Field
-    
-    @property
-    def fish(self):
-        return sum(self.root.fish, self.right.fish or 0)
-
-
-
-#### TESTING ####
-
-test_tri = Triangle(Field(HexCoordinate(3, 7), None, 3), {'left': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0), 'right': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0)}, -1)
-test_line = Line(Field(HexCoordinate(3, 7), None, 3), Field(HexCoordinate(4, 8), None, 1), 1)
-print(test_tri.hash)
-print(test_line.hash)
-
-test = {test_tri.hash: 123}
-
-print(test)
-
-'''print(test_tri.__class__.__name__) # important!!'''
