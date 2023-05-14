@@ -56,15 +56,23 @@ class Shape:
         return self.root.coordinate == other.coordinate'''
 
 @dataclass(order=True)
-class Group:
+class Tile:
 
-    board: Board
-    children: dict[dict[Field]] = field(default_factory={})
+    children: dict[Shape] = field(default_factory={})
     fields: dict[list[str]] = field(default_factory={})
     penguins: list[Penguin] = field(default_factory=[])
     fish: int = 0
 
-    def calc_shapes(self, field: Field):
+@dataclass(order=True)
+class Group:
+
+    board: Board
+    children: dict[Tile] = field(default_factory={})
+    fields: dict[list[str]] = field(default_factory={})
+    penguins: list[Penguin] = field(default_factory=[])
+    fish: int = 0
+
+    def calc_tile(self, field: Field):
         '''
         calcs shapes for that Field
         '''
