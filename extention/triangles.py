@@ -61,8 +61,7 @@ class Tile:
 
     root: Field
     children: dict[Shape] = field(default_factory={})
-    fields: dict[list[str]] = field(default_factory={})
-    penguins: list[Penguin] = field(default_factory=[])
+    penguin: Penguin
     fish: int = 0
 
 @dataclass(order=True)

@@ -1,5 +1,6 @@
 from socha import *
 from typing import Optional, List
+import random
 import math
     
 def get_possible_fish(state: GameState, team: TeamEnum = None) -> int:
