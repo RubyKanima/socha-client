@@ -130,8 +130,21 @@ class TriBoard:
             Vector(1, 1),   #Bottom Right
             Vector(-1, 1)  #Bottom Left
         ]
-        if own_is_valid(root.add_vector(dirs[0])):
-            ''''''
+        fields = []
+        for dir in dirs:
+            destination = root.add_vector(dir)
+            if not own_is_valid(root.add_vector(dir)):
+                break
+            field = self.board.get_field(root.add_vector)
+            if field.fish == 0:
+                if not field.is_empty() and field.penguin.team_enum == self.current_team.name:
+                    fields.append(field)
+                else:
+                    fields.append(None)
+            if field.fish > 0:
+                    fields.append(field)
+                
+
         shapes = {"test"} # @Ente
         return Tile(root, shapes)
 
