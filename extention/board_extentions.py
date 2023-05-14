@@ -132,3 +132,22 @@ def neighbor_filter(board: Board, move_list: list[Move] ) -> list[Move]:
         if len(get_valid_neighbor_fields(board, board.get_field(move.to_value))) < 6:
             filter.append(move)
     return filter
+
+def generate_board(team_one: int = 0, team_two: int = 0) -> Board:
+    
+    half1 = []
+    half2 = []
+
+    for y in range(4):
+        row = random.choices([0, 1, 2, 3, 4], [2, 6, 4, 2, 1], k=8)
+        field_row = []
+        field_row_invert = []
+        for x in range(8):
+            field_row.append(Field(CartesianCoordinate(x, y).to_hex(), penguin=None, fish=row[x]))
+            field_row_invert.append(Field(CartesianCoordinate(7 - x, 7 - y).to_hex(), penguin=None, fish=row[7 - x]))
+
+        half1.append(field_row)
+        half2.insert(0, field_row_invert)
+
+    half1.extend(half2)
+    return Board(board=half1)
