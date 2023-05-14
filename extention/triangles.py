@@ -92,14 +92,13 @@ class TriBoard:
         return groups
 
     def extend_shape(self, root: HexCoordinate, group = {} , memory= []):
-        new_neighbors = [each for each in root.get_neighbors if self.board._is_destination_valid(each) and self.hash(each) not in memory]
-        new_list: dict = self.hash_dict_shape(root)
-        if new_neighbors == []:
-            return new_list
-        for neighbor in new_neighbors:
-            add_list = self.extend_shape(self, neighbor)
-            new_list.update(add_list)
-        return new_list
+        hash = self.hash(root)
+        if group[hash]:
+            return
+        group[hash] = self.make_tile(root)
+        for neighbor in root.get_neighbors:
+            self.extend_shape(self, neighbor)
+        return
     
     def calc_tile_ente(self, field: Field):
         '''
@@ -124,6 +123,15 @@ class TriBoard:
         [print(each) for each in neighbors_bool]
 
     def make_tile(self, root: HexCoordinate):
+        dirs = [
+            Vector(1, -1),  #Top Right
+            Vector(-1, -1), #Top Left
+            Vector(2, 0),   #Right
+            Vector(1, 1),   #Bottom Right
+            Vector(-1, 1)  #Bottom Left
+        ]
+        if own_is_valid(root.add_vector(dirs[0])):
+            ''''''
         shapes = {"test"} # @Ente
         return Tile(root, shapes)
 
