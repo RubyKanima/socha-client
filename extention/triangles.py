@@ -117,7 +117,7 @@ class TriBoard:
                     if n_field.penguin.team_enum.name == self.current_team.name.name:
                         neighbors_bool.append(True)
             
-            if not neighbors_bool[i]:
+            if len(neighbors_bool) <= i:
                 neighbors_bool.append(False)
 
         [print(each) for each in neighbors_bool]
@@ -179,7 +179,7 @@ test_triboard_1 = TriBoard(
 rng_field = test_board_1.board[random.randint(0, 7)][random.randint(0, 7)]
 test_board_1.pretty_print()
 print(rng_field)
-test_triboard_1.calc_tile(rng_field)
+test_triboard_1.calc_tile_ente(rng_field)
 
 
 '''print(test_tri.__class__.__name__) # important!!'''

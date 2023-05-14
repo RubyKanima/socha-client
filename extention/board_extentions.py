@@ -148,7 +148,7 @@ def generate_board(team_one: int = 0, team_two: int = 0) -> Board:
             field_row_invert.append(Field(CartesianCoordinate(7 - x, 7 - y).to_hex(), penguin=None, fish=row[7 - x]))
 
         half1.append(field_row)
-        half2.insert(0, field_row_invert)
+        half2.insert(0, list(reversed(field_row_invert)))
 
     half1.extend(half2)
     return Board(board=half1)
