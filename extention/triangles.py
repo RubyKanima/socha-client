@@ -1,4 +1,5 @@
 from socha import *
+from .board_extentions import *
 import random
 
 from board_extentions import own_is_valid
@@ -61,7 +62,9 @@ class Tile:
 
     root: Field
     penguin: Penguin
+    root: Field
     children: dict[Shape] = field(default_factory={})
+    penguin: Penguin
     fish: int = 0
 
 @dataclass(order=True)
@@ -86,44 +89,23 @@ class TriBoard:
     def build_groups(self):
         groups = []
         for penguin in self.current_team.penguins:
-            if not self.hash(penguin.coordinate) in groups:
-                groups.append(self.extend_shape(penguin.coordinate))
+            new_group = self.extend_shape(penguin.coordinate)
+            if new_group:
+                groups.append(new_group)
         return groups
 
-    def extend_shape(self, root: HexCoordinate, group = {} , memory= []):
-        new_neighbors = [each for each in root.get_neighbors if self.board._is_destination_valid(each) and self.hash(each) not in memory]
-        new_list: dict = self.hash_dict_shape(root)
-        if new_neighbors == []:
-            return new_list
-        for neighbor in new_neighbors:
-            add_list = self.extend_shape(self, neighbor)
-            new_list.update(add_list)
-        return new_list
-    
-    def calc_tile(self, field: Field):
-        '''
-        calcs tiles for that given Field
-        '''
+    def extend_shape(self, root: HexCoordinate, group: dict = {}):
+        hash = self.hash(root)
+        if group[hash]:
+            return
+        group[hash] = self.make_tile(root)
+        for neighbor in root.get_neighbors:
+            self.extend_shape(self, neighbor)
+        return
 
-        neighbors = field.coordinate.get_neighbors()
-        neighbors_bool = []
-        for i in range(len(neighbors)):
-            if own_is_valid(neighbors[i]):
-                n_field = self.board.get_field(neighbors[i])
-
-                if n_field.fish > 0:
-                    neighbors_bool.append(True)
-                elif n_field.penguin != None:
-                    if n_field.penguin.team_enum.name == self.current_team.name.name:
-                        neighbors_bool.append(True)
-            
-            if not neighbors_bool[i]:
-                neighbors_bool.append(False)
-
-        [print(each) for each in neighbors_bool]
-
-    def hash_dict_shape(self, root: HexCoordinate):
-        pass
+    def make_tile(self, root: HexCoordinate):
+        shapes = {test} # @Ente
+        return Tile(root, shapes)
 
     def hash(self, coordinate: HexCoordinate):
         return str(coordinate.x) + str(coordinate.y)
@@ -150,25 +132,6 @@ class TriBoard:
 
 
 #### TESTING ####
-
-def generate_board(team_one: int = 0, team_two: int = 0) -> Board:
-    
-    half1 = []
-    half2 = []
-
-    for y in range(4):
-        row = random.choices([0, 1, 2, 3, 4], [2, 6, 4, 2, 1], k=8)
-        field_row = []
-        field_row_invert = []
-        for x in range(8):
-            field_row.append(Field(CartesianCoordinate(x, y).to_hex(), penguin=None, fish=row[x]))
-            field_row_invert.append(Field(CartesianCoordinate(7 - x, 7 - y).to_hex(), penguin=None, fish=row[7 - x]))
-
-        half1.append(field_row)
-        half2.insert(0, field_row_invert)
-
-    half1.extend(half2)
-    return Board(board=half1)
 
 test_shape_1 = Shape(
     root=Field(HexCoordinate(3, 7), None, 3),
