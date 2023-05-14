@@ -2,7 +2,6 @@ from socha import *
 from .board_extentions import *
 import random
 
-from board_extentions import own_is_valid
 from dataclasses import dataclass, field
 
 @dataclass(order=True)
@@ -62,9 +61,7 @@ class Tile:
 
     root: Field
     penguin: Penguin
-    root: Field
     children: dict[Shape] = field(default_factory={})
-    penguin: Penguin
     fish: int = 0
 
 @dataclass(order=True)
@@ -94,17 +91,40 @@ class TriBoard:
                 groups.append(new_group)
         return groups
 
-    def extend_shape(self, root: HexCoordinate, group: dict = {}):
-        hash = self.hash(root)
-        if group[hash]:
-            return
-        group[hash] = self.make_tile(root)
-        for neighbor in root.get_neighbors:
-            self.extend_shape(self, neighbor)
-        return
+    def extend_shape(self, root: HexCoordinate, group = {} , memory= []):
+        new_neighbors = [each for each in root.get_neighbors if self.board._is_destination_valid(each) and self.hash(each) not in memory]
+        new_list: dict = self.hash_dict_shape(root)
+        if new_neighbors == []:
+            return new_list
+        for neighbor in new_neighbors:
+            add_list = self.extend_shape(self, neighbor)
+            new_list.update(add_list)
+        return new_list
+    
+    def calc_tile_ente(self, field: Field):
+        '''
+        calcs tiles for that given Field
+        '''
+
+        neighbors = field.coordinate.get_neighbors()
+        neighbors_bool = []
+        for i in range(len(neighbors)):
+            if own_is_valid(neighbors[i]):
+                n_field = self.board.get_field(neighbors[i])
+
+                if n_field.fish > 0:
+                    neighbors_bool.append(True)
+                elif n_field.penguin != None:
+                    if n_field.penguin.team_enum.name == self.current_team.name.name:
+                        neighbors_bool.append(True)
+            
+            if not neighbors_bool[i]:
+                neighbors_bool.append(False)
+
+        [print(each) for each in neighbors_bool]
 
     def make_tile(self, root: HexCoordinate):
-        shapes = {test} # @Ente
+        shapes = {"test"} # @Ente
         return Tile(root, shapes)
 
     def hash(self, coordinate: HexCoordinate):
