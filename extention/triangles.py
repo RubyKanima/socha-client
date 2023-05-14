@@ -106,21 +106,41 @@ class TriBoard:
         '''
 
         neighbors = field.coordinate.get_neighbors()
-        neighbors_bool = []
+        n_bools = []
         for i in range(len(neighbors)):
             if own_is_valid(neighbors[i]):
                 n_field = self.board.get_field(neighbors[i])
 
                 if n_field.fish > 0:
-                    neighbors_bool.append(True)
+                    n_bools.append(True)
                 elif n_field.penguin != None:
                     if n_field.penguin.team_enum.name == self.current_team.name.name:
-                        neighbors_bool.append(True)
+                        n_bools.append(True)
             
-            if len(neighbors_bool) <= i:
-                neighbors_bool.append(False)
+            if len(n_bools) <= i:
+                n_bools.append(False)
 
-        [print(each) for each in neighbors_bool]
+        tri_up = False
+        tri_down = False
+        line_up = False
+        line_side = False
+        line_down = False
+
+        if n_bools[0] and n_bools[5]: tri_up = True             # up right & up left
+        if n_bools[2] and n_bools[3]: tri_down = True           # down right & down left
+        if not n_bools[4]:                                      # not right
+            if not tri_up and n_bools[0]: line_up = True        # not up tri & up right
+            if not tri_down and n_bools[2]: line_down = True    # not down tri & down right
+        elif not (n_bools[0] or n_bools[2]): line_side = True   # not (up right | down right)
+
+        [print(each) for each in n_bools]
+        print("\n")
+        print("tri_up:", tri_up)
+        print("tri_down:", tri_down)
+        print("line_up:", line_up)
+        print("line_side:", line_side)
+        print("line_down:", line_down)
+
 
     def make_tile(self, root: HexCoordinate):
         dirs = [
@@ -128,7 +148,7 @@ class TriBoard:
             Vector(-1, -1), #Top Left
             Vector(2, 0),   #Right
             Vector(1, 1),   #Bottom Right
-            Vector(-1, 1)  #Bottom Left
+            Vector(-1, 1)   #Bottom Left
         ]
         fields = []
         for dir in dirs:
