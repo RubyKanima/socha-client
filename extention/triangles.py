@@ -57,6 +57,17 @@ class Group:
     fields: dict[list] = field(default_factory={})
     fish: int = 0
 
+class TriBoard:
+
+    board: Board
+    
+    @property
+    def groups(self):
+        return 
+
+    def construct(self):
+        '''stuff'''
+
     def build_group(self):
         '''
         build a group from given list of fields (board)
@@ -83,6 +94,7 @@ class Group:
         '''
 
 
-#### Test ####
-testshape1 = Shape(root=Field(HexCoordinate(3, 7), None, 3), children=[Field(HexCoordinate(2, 6), None, 2), Field(HexCoordinate(4, 8), None, 1)], orient=-1, shape="Triangle")
-print(testshape1.fish)
+#### TESTING ####
+
+
+'''print(test_tri.__class__.__name__) # important!!'''
