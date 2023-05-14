@@ -57,15 +57,23 @@ class Shape:
         return self.root.coordinate == other.coordinate'''
 
 @dataclass(order=True)
-class Group:
+class Tile:
 
-    board: Board
-    children: dict[dict[Field]] = field(default_factory={})
+    children: dict[Shape] = field(default_factory={})
     fields: dict[list[str]] = field(default_factory={})
     penguins: list[Penguin] = field(default_factory=[])
     fish: int = 0
 
-    def calc_shapes(self, field: Field):
+@dataclass(order=True)
+class Group:
+
+    board: Board
+    children: dict[Tile] = field(default_factory={})
+    fields: dict[list[str]] = field(default_factory={})
+    penguins: list[Penguin] = field(default_factory=[])
+    fish: int = 0
+
+    def calc_tile(self, field: Field):
         '''
         calcs shapes for that Field
         '''
@@ -160,9 +168,9 @@ rng_field = random.choice(random.choice(test_board_1.board))
 '''print(test_tri.__class__.__name__) # important!!'''
 
 left_up = True
-right_up = False
-right = True
-right_down = False
+right_up = True
+right = False
+right_down = True
 left_down = False
 
 tri_up = False
@@ -176,7 +184,7 @@ if right_down and left_down: tri_down = True
 if not right:
     if not tri_up and right_up: line_up = True
     if not tri_down and right_down: line_down = True
-elif not tri_up and not tri_down: line_side = True
+elif not right_up and not right_down: line_side = True
 
 print("tri_up:", tri_up)
 print("tri_down:", tri_down)
