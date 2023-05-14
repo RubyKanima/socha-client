@@ -177,8 +177,8 @@ rng_field = random.choice(random.choice(test_board_1.board))
 '''print(test_tri.__class__.__name__) # important!!'''
 
 left_up = True
-right_up = False
-right = True
+right_up = True
+right = False
 right_down = True
 left_down = False
 
@@ -194,3 +194,9 @@ if not right:
     if not tri_up and right_up: line_up = True
     if not tri_down and right_down: line_down = True
 elif not right_up and not right_down: line_side = True
+
+print("tri_up:", tri_up)
+print("tri_down:", tri_down)
+print("line_up:", line_up)
+print("line_side:", line_side)
+print("line_down:", line_down)
