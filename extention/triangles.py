@@ -2,17 +2,25 @@ from socha import *
 
 from dataclasses import dataclass, field
 
-'''@dataclass(order=True)
+@dataclass(order=True)
 class Shape:
     root: Field
-    children: dict
-    orient: int = -1 | 0 | 1
-    _fish: int
+    children: list[Field] = field(default_factory=[])
+    orient: int = 1
+    shape: str = "Triangle"
+
+    @property
+    def fish(self):
+        f = self.root.fish
+        for c in self.children:
+            f += c.fish
+        return f
 
     @property
     def hash(self):
-        return str(self.root.coordinate.x) + str(self.root.coordinate.y) + str(self.orient)
+        return str(self.root.coordinate.x) + str(self.root.coordinate.y)
 
+    '''
     def __feq__(self, other: 'Triangle') -> bool:
         if not isinstance(self, other):
             return TypeError
@@ -44,29 +52,10 @@ class Shape:
         return self.root.coordinate == other.coordinate'''
 
 @dataclass(order=True)
-class Triangle:
-    root: Field
-    left: Field
-    right: Field
-    
-    @property
-    def fish(self):
-        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
-
-
-@dataclass(order=True)
-class Line:
-    root: Field
-    right: Field
-    
-    @property
-    def fish(self):
-        return sum(self.root.fish, self.right.fish or 0)
-
-@dataclass(order=True)
 class Group:
-    shapes: dict[str, Triangle | Line]
-    fields: dict[str, list[str]]
+    children: dict[dict] = field(default_factory={})
+    fields: dict[list] = field(default_factory={})
+    fish: int = 0
 
     def build_group(self):
         '''
@@ -94,15 +83,6 @@ class Group:
         '''
 
 
-#### TESTING ####
-
-test_tri = Triangle(Field(HexCoordinate(3, 7), None, 3), {'left': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0), 'right': Field(HexCoordinate(2, 6), Penguin(HexCoordinate(2, 6), TeamEnum('ONE')), 0)}, -1)
-test_line = Line(Field(HexCoordinate(3, 7), None, 3), Field(HexCoordinate(4, 8), None, 1), 1)
-print(test_tri.hash)
-print(test_line.hash)
-
-test = {test_tri.hash: 123}
-
-print(test)
-
-'''print(test_tri.__class__.__name__) # important!!'''
+#### Test ####
+testshape1 = Shape(root=Field(HexCoordinate(3, 7), None, 3), children=[Field(HexCoordinate(2, 6), None, 2), Field(HexCoordinate(4, 8), None, 1)], orient=-1, shape="Triangle")
+print(testshape1.fish)
