@@ -1,9 +1,11 @@
 from socha import *
+import random
 
 from dataclasses import dataclass, field
 
 @dataclass(order=True)
 class Shape:
+
     root: Field
     children: list[Field] = field(default_factory=[])
     orient: int = 1
@@ -55,17 +57,33 @@ class Shape:
 
 @dataclass(order=True)
 class Group:
-    children: dict[dict] = field(default_factory={})
-    fields: dict[list] = field(default_factory={})
+
+    board: Board
+    children: dict[dict[Field]] = field(default_factory={})
+    fields: dict[list[str]] = field(default_factory={})
+    penguins: list[Penguin] = field(default_factory=[])
     fish: int = 0
 
+    def calc_shapes(self, field: Field):
+        '''
+        calcs shapes for that Field
+        '''
+        
+        up_right    = self.board.get_field(field.coordinate.add_vector(Vector().directions[0])) # PROBLEM: might be out of bounds ._.
+        left        = self.board.get_field(field.coordinate.add_vector(Vector().directions[1]))
+        down_right  = self.board.get_field(field.coordinate.add_vector(Vector().directions[2]))
+        down_left   = self.board.get_field(field.coordinate.add_vector(Vector().directions[3]))
+        right       = self.board.get_field(field.coordinate.add_vector(Vector().directions[4]))
+        up_left     = self.board.get_field(field.coordinate.add_vector(Vector().directions[5]))
+
+        print(up_right, left)
+
+        
+@dataclass(order=True)
 class TriBoard:
 
     board: Board
-    
-    @property
-    def groups(self):
-        return 
+    groups: list[Group]
 
     def construct(self):
         '''stuff'''
@@ -98,6 +116,25 @@ class TriBoard:
 
 #### TESTING ####
 
+def generate_board(team_one: int = 0, team_two: int = 0) -> Board:
+    
+    half1 = []
+    half2 = []
+
+    for y in range(4):
+        row = random.choices([0, 1, 2, 3, 4], [2, 6, 4, 2, 1], k=8)
+        field_row = []
+        field_row_invert = []
+        for x in range(8):
+            field_row.append(Field(CartesianCoordinate(x, y).to_hex(), penguin=None, fish=row[x]))
+            field_row_invert.append(Field(CartesianCoordinate(7 - x, 7 - y).to_hex(), penguin=None, fish=row[7 - x]))
+
+        half1.append(field_row)
+        half2.insert(0, field_row_invert)
+
+    half1.extend(half2)
+    return Board(board=half1)
+
 test_shape_1 = Shape(
     root=Field(HexCoordinate(3, 7), None, 3),
     children=[Field(HexCoordinate(2, 6), None, 1), Field(HexCoordinate(4, 8), None, 4)],
@@ -105,16 +142,18 @@ test_shape_1 = Shape(
     shape='Triangle'
 )
 
-print(test_shape_1.fish)
+test_board_1 = generate_board()
+#test_board_1.pretty_print()
+test_group_1 = Group(
+    children={},
+    fields={},
+    penguins=[],
+    fish=0,
+    board=test_board_1
+)
 
-# __repr__ idea
-string = ""
-string += "  3   O  \n"
-string += "   \ /   \n"
-string += "    4---3\n"
-string += "         \n"
-string += "         \n"
-#print(string)
+rng_field = random.choice(random.choice(test_board_1.board))
+print(test_group_1.calc_shapes(field=rng_field))
 
 
 '''print(test_tri.__class__.__name__) # important!!'''
