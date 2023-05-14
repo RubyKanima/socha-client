@@ -43,30 +43,17 @@ class Shape:
             return TypeError
         return self.root.coordinate == other.coordinate'''
 
-@dataclass(order=True)
-class Triangle:
-    root: Field
-    left: Field
-    right: Field
+@dataclass
+class TriBoard:
+
+    board: Board
     
     @property
-    def fish(self):
-        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+    def groups(self):
+        return 
 
-
-@dataclass(order=True)
-class Line:
-    root: Field
-    right: Field
-    
-    @property
-    def fish(self):
-        return sum(self.root.fish, self.right.fish or 0)
-
-@dataclass(order=True)
-class Group:
-    shapes: dict[str, Triangle | Line]
-    fields: dict[str, list[str]]
+    def construct(self):
+        '''stuff'''
 
     def build_group(self):
         '''
@@ -92,6 +79,34 @@ class Group:
         '''
         search the group for something (dont know yet)
         '''
+        
+
+@dataclass(order=True)
+class Group:
+    shapes: dict[str, Triangle | Line]
+    fields: dict[str, list[str]]
+
+    
+@dataclass(order=True)
+class Triangle:
+    root: Field
+    left: Field
+    right: Field
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.left.fish or 0, self.right.fish or 0)
+
+
+@dataclass(order=True)
+class Line:
+    root: Field
+    right: Field
+    
+    @property
+    def fish(self):
+        return sum(self.root.fish, self.right.fish or 0)
+
 
 
 #### TESTING ####
