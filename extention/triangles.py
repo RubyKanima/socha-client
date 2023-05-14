@@ -59,6 +59,7 @@ class Shape:
 @dataclass(order=True)
 class Tile:
 
+    root: Field
     children: dict[Shape] = field(default_factory={})
     fields: dict[list[str]] = field(default_factory={})
     penguins: list[Penguin] = field(default_factory=[])
@@ -115,8 +116,9 @@ class TriBoard:
             self.extend_shape(self, neighbor)
         return
 
-    def hash_dict_shape(self, root: HexCoordinate):
-        pass
+    def make_tile(self, root: HexCoordinate):
+        shapes = {test} # @Ente
+        return Tile(root, shapes)
 
     def hash(self, coordinate: HexCoordinate):
         return str(coordinate.x) + str(coordinate.y)
