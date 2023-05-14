@@ -95,7 +95,7 @@ class TriBoard:
                 groups.append(self.extend_shape(penguin.coordinate))
         return groups
 
-    def extend_shape(self, root: HexCoordinate, memory= []):
+    def extend_shape(self, root: HexCoordinate, group = {} , memory= []):
         new_neighbors = [each for each in root.get_neighbors if self.board._is_destination_valid(each) and self.hash(each) not in memory]
         new_list: dict = self.hash_dict_shape(root)
         if new_neighbors == []:
@@ -107,6 +107,9 @@ class TriBoard:
 
     def hash_dict_shape(self, root: HexCoordinate):
         pass
+
+    def hash(self, coordinate: HexCoordinate):
+        return str(coordinate.x) + str(coordinate.y)
 
     def remove_field(self):
         '''
