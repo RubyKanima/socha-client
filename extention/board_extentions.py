@@ -1,5 +1,4 @@
 from socha import *
-from logic import *
 
 from typing import Optional, List
 import random
