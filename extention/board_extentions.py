@@ -134,21 +134,42 @@ def neighbor_filter(board: Board, move_list: list[Move] ) -> list[Move]:
             filter.append(move)
     return filter
 
-def generate_board(team_one: int = 0, team_two: int = 0) -> Board:
+def generate_board(teams: list[int] = [0, 0]) -> Board:
     
     half1 = []
     half2 = []
 
     for y in range(4):
-        row = random.choices([0, 1, 2, 3, 4], [2, 6, 4, 2, 1], k=8)
+        row = random.choices([0, 1, 2, 3, 4], [3, 6, 4, 2, 1], k=8)
         field_row = []
         field_row_invert = []
         for x in range(8):
             field_row.append(Field(CartesianCoordinate(x, y).to_hex(), penguin=None, fish=row[x]))
-            field_row_invert.append(Field(CartesianCoordinate(7 - x, 7 - y).to_hex(), penguin=None, fish=row[7 - x]))
+            field_row_invert.insert(0, Field(CartesianCoordinate(7 - x, 7 - y).to_hex(), penguin=None, fish=row[7 - x]))
 
         half1.append(field_row)
         half2.insert(0, list(reversed(field_row_invert)))
 
     half1.extend(half2)
-    return Board(board=half1)
+    board = Board(board=half1)
+
+    for t in range(len(teams)):
+        for o in range(teams[t]):
+            valid = False
+            rng_coord = None
+            while not valid:
+                x = random.randint(0, 7)
+                y = random.randint(0, 7)
+                rng_coord = CartesianCoordinate(x, y).to_hex()
+                if own_is_valid(rng_coord):
+                    if not board.get_field(rng_coord).is_occupied():
+
+                        board.get_field(rng_coord).fish = 0
+                        if t == 0:
+                            board.get_field(rng_coord).penguin = Penguin(rng_coord, TeamEnum('ONE'))
+                        elif t == 1:
+                            board.get_field(rng_coord).penguin = Penguin(rng_coord, TeamEnum('TWO'))
+                        
+                        valid = True
+
+    return board
