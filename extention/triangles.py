@@ -1,5 +1,5 @@
 from socha import *
-from board_extentions import *
+from .board_extentions import *
 import random
 
 from dataclasses import dataclass, field
@@ -73,36 +73,51 @@ class Group:
     fish: int = 0
 
         
-@dataclass(order=True)
+@dataclass(order=True,repr=True)
 class TriBoard:
 
     board: Board
     current_team: Team
-    groups: list[Group]
+    _groups: list[Group] = None
 
-    def construct(self):
-        '''stuff'''
+    @property 
+    def groups(self):
+        if self._groups: return self._groups
+        else: 
+            self._groups = self.build_groups()
+            return self._groups
 
-    def build_groups(self):
+    def build_groups(self) -> list[Group]:
         groups = []
         for penguin in self.current_team.penguins:
-            new_group = self.extend_shape(penguin.coordinate)
-            if new_group:
-                groups.append(new_group)
+            skip = False
+            if groups:
+                for group in groups:
+                    if group[self.hash(penguin.coordinate)]:
+                        skip = True
+            if not skip:
+                print("Test")
+                print(self.extend_shape(penguin.coordinate, True))
+                groups.append(Group(self.extend_shape(penguin.coordinate, True)))
         return groups
 
-    def extend_shape(self, root: HexCoordinate, group = {} , memory= []):
+    def extend_shape(self, root: HexCoordinate, first = False, group = {}):
         hash = self.hash(root)
-        if group[hash]:
-            return
-        group[hash] = self.make_tile(root)
-        for neighbor in root.get_neighbors:
-            self.extend_shape(self, neighbor)
-        return
+        print(group)
+        if group[hash] or \
+            self.board.get_field(root).get_value() == self.current_team.opponent.name or \
+            not self.board._is_destination_valid(self.board.get_field(root)):# If already known or enemy
+
+            return                                  # stop
+        group[hash] = self.make_tile(root)      # Create dict key
+        for neighbor in root.get_neighbors:     # for each neighbor
+            self.extend_shape(self, neighbor)   # recursive
+        if first:
+            return group
     
-    def calc_tile_ente(self, field: Field):
+    def calc_tile_ente(self, field: Field): # ! field ist schon für dataclasses benutzt: field()
         '''
-        calcs tiles for that given Field
+        `-> make_tile()`
         '''
         shape_list = []
         neighbors = field.coordinate.get_neighbors()
@@ -150,30 +165,39 @@ class TriBoard:
 
 
     def make_tile(self, root: HexCoordinate):
-        dirs = [
-            Vector(1, -1),  #Top Right
-            Vector(-1, -1), #Top Left
-            Vector(2, 0),   #Right
-            Vector(1, 1),   #Bottom Right
-            Vector(-1, 1)   #Bottom Left
-        ]
+        '''
+        ! TEST NEEDED !
+        '''
         fields = []
-        for dir in dirs:
-            destination = root.add_vector(dir)
-            if not own_is_valid(root.add_vector(dir)):
-                break
-            field = self.board.get_field(root.add_vector)
-            if field.fish == 0:
-                if not field.is_empty() and field.penguin.team_enum == self.current_team.name:
-                    fields.append(field)
-                else:
-                    fields.append(None)
-            if field.fish > 0:
-                    fields.append(field)
-                
+        shape_list = []
+        for vector in Vector().directions:
+            n = root.add_vector(vector)
+            fields.append(self.tile_valid(n))
+        
+        if fields[5] and fields[0]: 
+            shape_list.append(Shape(root, [fields[0], fields[5]], -1, "Triangle"))# up right & up left
+            tri_up = True 
+        if fields[3] and fields[2]:
+            shape_list.append(Shape(root, [fields[3], fields[2]], 1, "Triangle"))# down right & down left
+            tri_down = True
+        if not fields[4]:                                                   # not right
+            if not tri_up and fields[0]: 
+                shape_list.append(Shape(root, [fields[0]], -1, "line"))     # not up tri & up right
+            if not tri_down and fields[2]: 
+                shape_list.append(Shape(root, [fields[2]], 1, "line"))      # not down tri & down right
+        elif not (fields[0] or fields[2]): 
+            shape_list.append(Shape(root, [fields[4]], 0, "line"))          # not (up right | down right)
 
-        shapes = {"test"} # @Ente
-        return Tile(root, shapes)
+    def tile_valid(self, destination: HexCoordinate):
+        if not own_is_valid(destination):                               # Not Valid
+            return None
+        field = self.board.get_field(destination)                       # Valid
+        if field.fish > 0:                                              # If not occupied
+            return field                            
+        if field.penguin:                                               # If occupied
+            if field.penguin.team_enum.name == self.current_team.name:  # If own team
+                return field
+        return None                                                     # If anything else
 
     def hash(self, coordinate: HexCoordinate):
         return str(coordinate.x) + str(coordinate.y)
@@ -199,8 +223,8 @@ class TriBoard:
         '''
 
 
-#### TESTING ####
-
+#### TESTING ####"""
+"""
 test_shape_1 = Shape(
     root=Field(HexCoordinate(3, 7), None, 3),
     children=[Field(HexCoordinate(2, 6), None, 1), Field(HexCoordinate(4, 8), None, 4)],
@@ -213,7 +237,6 @@ test_board_1 = generate_board()
 test_triboard_1 = TriBoard(
     board=test_board_1,
     current_team=Team(TeamEnum('ONE'), 0, [], []),
-    groups=[]
 )
 
 rng_field = test_board_1.board[random.randint(0, 7)][random.randint(0, 7)]
@@ -221,7 +244,7 @@ test_board_1.pretty_print()
 print(rng_field)
 test_triboard_1.calc_tile_ente(rng_field)
 
-
+"""
 '''print(test_tri.__class__.__name__) # important!!'''
 '''
 left_up = True
