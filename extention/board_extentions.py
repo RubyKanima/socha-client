@@ -178,3 +178,18 @@ def generate_board(teams: list[int] = [0, 0]) -> Board:
 def is_valid_not_enemy(field: Field, current_team: TeamEnum):
     return field.fish > 0 or field.get_value() == current_team.name
         
+def get_all_coords(board: Board) -> List[Field]:
+        """
+        Gets all Fields of the board.
+
+        :return: All Fields of the board.
+        """
+        return [field.coordinate for row in board.board for field in row]
+
+def get_all_not_empty_coords(board: Board) -> List[Field]:
+        """
+        Gets all Fields of the board.
+
+        :return: All Fields of the board.
+        """
+        return [field.coordinate for row in board.board for field in row if field.fish > 0 or field.penguin]

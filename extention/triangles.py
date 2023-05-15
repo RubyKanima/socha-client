@@ -1,6 +1,6 @@
 from socha import *
 from dataclasses import dataclass, field
-
+from copy import copy
 from .board_extentions import *
 
 @dataclass(order=True)
@@ -58,28 +58,29 @@ class Shape:
 @dataclass(order=True)
 class Tile:
 
-    root: Field
+    root: HexCoordinate
     penguin: Penguin
     fish: int = 0
-    children: dict[Shape] = field(default_factory={})
+    shapes: dict[str, Shape] = field(default_factory={})
     
 
 @dataclass(order=True)
 class Group:
 
-    children: dict[Tile] = field(default_factory={})
-    #fields: dict[list[str]] = field(default_factory={})
+    group: dict[str, Tile]
+    #fields: dict[str, list[str]] = field(default_factory={})
     #penguins: list[Penguin] = field(default_factory=[])
     #fish: int = 0
 
         
-@dataclass(order=True,repr=True)
+@dataclass(order=True, repr=True)
 class TriBoard:
 
     board: Board
     current_team: Team
-    hash_list: list = field(default_factory=[])
-    _groups: list[Group] = None
+    check_list: list[str] = field(default_factory=[])
+    hash_list: list[str] = field(default_factory=[])
+    _groups: list[Group] = field(default_factory=[])
     
     @property 
     def groups(self):
@@ -90,25 +91,31 @@ class TriBoard:
 
     def build_groups(self) -> list[Group]:
         groups: list[Group] = []
+        self.check_list = get_all_coords(self.board)
 
         for penguin in self.current_team.penguins:
-            if not self.hash(penguin.coordinate) in self.hash_list:
-                groups.append(Group(self.extend_shape(penguin.coordinate, True)))
+            if self.in_groups(penguin.coordinate, groups):
+                continue
+            for neighbor in penguin.coordinate.get_neighbors():
+                if not self.in_groups(neighbor, groups) and self.is_tile_valid(neighbor):
+                    groups.append(Group(self.extend_shape(neighbor)))
         return groups
 
-    def extend_shape(self, root: HexCoordinate, first = False, group = {}) -> dict[Tile]:
-        hash = self.hash(root)
-        if not own_is_valid(root):return
-        if hash in self.hash_list: return
-        this_field = self.board.get_field(root)
-        if is_valid_not_enemy(this_field, self.current_team):
-            group[hash] = self.make_tile(root)
-            self.hash_list.append(hash)
-        new_neighbor = [neighbor for neighbor in root.get_neighbors() if not self.hash(neighbor) in self.hash_list and own_is_valid(neighbor)]
-        for neighbor in new_neighbor:
-            self.extend_shape(neighbor)
-        if first:
-            return group
+    def extend_shape(self, root: HexCoordinate) -> dict[str, Tile]:
+        print("NEW LIST")
+        print(len(self.check_list))
+        print(root)
+        self.check_list.remove(root)
+        neighbors = [n for n in root.get_neighbors() if n in self.check_list and self.is_tile_valid(n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
+        return_hash: dict[str, Tile] = {}
+        return_hash[self.hash(root)] = self.make_tile(root)
+        if neighbors == []:                                                                         #wenn filtered neighbors == []
+            return return_hash
+        return_dict = {}
+        for neighbor in neighbors:
+            if neighbor in self.check_list:
+                return_dict = {**self.extend_shape(neighbor), **return_dict}
+        return {**return_dict,**return_hash}
 
     def make_tile(self, root: HexCoordinate):
         '''
@@ -119,6 +126,7 @@ class TriBoard:
         shape_list = []
         tri_up = False
         tri_down = False
+
         for vector in Vector().directions:
             n = root.add_vector(vector)
             fields.append(self.tile_valid(n))
@@ -149,10 +157,27 @@ class TriBoard:
             if field.penguin.team_enum.name == self.current_team.name.name:  # If own team
                 return field
         return None                                                     # If anything else
+    
+    def is_tile_valid(self, destination: HexCoordinate):
+        if not own_is_valid(destination):                               # Not Valid
+            return False
+        field = self.board.get_field(destination)                       # Valid
+        if field.fish > 0:                                              # If not occupied
+            return True                            
+        if field.penguin:                                               # If occupied
+            if field.penguin.team_enum.name == self.current_team.name.name:  # If own team
+                return True
+        return False                                                     # If anything else
 
     def hash(self, coordinate: HexCoordinate):
         return (str(coordinate.x) + str(coordinate.y))
 
+    def in_groups(self, neighbor: HexCoordinate, groups: list[Group]) -> bool:
+        for group in groups:
+            if self.hash(neighbor) in group.group:
+                return True
+        return False
+    
     def remove_field(self):
         '''
         removes given field by key and mods the shapes

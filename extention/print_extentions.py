@@ -3,6 +3,8 @@ from tabulate import tabulate
 from typing import List
 import logging
 
+from extention.triangles import *
+
 def tabulate_moves(move_list: List[Move]):
     table = [["Team", "From Cart.", "To Cart."]]
     for each in move_list:
@@ -12,6 +14,14 @@ def tabulate_moves(move_list: List[Move]):
             from_string = "None"
         to_string = str(each.to_value.to_cartesian().x)+", "+str(each.to_value.to_cartesian().y)
         table.append([str(each.team_enum.name),from_string, to_string])
+    logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
+
+def tabulate_group(group: Group):
+    table = [["hash", "root", "value"]]
+    for each in group.group:
+        tile = group.group[each]
+        enum = tile.penguin.team_enum.name if tile.penguin else None
+        table.append([each, tile.root, enum or tile.fish])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def print_moves_board_custom(board: Board, move_list: List[Move], empty_char = " ", char = "-", one_char = None, two_char = None):

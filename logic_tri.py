@@ -30,12 +30,15 @@ class Logic(IClientHandler):
     def on_update(self, state: GameState):
         self.game_state = state
 
-        self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [])
-        logging.info(self.tri_board.__repr__())
-        logging.info("Groups \n" + str(self.tri_board.groups))
+        
             
        
     def calculate_move(self):
+        self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
+        logging.info(self.tri_board.__repr__())
+        logging.info("Groups \n" + str(self.tri_board.groups))
+        for each in self.tri_board.groups:
+            tabulate_group(each)
         logging.info(self.game_state.turn)
 
         if self.game_state.turn < 4:                            # Beginning Moves
