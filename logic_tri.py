@@ -30,7 +30,7 @@ class Logic(IClientHandler):
     def on_update(self, state: GameState):
         self.game_state = state
 
-        self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team)
+        self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [])
         logging.info(self.tri_board.__repr__())
         logging.info("Groups \n" + str(self.tri_board.groups))
             

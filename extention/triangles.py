@@ -1,6 +1,6 @@
 from socha import *
+from logic import *
 from extention.board_extentions import *
-import random
 
 from dataclasses import dataclass, field
 
@@ -79,8 +79,9 @@ class TriBoard:
 
     board: Board
     current_team: Team
+    hash_list: list = field(default_factory=[])
     _groups: list[Group] = None
-
+    
     @property 
     def groups(self):
         if self._groups: return self._groups
@@ -90,26 +91,21 @@ class TriBoard:
 
     def build_groups(self) -> list[Group]:
         groups: list[Group] = []
+
         for penguin in self.current_team.penguins:
-            skip = False
-            if groups:
-                for group in groups:
-                    if self.hash(penguin.coordinate) in group.children:
-                        skip = True
-            if not skip:
-                print("Test")
-                print(self.extend_shape(penguin.coordinate, True))
+            if not self.hash(penguin.coordinate) in self.hash_list:
                 groups.append(Group(self.extend_shape(penguin.coordinate, True)))
         return groups
 
     def extend_shape(self, root: HexCoordinate, first = False, group = {}) -> dict[Tile]:
         hash = self.hash(root)
         if not own_is_valid(root):return
-        if hash in group: return
-        field = self.board.get_field(root)
-        if is_valid_not_enemy(field, self.current_team):
+        if hash in self.hash_list: return
+        this_field = self.board.get_field(root)
+        if is_valid_not_enemy(this_field, self.current_team):
             group[hash] = self.make_tile(root)
-        new_neighbor = [neighbor for neighbor in root.get_neighbors() if not self.hash(neighbor) in group]
+            self.hash_list.append(hash)
+        new_neighbor = [neighbor for neighbor in root.get_neighbors() if not self.hash(neighbor) in self.hash_list and own_is_valid(neighbor)]
         for neighbor in new_neighbor:
             self.extend_shape(neighbor)
         if first:
@@ -142,7 +138,7 @@ class TriBoard:
         elif not (fields[0] or fields[2]): 
             shape_list.append(Shape(root, [fields[4]], 0, "line"))          # not (up right | down right)
         
-        return Tile(root, field.penguin, field.penguin, shape_list)
+        return Tile(root, field.penguin, field.fish, shape_list)
 
     def tile_valid(self, destination: HexCoordinate):
         if not own_is_valid(destination):                               # Not Valid
@@ -151,7 +147,7 @@ class TriBoard:
         if field.fish > 0:                                              # If not occupied
             return field                            
         if field.penguin:                                               # If occupied
-            if field.penguin.team_enum.name == self.current_team.name:  # If own team
+            if field.penguin.team_enum.name == self.current_team.name.name:  # If own team
                 return field
         return None                                                     # If anything else
 
