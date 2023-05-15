@@ -114,55 +114,6 @@ class TriBoard:
             self.extend_shape(self, neighbor)   # recursive
         if first:
             return group
-    
-    def calc_tile_ente(self, field: Field): # ! field ist schon für dataclasses benutzt: field()
-        '''
-        `-> make_tile()`
-        '''
-        shape_list = []
-        neighbors = field.coordinate.get_neighbors()
-        n_bools = []
-        for i in range(len(neighbors)):
-            if own_is_valid(neighbors[i]):
-                n_field = self.board.get_field(neighbors[i])
-
-                if n_field.fish > 0:
-                    n_bools.append(True)
-                elif n_field.penguin != None:
-                    if n_field.penguin.team_enum.name == self.current_team.name.name:
-                        n_bools.append(True)
-            
-            if len(n_bools) <= i:
-                n_bools.append(False)
-        
-        tri_up = False
-        tri_down = False
-        line_up = False
-        line_side = False
-        line_down = False
-
-        if n_bools[0] and n_bools[5]: 
-            tri_up = True 
-            shape_list.append(Shape(field, []))         # up right & up left
-        if n_bools[2] and n_bools[3]: 
-            tri_down = True
-            shape_list.append(Shape(field, []))          # down right & down left
-        if not n_bools[4]:                                      # not right
-            if not tri_up and n_bools[0]: 
-                shape_list.append(Shape(field, []))        # not up tri & up right
-            if not tri_down and n_bools[2]: 
-                shape_list.append(Shape(field, []))    # not down tri & down right
-        elif not (n_bools[0] or n_bools[2]): 
-            shape_list.append(Shape(field, []))   # not (up right | down right)
-
-        [print(each) for each in n_bools]
-        print("\n")
-        print("tri_up:", tri_up)
-        print("tri_down:", tri_down)
-        print("line_up:", line_up)
-        print("line_side:", line_side)
-        print("line_down:", line_down)
-
 
     def make_tile(self, root: HexCoordinate):
         '''
