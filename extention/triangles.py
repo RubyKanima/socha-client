@@ -1,5 +1,5 @@
 from socha import *
-from .board_extentions import *
+from extention.board_extentions import *
 import random
 
 from dataclasses import dataclass, field
@@ -68,9 +68,9 @@ class Tile:
 class Group:
 
     children: dict[Tile] = field(default_factory={})
-    fields: dict[list[str]] = field(default_factory={})
-    penguins: list[Penguin] = field(default_factory=[])
-    fish: int = 0
+    #fields: dict[list[str]] = field(default_factory={})
+    #penguins: list[Penguin] = field(default_factory=[])
+    #fish: int = 0
 
         
 @dataclass(order=True,repr=True)
@@ -93,24 +93,25 @@ class TriBoard:
             skip = False
             if groups:
                 for group in groups:
-                    if group[self.hash(penguin.coordinate)]:
+                    if self.hash(penguin.coordinate) in group:
                         skip = True
-            if not skip:
+            if not skip and isinstance(penguin, Penguin):
                 print("Test")
                 print(self.extend_shape(penguin.coordinate, True))
                 groups.append(Group(self.extend_shape(penguin.coordinate, True)))
         return groups
 
-    def extend_shape(self, root: HexCoordinate, first = False, group = {}):
+    def extend_shape(self, root: HexCoordinate, first = False, group = {}) -> dict[Tile]:
+        print("!!")
+        print(root)
         hash = self.hash(root)
         print(group)
-        if group[hash] or \
-            self.board.get_field(root).get_value() == self.current_team.opponent.name or \
-            not self.board._is_destination_valid(self.board.get_field(root)):# If already known or enemy
-
-            return                                  # stop
-        group[hash] = self.make_tile(root)      # Create dict key
-        for neighbor in root.get_neighbors:     # for each neighbor
+        if not own_is_valid(root):return
+        if hash in group: return
+        field = self.board.get_field(root)
+        if field.fish > 0 or field.get_value() == self.current_team.name:
+            group[hash] = self.make_tile(root)      # Create dict key
+        for neighbor in root.get_neighbors():     # for each neighbor
             self.extend_shape(self, neighbor)   # recursive
         if first:
             return group
@@ -200,7 +201,7 @@ class TriBoard:
         return None                                                     # If anything else
 
     def hash(self, coordinate: HexCoordinate):
-        return str(coordinate.x) + str(coordinate.y)
+        return (str(coordinate.x) + str(coordinate.y))
 
     def remove_field(self):
         '''
