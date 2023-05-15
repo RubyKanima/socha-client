@@ -1,8 +1,7 @@
 from socha import *
-from logic import *
-from extention.board_extentions import *
-
 from dataclasses import dataclass, field
+
+from .board_extentions import *
 
 @dataclass(order=True)
 class Shape:

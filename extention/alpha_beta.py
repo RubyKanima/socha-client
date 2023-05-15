@@ -1,11 +1,8 @@
 from socha import *
 
 from logic import Logic
-from utils.joins import *
-from extention.board_extentions import *
-from extention.print_extentions import *
-from extention.intersections import *
-
+from .intersections import *
+from .board_extentions import *
 class AlphaBeta():
     
     def get_alpha_beta_cut_move(logic: Logic):
