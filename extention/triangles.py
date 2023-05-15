@@ -68,9 +68,9 @@ class Tile:
 class Group:
 
     children: dict[Tile] = field(default_factory={})
-    #fields: dict[list[str]] = field(default_factory={})
-    #penguins: list[Penguin] = field(default_factory=[])
-    #fish: int = 0
+    fields: dict[list[str]] = field(default_factory={})
+    penguins: list[Penguin] = field(default_factory=[])
+    fish: int = 0
 
         
 @dataclass(order=True,repr=True)
@@ -78,7 +78,7 @@ class TriBoard:
 
     board: Board
     current_team: Team
-    hash_list: list = field(default_factory=[])
+    hash_list: list[str] = field(default_factory=[])
     _groups: list[Group] = None
     
     @property 
