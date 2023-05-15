@@ -65,7 +65,7 @@ class Intersection():
         if not del_list == []:
             move_list = del_list
         
-        print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
+        #print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
 
         for move in move_list:
             val = Intersection.get_fish_evaluate(logic.game_state, move.to_value)
@@ -204,9 +204,9 @@ class Intersection():
     def get_fish_evaluate(state: GameState, origin: HexCoordinate):
         value = 0
         intersections = Intersection.get_first_inters_from_with(state, origin, state._get_possible_moves(state.current_team.opponent))
-        print(" inters ")
+        #print(" inters ")
         print_list = [Move("ONE",each,None) for each in intersections]
-        print_moves_board(state.board, print_list)
+        #print_moves_board(state.board, print_list)
         for direction in Vector().directions:
             factor = 1
             for i in range(1,8):

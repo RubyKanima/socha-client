@@ -35,17 +35,19 @@ class Logic(IClientHandler):
        
     def calculate_move(self):
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
-        logging.info(self.tri_board.__repr__())
-        logging.info("Groups \n" + str(self.tri_board.groups))
+        if self.game_state.current_team.name.name == 'ONE':
+            own_pretty_print_custom(self.game_state.board," ", "⛇", "ඞ")
+        else:
+            own_pretty_print_custom(self.game_state.board," ", "ඞ", "⛇")
         for each in self.tri_board.groups:
-            tabulate_group(each)
+            print_group_board(self.game_state.board, each, self.game_state.current_team.name)
         logging.info(self.game_state.turn)
 
         if self.game_state.turn < 4:                            # Beginning Moves
             logging.info("most_possible_move")
             return AlphaBeta.get_most_possible_move(self)
         
-        if self.game_state.turn <8:
+        if self.game_state.turn < 8:
             logging.info("delta_cut")
             return Intersection.get_move(self)
         

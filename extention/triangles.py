@@ -71,35 +71,6 @@ class Group:
     #fields: dict[str, list[str]] = field(default_factory={})
     #penguins: list[Penguin] = field(default_factory=[])
     #fish: int = 0
-
-    def remove_field(self, coordinate: HexCoordinate):
-        '''
-        removes given field by key and mods the shapes
-
-        pseudo:
-        if field in fields
-        remove tile at field (if exists)
-        remove field from fields
-        recalc tiles of neighbors
-        '''
-        rm_hash = self.hash(coordinate)
-        if not rm_hash in self.fields: return
-        if rm_hash in self.children:
-            del self.children[rm_hash]
-        del self.fields[rm_hash]
-        self.fish
-
-
-        #### WORK IN PROGRESS
-
-    def tri_to_line(self):
-        '''
-        converts triangle to line by given key and removed field
-        '''
-
-    def hash(self, coordinate: HexCoordinate):
-        return (str(coordinate.x) + str(coordinate.y))
-        
 @dataclass(order=True, repr=True)
 class TriBoard:
 
@@ -129,13 +100,10 @@ class TriBoard:
         return groups
 
     def extend_shape(self, root: HexCoordinate) -> dict[str, Tile]:
-        print("NEW LIST")
-        print(len(self.check_list))
-        print(root)
         self.check_list.remove(root)
         neighbors = [n for n in root.get_neighbors() if n in self.check_list and self.is_tile_valid(n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
         return_hash: dict[str, Tile] = {}
-        return_hash[self.hash(root)] = self.make_tile(root)
+        return_hash[own_hash(root)] = self.make_tile(root)
         if neighbors == []:                                                                         #wenn filtered neighbors == []
             return return_hash
         return_dict = {}
@@ -201,7 +169,7 @@ class TriBoard:
 
     def in_groups(self, neighbor: HexCoordinate, groups: list[Group]) -> bool:
         for group in groups:
-            if self.hash(neighbor) in group.group:
+            if own_hash(neighbor) in group.group:
                 return True
         return False
     

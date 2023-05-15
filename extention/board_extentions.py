@@ -193,3 +193,6 @@ def get_all_not_empty_coords(board: Board) -> List[Field]:
         :return: All Fields of the board.
         """
         return [field.coordinate for row in board.board for field in row if field.fish > 0 or field.penguin]
+
+def own_hash(coordinate: HexCoordinate):
+    return (str(coordinate.x) + str(coordinate.y))

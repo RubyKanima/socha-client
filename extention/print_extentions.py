@@ -24,6 +24,31 @@ def tabulate_group(group: Group):
         table.append([each, tile.root, enum or tile.fish])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
+def print_group_board(board:Board, group: Group, team: TeamEnum):
+    print("- - - - - - - - - - - - - - - - -")
+    for y in range(8):
+        if y % 2 == 1:
+            print("  ", end="")
+        for x in range(8):
+            coord = CartesianCoordinate(x,y).to_hex()
+            if own_hash(coord) in group.group:
+                num = len(group.group) - list(group.group.keys()).index(own_hash(coord))
+                if num > 9: print(f" {num} ", end="")
+                if num < 10: print(f" 0{num} ", end="")
+            else:
+                this_field = board.get_field(coord)
+                if this_field.is_occupied():
+                    if this_field.penguin.team_enum.name == team.name:
+                        print(" ⛇  ", end="")
+                    else:
+                        print(" ඞ  ", end="")
+                elif this_field.fish == 0:
+                    print("    ", end="")
+                else:
+                    print(" -- ", end="")
+        print()
+    print("- - - - - - - - - - - - - - - - -")
+
 def print_moves_board_custom(board: Board, move_list: List[Move], empty_char = " ", char = "-", one_char = None, two_char = None):
     print("- - - - - - - - - - - - - - - - -")
     move_list_to = [each.to_value for each in move_list]
