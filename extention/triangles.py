@@ -89,12 +89,12 @@ class TriBoard:
             return self._groups
 
     def build_groups(self) -> list[Group]:
-        groups = []
+        groups: list[Group] = []
         for penguin in self.current_team.penguins:
             skip = False
             if groups:
                 for group in groups:
-                    if self.hash(penguin.coordinate) in group:
+                    if self.hash(penguin.coordinate) in group.children:
                         skip = True
             if not skip:
                 print("Test")
@@ -107,10 +107,11 @@ class TriBoard:
         if not own_is_valid(root):return
         if hash in group: return
         field = self.board.get_field(root)
-        if field.fish > 0 or field.get_value() == self.current_team.name:
-            group[hash] = self.make_tile(root)      # Create dict key
-        for neighbor in root.get_neighbors():     # for each neighbor
-            self.extend_shape(neighbor)   # recursive
+        if is_valid_not_enemy(field, self.current_team):
+            group[hash] = self.make_tile(root)
+        new_neighbor = [neighbor for neighbor in root.get_neighbors() if not self.hash(neighbor) in group]
+        for neighbor in new_neighbor:
+            self.extend_shape(neighbor)
         if first:
             return group
 
