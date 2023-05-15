@@ -173,5 +173,3 @@ def generate_board(teams: list[int] = [0, 0]) -> Board:
                         valid = True
 
     return board
-
-generate_board([2, 2]).pretty_print()
