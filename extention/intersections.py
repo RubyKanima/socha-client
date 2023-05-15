@@ -2,8 +2,8 @@ from socha import *
 
 from logic import Logic
 from utils.joins import Joins
-from extention.board_extentions import *
-from extention.print_extentions import *
+from .board_extentions import *
+from .print_extentions import *
 class Intersection():
 
     def get_delta_cut_move(logic: Logic):
