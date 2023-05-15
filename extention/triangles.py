@@ -72,6 +72,33 @@ class Group:
     #penguins: list[Penguin] = field(default_factory=[])
     #fish: int = 0
 
+    def remove_field(self, coordinate: HexCoordinate):
+        '''
+        removes given field by key and mods the shapes
+
+        pseudo:
+        if field in fields
+        remove tile at field (if exists)
+        remove field from fields
+        recalc tiles of neighbors
+        '''
+        rm_hash = self.hash(coordinate)
+        if not rm_hash in self.fields: return
+        if rm_hash in self.children:
+            del self.children[rm_hash]
+        del self.fields[rm_hash]
+        self.fish
+
+
+        #### WORK IN PROGRESS
+
+    def tri_to_line(self):
+        '''
+        converts triangle to line by given key and removed field
+        '''
+
+    def hash(self, coordinate: HexCoordinate):
+        return (str(coordinate.x) + str(coordinate.y))
         
 @dataclass(order=True, repr=True)
 class TriBoard:
