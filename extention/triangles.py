@@ -61,8 +61,9 @@ class Tile:
 
     root: Field
     penguin: Penguin
-    children: dict[Shape] = field(default_factory={})
     fish: int = 0
+    children: dict[Shape] = field(default_factory={})
+    
 
 @dataclass(order=True)
 class Group:
@@ -95,24 +96,21 @@ class TriBoard:
                 for group in groups:
                     if self.hash(penguin.coordinate) in group:
                         skip = True
-            if not skip and isinstance(penguin, Penguin):
+            if not skip:
                 print("Test")
                 print(self.extend_shape(penguin.coordinate, True))
                 groups.append(Group(self.extend_shape(penguin.coordinate, True)))
         return groups
 
     def extend_shape(self, root: HexCoordinate, first = False, group = {}) -> dict[Tile]:
-        print("!!")
-        print(root)
         hash = self.hash(root)
-        print(group)
         if not own_is_valid(root):return
         if hash in group: return
         field = self.board.get_field(root)
         if field.fish > 0 or field.get_value() == self.current_team.name:
             group[hash] = self.make_tile(root)      # Create dict key
         for neighbor in root.get_neighbors():     # for each neighbor
-            self.extend_shape(self, neighbor)   # recursive
+            self.extend_shape(neighbor)   # recursive
         if first:
             return group
 
@@ -120,8 +118,11 @@ class TriBoard:
         '''
         ! TEST NEEDED !
         '''
+        field = self.board.get_field(root)
         fields = []
         shape_list = []
+        tri_up = False
+        tri_down = False
         for vector in Vector().directions:
             n = root.add_vector(vector)
             fields.append(self.tile_valid(n))
@@ -139,6 +140,8 @@ class TriBoard:
                 shape_list.append(Shape(root, [fields[2]], 1, "line"))      # not down tri & down right
         elif not (fields[0] or fields[2]): 
             shape_list.append(Shape(root, [fields[4]], 0, "line"))          # not (up right | down right)
+        
+        return Tile(root, field.penguin, field.penguin, shape_list)
 
     def tile_valid(self, destination: HexCoordinate):
         if not own_is_valid(destination):                               # Not Valid
