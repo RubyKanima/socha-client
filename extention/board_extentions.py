@@ -174,7 +174,3 @@ def generate_board(teams: list[int] = [0, 0]) -> Board:
                         valid = True
 
     return board
-
-def is_valid_not_enemy(field: Field, current_team: TeamEnum):
-    return field.fish > 0 or field.get_value() == current_team.name
-        

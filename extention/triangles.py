@@ -101,7 +101,7 @@ class TriBoard:
         if not own_is_valid(root):return
         if hash in self.hash_list: return
         this_field = self.board.get_field(root)
-        if is_valid_not_enemy(this_field, self.current_team):
+        if self.tile_valid(this_field.coordinate):
             group[hash] = self.make_tile(root)
             self.hash_list.append(hash)
         new_neighbor = [neighbor for neighbor in root.get_neighbors() if not self.hash(neighbor) in self.hash_list and own_is_valid(neighbor)]
