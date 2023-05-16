@@ -95,13 +95,13 @@ class TriBoard:
             if self.in_groups(penguin.coordinate, groups):
                 continue
             for neighbor in penguin.coordinate.get_neighbors():
-                if not self.in_groups(neighbor, groups) and self.is_tile_valid(neighbor):
+                if not self.in_groups(neighbor, groups) and own_is_destination_valid(self.board, neighbor):
                     groups.append(Group(self.extend_shape(neighbor)))
         return groups
 
     def extend_shape(self, root: HexCoordinate) -> dict[str, Tile]:
         self.check_list.remove(root)
-        neighbors = [n for n in root.get_neighbors() if n in self.check_list and self.is_tile_valid(n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
+        neighbors = [n for n in root.get_neighbors() if n in self.check_list and own_is_destination_valid(self.board, n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
         return_hash: dict[str, Tile] = {}
         return_hash[own_hash(root)] = self.make_tile(root)
         if neighbors == []:                                                                         #wenn filtered neighbors == []
@@ -142,18 +142,18 @@ class TriBoard:
         
         return Tile(root, field.penguin, field.fish, shape_list)
 
-    def tile_valid(self, destination: HexCoordinate):
+    def tile_valid(self, destination: HexCoordinate) -> Field | None:
         if not own_is_valid(destination):                               # Not Valid
             return None
-        field = self.board.get_field(destination)                       # Valid
+        field = self.board.get_field(destination)                       # valid
         if field.fish > 0:                                              # If not occupied
             return field                            
-        if field.penguin:                                               # If occupied
-            if field.penguin.team_enum.name == self.current_team.name.name:  # If own team
-                return field
         return None                                                     # If anything else
-    
-    def is_tile_valid(self, destination: HexCoordinate):
+    """
+    def is_tile_valid(self, destination: HexCoordinate) -> bool:
+        '''
+        ! unused !
+        '''
         if not own_is_valid(destination):                               # Not Valid
             return False
         field = self.board.get_field(destination)                       # Valid
@@ -163,7 +163,7 @@ class TriBoard:
             if field.penguin.team_enum.name == self.current_team.name.name:  # If own team
                 return True
         return False                                                     # If anything else
-
+    """
     def hash(self, coordinate: HexCoordinate):
         return (str(coordinate.x) + str(coordinate.y))
 

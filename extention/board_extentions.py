@@ -194,5 +194,14 @@ def get_all_not_empty_coords(board: Board) -> List[Field]:
         """
         return [field.coordinate for row in board.board for field in row if field.fish > 0 or field.penguin]
 
+def own_is_destination_valid(board: Board, destination: HexCoordinate) -> bool:
+    if not own_is_valid(destination):
+        return False
+    field = board.get_field(destination)
+    if field.fish > 0:
+        return True
+    return False
+
+Board._is_destination_valid
 def own_hash(coordinate: HexCoordinate):
     return (str(coordinate.x) + str(coordinate.y))
