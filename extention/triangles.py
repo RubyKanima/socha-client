@@ -68,9 +68,8 @@ class Tile:
 class Group:
 
     group: dict[str, Tile]
-    #fields: dict[str, list[str]] = field(default_factory={})
     #penguins: list[Penguin] = field(default_factory=[])
-    #fish: int = 0
+    fish: int = 0
 @dataclass(order=True, repr=True)
 class TriBoard:
 
@@ -96,21 +95,25 @@ class TriBoard:
                 continue
             for neighbor in penguin.coordinate.get_neighbors():
                 if not self.in_groups(neighbor, groups) and own_is_destination_valid(self.board, neighbor):
-                    groups.append(Group(self.extend_shape(neighbor)))
+                    group, fish = self.extend_shape(neighbor)
+                    groups.append(Group(group, fish))
         return groups
 
     def extend_shape(self, root: HexCoordinate) -> dict[str, Tile]:
         self.check_list.remove(root)
+        this_fish = self.board.get_field(root).fish
         neighbors = [n for n in root.get_neighbors() if n in self.check_list and own_is_destination_valid(self.board, n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
         return_hash: dict[str, Tile] = {}
         return_hash[own_hash(root)] = self.make_tile(root)
         if neighbors == []:                                                                         #wenn filtered neighbors == []
-            return return_hash
+            return return_hash, this_fish
         return_dict = {}
         for neighbor in neighbors:
             if neighbor in self.check_list:
-                return_dict = {**self.extend_shape(neighbor), **return_dict}
-        return {**return_dict,**return_hash}
+                hash_dict, fish = self.extend_shape(neighbor)
+                return_dict = {**hash_dict, **return_dict}
+                this_fish = this_fish + fish
+        return {**return_dict,**return_hash}, this_fish
 
     def make_tile(self, root: HexCoordinate):
         '''
