@@ -41,7 +41,7 @@ class Logic(IClientHandler):
             own_pretty_print_custom(self.game_state.board," ", "ඞ", "⛇")
         for each in self.tri_board.groups:
             print_group_board(self.game_state.board, each, self.game_state.current_team.name)
-            print(each.fish)
+            print(each.fish,"  ", each.penguins)
             print()
         logging.info(self.game_state.turn)
 

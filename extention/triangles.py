@@ -68,8 +68,8 @@ class Tile:
 class Group:
 
     group: dict[str, Tile]
-    #penguins: list[Penguin] = field(default_factory=[])
     fish: int = 0
+    penguins: list[Penguin] = field(default_factory=[])
 @dataclass(order=True, repr=True)
 class TriBoard:
 
@@ -91,12 +91,19 @@ class TriBoard:
         self.check_list = get_all_coords(self.board)
 
         for penguin in self.current_team.penguins:
-            if self.in_groups(penguin.coordinate, groups):
-                continue
             for neighbor in penguin.coordinate.get_neighbors():
                 if not self.in_groups(neighbor, groups) and own_is_destination_valid(self.board, neighbor):
                     group, fish = self.extend_shape(neighbor)
-                    groups.append(Group(group, fish))
+                    groups.append(Group(group, fish, [penguin]))
+                else:
+                    for group in groups:
+                        if own_hash(neighbor) in group.group and not penguin in group.penguins:
+                            group.penguins.append(penguin)
+        for other_penguin in self.current_team.opponent.penguins:
+            for neighbor in other_penguin.coordinate.get_neighbors():
+                for group in groups:
+                        if own_hash(neighbor) in group.group and not other_penguin in group.penguins:
+                            group.penguins.append(other_penguin)
         return groups
 
     def extend_shape(self, root: HexCoordinate) -> dict[str, Tile]:
@@ -170,9 +177,9 @@ class TriBoard:
     def hash(self, coordinate: HexCoordinate):
         return (str(coordinate.x) + str(coordinate.y))
 
-    def in_groups(self, neighbor: HexCoordinate, groups: list[Group]) -> bool:
+    def in_groups(self, coord: HexCoordinate, groups: list[Group]) -> bool:
         for group in groups:
-            if own_hash(neighbor) in group.group:
+            if own_hash(coord) in group.group:
                 return True
         return False
     
