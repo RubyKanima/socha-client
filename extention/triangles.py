@@ -72,6 +72,7 @@ class Group:
     group: dict[str, Tile]
     fish: int = 0
     penguins: list[Penguin] = field(default_factory=[])
+    
 @dataclass(order=True, repr=True)
 class TriBoard:
 
