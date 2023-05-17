@@ -63,6 +63,7 @@ class Tile:
     fish: int = 0
     shapes: dict[str, Shape] = field(default_factory={})
     inters: int = 0
+    oneway: bool = False
     
 
 @dataclass(order=True)
@@ -129,8 +130,8 @@ class TriBoard:
         '''
         field = self.board.get_field(root)
         shape_list = self.make_shape(root)
-        intersection_num = self.count_intersections(root)
-        return Tile(root, field.penguin, field.fish, shape_list, intersection_num)
+        intersection_num, oneway = self.count_intersections(root)
+        return Tile(root, field.penguin, field.fish, shape_list, intersection_num, oneway)
 
     def make_shape(self, root: HexCoordinate):
         fields = []
@@ -160,8 +161,9 @@ class TriBoard:
     
     def count_intersections(self, root: HexCoordinate):
         count = 0
+        oneway = True
         neighbors = []
-        for n in own_get_neighbors(root):
+        for n in own_get_neighbors(root):   #Nachbarliste machen
             if own_is_valid(n):
                 neighbors.append(self.board.get_field(n).get_fish() > 0)
             else:
@@ -171,9 +173,11 @@ class TriBoard:
             if  neighbors[index]:
                 if neighbors[index+1]:
                     count += 1
+                    oneway = False
                 elif not neighbors[index-1]:
                     count += 1
-        return count
+        oneway = False if count < 2 else oneway
+        return count, oneway
 
     def tile_valid(self, destination: HexCoordinate) -> Field | None:
         if not own_is_valid(destination):                               # Not Valid
