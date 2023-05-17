@@ -170,8 +170,8 @@ class TriBoard:
             else:
                 neighbors.append(False)
         for i in range(1,7):
-            index = i%6-1
-            if  neighbors[index]:
+            index = i % 6 - 1
+            if neighbors[index]:
                 if neighbors[index+1]:
                     count += 1
                     oneway = False
@@ -210,26 +210,6 @@ class TriBoard:
             if own_hash(coord) in group.group:
                 return True
         return False
-    
-    def remove_field(self):
-        '''
-        removes given field by key and mods the shapes
-        '''
-
-    def tri_to_line(self):
-        '''
-        converts triangle to line by given key and removed field
-        '''
-
-    def get_subgroup(self):
-        '''
-        get subgroup from key and its missing neighbors
-        '''
-
-    def search_group(self):
-        '''
-        search the group for something (dont know yet)
-        '''
 
 
 #### TESTING ####"""
