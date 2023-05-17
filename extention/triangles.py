@@ -62,6 +62,7 @@ class Tile:
     penguin: Penguin
     fish: int = 0
     shapes: dict[str, Shape] = field(default_factory={})
+    inters: int = 0
     
 
 @dataclass(order=True)
@@ -93,13 +94,13 @@ class TriBoard:
         for penguin in self.current_team.penguins:
             for neighbor in penguin.coordinate.get_neighbors():
                 if not self.in_groups(neighbor, groups) and own_is_destination_valid(self.board, neighbor):
-                    group, fish = self.extend_shape(neighbor)
-                    groups.append(Group(group, fish, [penguin]))
+                    group, fish = self.extend_shape(neighbor)   #initial call of the recursive function
+                    groups.append(Group(group, fish, [penguin])) #penguin isn't necessary here but whatever
                 else:
                     for group in groups:
                         if own_hash(neighbor) in group.group and not penguin in group.penguins:
                             group.penguins.append(penguin)
-        for other_penguin in self.current_team.opponent.penguins:
+        for other_penguin in self.current_team.opponent.penguins: #could of course be in recursion but for that I'd need a global var that resets in every initial recursion call
             for neighbor in other_penguin.coordinate.get_neighbors():
                 for group in groups:
                         if own_hash(neighbor) in group.group and not other_penguin in group.penguins:
@@ -127,6 +128,11 @@ class TriBoard:
         ! TEST NEEDED !
         '''
         field = self.board.get_field(root)
+        shape_list = self.make_shape(root)
+        intersection_num = self.count_intersections(root)
+        return Tile(root, field.penguin, field.fish, shape_list, intersection_num)
+
+    def make_shape(self, root: HexCoordinate):
         fields = []
         shape_list = []
         tri_up = False
@@ -134,23 +140,40 @@ class TriBoard:
 
         for vector in Vector().directions:
             n = root.add_vector(vector)
-            fields.append(self.tile_valid(n))
+            fields.append(self.board._is_destination_valid(n))
         
         if fields[5] and fields[0]: 
-            shape_list.append(Shape(root, [fields[0], fields[5]], -1, "Triangle"))# up right & up left
+            shape_list.append(Shape(root, [fields[0], fields[5]], -1, "Triangle"))  # up right & up left
             tri_up = True 
         if fields[3] and fields[2]:
-            shape_list.append(Shape(root, [fields[3], fields[2]], 1, "Triangle"))# down right & down left
+            shape_list.append(Shape(root, [fields[3], fields[2]], 1, "Triangle"))   # down right & down left
             tri_down = True
-        if not fields[4]:                                                   # not right
+        if not fields[4]:                                                           # not right
             if not tri_up and fields[0]: 
-                shape_list.append(Shape(root, [fields[0]], -1, "line"))     # not up tri & up right
+                shape_list.append(Shape(root, [fields[0]], -1, "line"))             # not up tri & up right
             if not tri_down and fields[2]: 
-                shape_list.append(Shape(root, [fields[2]], 1, "line"))      # not down tri & down right
-        elif not (fields[0] or fields[2]): 
-            shape_list.append(Shape(root, [fields[4]], 0, "line"))          # not (up right | down right)
+                shape_list.append(Shape(root, [fields[2]], 1, "line"))              # not down tri & down right
+        elif not (fields[0] or fields[2]):
+            shape_list.append(Shape(root, [fields[4]], 0, "line"))                  # not (up right | down right)
         
-        return Tile(root, field.penguin, field.fish, shape_list)
+        return shape_list
+    
+    def count_intersections(self, root: HexCoordinate):
+        count = 0
+        neighbors = []
+        for n in own_get_neighbors(root):
+            if own_is_valid(n):
+                neighbors.append(self.board.get_field(n).get_fish() > 0)
+            else:
+                neighbors.append(False)
+        for i in range(1,7):
+            index = i%6-1
+            if  neighbors[index]:
+                if neighbors[index+1]:
+                    count += 1
+                elif not neighbors[index-1]:
+                    count += 1
+        return count
 
     def tile_valid(self, destination: HexCoordinate) -> Field | None:
         if not own_is_valid(destination):                               # Not Valid

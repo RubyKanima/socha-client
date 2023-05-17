@@ -28,10 +28,7 @@ class Logic(IClientHandler):
             return Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
 
     def on_update(self, state: GameState):
-        self.game_state = state
-
-        
-            
+        self.game_state = state    
        
     def calculate_move(self):
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
@@ -39,9 +36,10 @@ class Logic(IClientHandler):
             own_pretty_print_custom(self.game_state.board," ", "⛇", "ඞ")
         else:
             own_pretty_print_custom(self.game_state.board," ", "ඞ", "⛇")
-        for each in self.tri_board.groups:
-            print_group_board(self.game_state.board, each, self.game_state.current_team.name)
-            print(each.fish,"  ", each.penguins)
+        for group in self.tri_board.groups:
+            print_group_board(self.game_state.board, group, self.game_state.current_team.name)
+            tabulate_group(group)
+            print(group.fish,"  ", group.penguins)
             print()
         logging.info(self.game_state.turn)
 

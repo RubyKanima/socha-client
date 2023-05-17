@@ -3,6 +3,15 @@ from socha import *
 from typing import Optional, List
 import random
 import math
+
+own_directions = [
+    Vector(1,-1),
+    Vector(2, 0),
+    Vector(1, 1),
+    Vector(-1,1),
+    Vector(-2,0),
+    Vector(-1,-1)
+]
     
 def get_possible_fish(state: GameState, team: TeamEnum = None) -> int:
     if team == None:
@@ -202,6 +211,8 @@ def own_is_destination_valid(board: Board, destination: HexCoordinate) -> bool:
         return True
     return False
 
-Board._is_destination_valid
+def own_get_neighbors(coord: HexCoordinate):
+    return [coord.add_vector(vector) for vector in own_directions]
+
 def own_hash(coordinate: HexCoordinate):
     return (str(coordinate.x) + str(coordinate.y))

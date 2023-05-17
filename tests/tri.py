@@ -60,3 +60,11 @@ list2 = {0: 0,
 
 x, y = test(0, list1, list2)
 print(x, y)
+list = [1,2,3,4,5,6]
+print(range(5))
+for i in range(1,7):
+    index = i%6-1
+    print()
+    print("each+1",list[index+1])
+    print("each",list[index])
+    print("each-1",list[index-1])
