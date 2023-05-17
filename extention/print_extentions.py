@@ -17,7 +17,7 @@ def tabulate_moves(move_list: List[Move]):
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def tabulate_group(group: Group):
-    table = [["hash", "root", "value", "inters", "oneway"]]
+    table = [["hash", "root", "f_value", "inters", "oneway"]]
     for key in group.group:
         tile = group.group[key]
         enum = tile.penguin.team_enum.name if tile.penguin else None
