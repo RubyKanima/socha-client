@@ -44,11 +44,9 @@ def print_group_board(board: Board, group: Group, team: TeamEnum):
             coord = CartesianCoordinate(x, y).to_hex()
             hashed = own_hash(coord)
             if hashed in group.group:
-                color = colors["spots"][group.group[hashed].spot]
-                reset = colors["reset"]
                 num = len(group.group) - list(group.group.keys()).index(hashed)
-                if num > 9: print(color + f" {num} " + reset, end="")
-                if num < 10: print(color + f" 0{num} " + reset, end="")
+                if num > 9: print(f" {num} ", end="")
+                if num < 10: print(f" 0{num} ", end="")
             else:
                 this_field = board.get_field(coord)
                 if this_field.is_occupied():
@@ -73,9 +71,11 @@ def print_group_board_color(board: Board, group: Group, team: TeamEnum):
             coord = CartesianCoordinate(x, y).to_hex()
             hashed = own_hash(coord)
             if hashed in group.group:
+                color = colors["spots"][group.group[hashed].spot]
                 num = len(group.group) - list(group.group.keys()).index(hashed)
-                if num > 9: print(f" {num} ", end="")
-                if num < 10: print(f" 0{num} ", end="")
+                if num > 9: print(color + f" {num} ", end="")
+                if num < 10: print(color + f" 0{num} ", end="")
+                print(colors["reset"], end="")
             else:
                 this_field = board.get_field(coord)
                 if this_field.is_occupied():
