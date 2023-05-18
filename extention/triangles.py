@@ -174,20 +174,20 @@ class TriBoard:
                 neighbors.append(False)
         for i in range(0,6):
             if neighbors[i]:
-                if neighbors[i+1]:
+                if neighbors[(i+1) % 6]:
                     count += 1
                     blackspot = False
                 elif not neighbors[i-1]:
                     count += 1
                     redspot = True
-            elif not neighbors[i+3]:
+            elif not neighbors[(i+3) % 6]:
                 empty_mirror = True
         if count == 1:
             dead_end = True
         if empty_mirror and count == 2:
             redspot = True
 
-        spot = None
+        spot = "white"
 
         if dead_end:
             spot = "end"

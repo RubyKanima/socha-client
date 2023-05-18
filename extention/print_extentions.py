@@ -5,6 +5,17 @@ import logging
 
 from extention.triangles import *
 
+
+colors = {
+    "reset": "\033[00m",
+    "spots": {
+        "white":    "\033[37m",
+        "red":      "\033[31m",
+        "black":    "\033[30m",
+        "end":      "\033[93m",
+    }
+}
+
 def tabulate_moves(move_list: List[Move]):
     table = [["Team", "From Cart.", "To Cart."]]
     for each in move_list:
@@ -24,15 +35,45 @@ def tabulate_group(group: Group):
         table.append([key, tile.root, enum or tile.fish, tile.inters, tile.spot])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
-def print_group_board(board:Board, group: Group, team: TeamEnum):
+def print_group_board(board: Board, group: Group, team: TeamEnum):
     print("- - - - - - - - - - - - - - - - -")
     for y in range(8):
         if y % 2 == 1:
             print("  ", end="")
         for x in range(8):
-            coord = CartesianCoordinate(x,y).to_hex()
-            if own_hash(coord) in group.group:
-                num = len(group.group) - list(group.group.keys()).index(own_hash(coord))
+            coord = CartesianCoordinate(x, y).to_hex()
+            hashed = own_hash(coord)
+            if hashed in group.group:
+                color = colors["spots"][group.group[hashed].spot]
+                reset = colors["reset"]
+                num = len(group.group) - list(group.group.keys()).index(hashed)
+                if num > 9: print(color + f" {num} " + reset, end="")
+                if num < 10: print(color + f" 0{num} " + reset, end="")
+            else:
+                this_field = board.get_field(coord)
+                if this_field.is_occupied():
+                    if this_field.penguin.team_enum.name == team.name:
+                        print(" ⛇  ", end="")
+                    else:
+                        print(" ඞ  ", end="")
+                elif this_field.fish == 0:
+                    print("    ", end="")
+                else:
+                    print(" -- ", end="")
+        print()
+    print("- - - - - - - - - - - - - - - - -")
+
+def print_group_board_color(board: Board, group: Group, team: TeamEnum):
+
+    print("- - - - - - - - - - - - - - - - -")
+    for y in range(8):
+        if y % 2 == 1:
+            print("  ", end="")
+        for x in range(8):
+            coord = CartesianCoordinate(x, y).to_hex()
+            hashed = own_hash(coord)
+            if hashed in group.group:
+                num = len(group.group) - list(group.group.keys()).index(hashed)
                 if num > 9: print(f" {num} ", end="")
                 if num < 10: print(f" 0{num} ", end="")
             else:
