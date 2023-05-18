@@ -72,21 +72,19 @@ def print_group_board_color(board: Board, group: Group, team: TeamEnum):
             hashed = own_hash(coord)
             if hashed in group.group:
                 color = colors["spots"][group.group[hashed].spot]
-                num = len(group.group) - list(group.group.keys()).index(hashed)
-                if num > 9: print(color + f" {num} ", end="")
-                if num < 10: print(color + f" 0{num} ", end="")
+                print(color + f" {group.group[hashed].fish} ", end=" ")
                 print(colors["reset"], end="")
             else:
                 this_field = board.get_field(coord)
-                if this_field.is_occupied():
+                if this_field.is_occupied(): 
                     if this_field.penguin.team_enum.name == team.name:
-                        print(" ⛇  ", end="")
+                        print(" ⛇ ", end=" ")
                     else:
-                        print(" ඞ  ", end="")
+                        print(" ඞ ", end=" ")
                 elif this_field.fish == 0:
-                    print("    ", end="")
+                    print("   ", end=" ")
                 else:
-                    print(" -- ", end="")
+                    print(" - ", end=" ")
         print()
     print("- - - - - - - - - - - - - - - - -")
 

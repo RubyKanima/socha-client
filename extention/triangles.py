@@ -126,9 +126,6 @@ class TriBoard:
         return {**return_dict,**return_hash}, this_fish
 
     def make_tile(self, root: HexCoordinate):
-        '''
-        ! TEST NEEDED !
-        '''
         field = self.board.get_field(root)
         shape_list = self.make_shape(root)
         intersection_num, spot = self.count_intersections(root)

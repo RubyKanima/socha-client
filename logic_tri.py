@@ -37,7 +37,7 @@ class Logic(IClientHandler):
             own_pretty_print_custom(self.game_state.board," ", "ඞ", "⛇")
         for group in self.tri_board.groups:
             print_group_board_color(self.game_state.board, group, self.game_state.current_team.name)
-            tabulate_group(group)
+            #tabulate_group(group)
             print(group.fish,"  ", group.penguins)
             print()
         logging.info(self.game_state.turn)
