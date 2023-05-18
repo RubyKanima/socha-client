@@ -17,11 +17,11 @@ def tabulate_moves(move_list: List[Move]):
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def tabulate_group(group: Group):
-    table = [["hash", "root", "value", "inters", "oneway"]]
+    table = [["hash", "root", "fish", "inters", "redspot", "dead_end"]]
     for key in group.group:
         tile = group.group[key]
         enum = tile.penguin.team_enum.name if tile.penguin else None
-        table.append([key, tile.root, enum or tile.fish, tile.inters, tile.oneway])
+        table.append([key, tile.root, enum or tile.fish, tile.inters, tile.redspot, tile.dead_end])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def print_group_board(board:Board, group: Group, team: TeamEnum):

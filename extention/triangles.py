@@ -63,7 +63,7 @@ class Tile:
     fish: int = 0
     shapes: dict[str, Shape] = field(default_factory={})
     inters: int = 0
-    oneway: bool = False
+    spot: str = None
     
 
 @dataclass(order=True)
@@ -130,8 +130,8 @@ class TriBoard:
         '''
         field = self.board.get_field(root)
         shape_list = self.make_shape(root)
-        intersection_num, oneway = self.count_intersections(root)
-        return Tile(root, field.penguin, field.fish, shape_list, intersection_num, oneway)
+        intersection_num, spot = self.count_intersections(root)
+        return Tile(root, field.penguin, field.fish, shape_list, intersection_num, spot)
 
     def make_shape(self, root: HexCoordinate):
         fields = []
@@ -161,23 +161,41 @@ class TriBoard:
     
     def count_intersections(self, root: HexCoordinate):
         count = 0
-        oneway = True
+        redspot = False
+        blackspot = True
+        dead_end = False
+        empty_mirror = False
         neighbors = []
         for n in own_get_neighbors(root):   #Nachbarliste machen
             if own_is_valid(n):
                 neighbors.append(self.board.get_field(n).get_fish() > 0)
             else:
                 neighbors.append(False)
-        for i in range(1,7):
-            index = i%6-1
-            if  neighbors[index]:
-                if neighbors[index+1]:
+        for i in range(0,6):
+            if neighbors[i]:
+                if neighbors[i+1]:
                     count += 1
-                    oneway = False
-                elif not neighbors[index-1]:
+                    blackspot = False
+                elif not neighbors[i-1]:
                     count += 1
-        oneway = False if count < 2 else oneway
-        return count, oneway
+                    redspot = True
+            elif not neighbors[i+3]:
+                empty_mirror = True
+        if count == 1:
+            dead_end = True
+        if empty_mirror and count == 2:
+            redspot = True
+
+        spot = None
+
+        if dead_end:
+            spot = "end"
+        elif blackspot:
+            spot = "black"
+        elif redspot:
+            spot = "red"
+
+        return count, spot
 
     def tile_valid(self, destination: HexCoordinate) -> Field | None:
         if not own_is_valid(destination):                               # Not Valid

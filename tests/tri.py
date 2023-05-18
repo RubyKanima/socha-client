@@ -60,7 +60,7 @@ list2 = {0: 0,
 
 x, y = test(0, list1, list2)
 print(x, y)
-list = [1,2,3,4,5,6]
+list = [0,1,2,3,4,5]
 print(range(5))
 for i in range(1,7):
     index = i%6-1
@@ -68,3 +68,27 @@ for i in range(1,7):
     print("each+1",list[index+1])
     print("each",list[index])
     print("each-1",list[index-1])
+
+dict1 = {"69": [1]}
+dict2 = {"69": [2, 3]}
+dict3 = {}
+for each in dict1:
+    if each in dict2:
+        print(each)
+        value = dict1[each]
+        value2 = dict2[each]
+        value.extend(value2)
+        dict3[each] = value
+    else:
+        dict3[each] = dict1[each]
+for each in dict2:
+    if not each in dict3:
+        dict3[each] = dict2[each]
+print(dict3)
+
+for i in range(0,6):
+    print(i)
+    print()
+    print("each+1",list[(i+1) % 6 ])
+    print("each",list[(i) % 6])
+    print("each-1",list[(i-1) % 6])
