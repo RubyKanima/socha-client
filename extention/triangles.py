@@ -164,8 +164,8 @@ class TriBoard:
         count = 0
         redspot = False
         blackspot = True
-        dead_end = False
         empty_mirror = False
+        mirror = True
         neighbors = []
         for n in own_get_neighbors(root):   #Nachbarliste machen
             if own_is_valid(n):
@@ -180,18 +180,18 @@ class TriBoard:
                 elif not neighbors[i-1]:
                     count += 1
                     redspot = True
-            elif not neighbors[(i+3) % 6]:
+            elif not neighbors[i-3]:
                 empty_mirror = True
-        if count == 1:
-            dead_end = True
+            elif neighbors[i-3]:
+                mirror = False
         if empty_mirror and count == 2:
             redspot = True
 
         spot = "white"
 
-        if dead_end:
+        if count == 1 and redspot:
             spot = "end"
-        elif blackspot:
+        elif blackspot and not mirror:
             spot = "black"
         elif redspot:
             spot = "red"

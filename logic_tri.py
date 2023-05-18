@@ -6,7 +6,6 @@ import random
 from extention import *
 from utils import *
 
-
 class Logic(IClientHandler):
     def __init__(self):     
         self.game_state: GameState
