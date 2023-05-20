@@ -195,7 +195,7 @@ def get_all_coords(board: Board) -> List[Field]:
         """
         return [field.coordinate for row in board.board for field in row]
 
-def get_all_not_empty_coords(board: Board) -> List[Field]:
+def get_all_not_empty_coords(board: Board) -> List[Coordinate]:
         """
         Gets all Fields of the board.
 

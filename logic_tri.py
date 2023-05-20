@@ -31,15 +31,8 @@ class Logic(IClientHandler):
        
     def calculate_move(self):
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
-        if self.game_state.current_team.name.name == 'ONE':
-            own_pretty_print_custom(self.game_state.board," ", "⛇", "ඞ")
-        else:
-            own_pretty_print_custom(self.game_state.board," ", "ඞ", "⛇")
-        for group in self.tri_board.groups:
-            print_group_board_color(self.game_state.board, group, self.game_state.current_team.name)
-            #tabulate_group(group)
-            print(group.fish,"  ", group.penguins)
-            print()
+        print_common(self.game_state.board, self.game_state.current_team.name.name)
+        #self.tri_board.__own_repr__()
         logging.info(self.game_state.turn)
 
         if self.game_state.turn < 4:                            # Beginning Moves
@@ -48,15 +41,17 @@ class Logic(IClientHandler):
         
         if self.game_state.turn < 8:
             logging.info("delta_cut")
-            return Intersection.get_move(self)
+            return Intersection.get_beginning_move(self)
         
         if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
             logging.info("least")
-            return AlphaBeta.get_least_neighbor_move(self)
+            logic = self
+            return TriBoard.get_least_shapes_move(self.tri_board, logic)
         
         if not self.inters_to:                            # Following Moves against enemy
             logging.info("least2")
-            return AlphaBeta.get_least_neighbor_move(self)
+            logic = self
+            return TriBoard.get_least_shapes_move(self.tri_board, logic)
         
         if self.inters_to:                                # Following Moves if no moves possible against enemies
             logging.info("get_alpha_beta_cut_move")

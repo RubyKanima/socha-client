@@ -56,6 +56,24 @@ class Intersection():
             min = get_possible_fish(logic.game_state, logic.game_state.first_team.name)
         
         return max - min
+    def get_beginning_move(logic: Logic):
+        max_val = -10000
+        max_move = logic.game_state.possible_moves[0]
+        move_list = logic.game_state.possible_moves
+        del_list = remove_solo_fields(logic.game_state, move_list)
+        if del_list:
+            move_list = del_list
+        
+        #print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
+
+        for move in move_list:
+            val = Intersection.get_fish_evaluate(logic.game_state, move.to_value)
+            print(move)
+            print(val)
+            if val >= max_val:
+                max_val = val
+                max_move = move
+        return max_move
 
     def get_move(logic: Logic):
         max_val = -1000
@@ -217,7 +235,7 @@ class Intersection():
                 if state.board.get_field(destination).fish == 0:
                     break
                 if destination in intersections:
-                    facter = -1
-                value += state.board.get_field(destination).fish
+                    factor = -1
+                value += (state.board.get_field(destination).fish * factor)
         return value
                     

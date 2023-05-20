@@ -2,7 +2,7 @@ from socha import *
 from dataclasses import dataclass, field
 from copy import copy
 from .board_extentions import *
-
+from logic import Logic
 @dataclass(order=True)
 class Shape:
 
@@ -78,25 +78,111 @@ class TriBoard:
 
     board: Board
     current_team: Team
-    check_list: list[str] = field(default_factory=[])
-    hash_list: list[str] = field(default_factory=[])
+    _check_list: list[str] = field(default_factory=[])
     _groups: list[Group] = field(default_factory=[])
+    _tri_board: list[Tile] = field(default_factory=[])
     
+    @property
+    def tri_board(self):
+        if self._tri_board: return self._tri_board
+        else:
+            self._tri_board = self._make_tri_board()
+            return self._tri_board
+
     @property 
     def groups(self):
         if self._groups: return self._groups
         else: 
-            self._groups = self.build_groups()
+            self._groups = self._make_groups()
             return self._groups
+        
+    def get_least_shapes_move(self, logic: Logic):
+        max_move = logic.game_state.possible_moves[0]
+        min_val = 6
+        valid_list = []
 
-    def build_groups(self) -> list[Group]:
+        for move in logic.game_state.possible_moves:
+            if self.get_tile(move.to_value).spot == "end":
+                valid_list.append(move)
+
+        if not valid_list:        
+            for move in logic.game_state.possible_moves:
+                if self.get_tile(move.to_value).spot == "white":
+                    valid_list.append(move)
+        
+        if not valid_list:
+            valid_list = logic.game_state.possible_moves
+
+        for move in valid_list:
+            tile = self.get_tile(move.to_value)
+            val = tile.inters
+            if val <= min_val and not val == 0:
+                min_val = val
+                max_move = move
+        return max_move
+        
+    def _make_tri_board(self) -> list[list[Tile]]:
+        tri_board = []
+        for row in self.board.board:
+            y = []
+            for field in row:
+
+                y.append(self.make_tile(field.coordinate))
+            tri_board.append(y)
+        return tri_board
+    
+    def get_tile(self, coord: HexCoordinate):
+        coord = coord.to_cartesian()
+        return self.tri_board[coord.y][coord.x]
+
+    def _make_groups(self):
         groups: list[Group] = []
-        self.check_list = get_all_coords(self.board)
+        self._check_list = [field.coordinate for row in self.board.board for field in row if field.fish > 0]
+
+        while self._check_list:
+            this_coord = self._check_list[0]
+            print(this_coord)
+            if own_is_destination_valid(self.board, this_coord):
+                group, fish = self._make_group(this_coord)   #initial call of the recursive function
+                groups.append(Group(group, fish, []))
+
+        penguins: list[Penguin] = []
+        penguins.extend(self.current_team.penguins)
+        penguins.extend(self.current_team.opponent.penguins)
+        for penguin in penguins: #could of course be in recursion but for that I'd need a global var that resets in every initial recursion call
+            for neighbor in penguin.coordinate.get_neighbors():
+                for group in groups:
+                        if own_hash(neighbor) in group.group and not penguin in group.penguins:
+                            group.penguins.append(penguin)
+        return groups
+
+
+    def _make_group(self, root: HexCoordinate):
+        self._check_list.remove(root)
+        this_fish = self.board.get_field(root).fish
+        neighbors = [n for n in root.get_neighbors() if n in self._check_list]
+        this_dict: dict[str, Tile] = {}
+        this_dict[own_hash(root)] = self.get_tile(root)
+        if neighbors == []:                                                                         #wenn filtered neighbors == []
+            return this_dict, this_fish
+        return_group = {}
+        for neighbor in neighbors:
+            if neighbor in self._check_list:
+                group, fish = self._make_group(neighbor)
+                return_group = {**group, **return_group}
+                this_fish = this_fish + fish
+        return {**return_group,**this_dict}, this_fish
+    
+    def make_groups_from(self) -> list[Group]:
+        groups: list[Group] = []
+        self._check_list = get_all_coords(self.board)
 
         for penguin in self.current_team.penguins:
             for neighbor in penguin.coordinate.get_neighbors():
                 if not self.in_groups(neighbor, groups) and own_is_destination_valid(self.board, neighbor):
-                    group, fish = self.extend_shape(neighbor)   #initial call of the recursive function
+                    
+                    group, fish = self.make_group(neighbor)   #initial call of the recursive function
+
                     groups.append(Group(group, fish, [penguin])) #penguin isn't necessary here but whatever
                 else:
                     for group in groups:
@@ -109,21 +195,24 @@ class TriBoard:
                             group.penguins.append(other_penguin)
         return groups
 
-    def extend_shape(self, root: HexCoordinate) -> dict[str, Tile]:
-        self.check_list.remove(root)
+    def make_group(self, root: HexCoordinate) -> dict[str, Tile]:
+        self._check_list.remove(root)
         this_fish = self.board.get_field(root).fish
-        neighbors = [n for n in root.get_neighbors() if n in self.check_list and own_is_destination_valid(self.board, n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
+        neighbors = [n for n in root.get_neighbors() if n in self._check_list and own_is_destination_valid(self.board, n)]    #filter: alle nachbarn, wenn sie in new_list sind und valid
         return_hash: dict[str, Tile] = {}
         return_hash[own_hash(root)] = self.make_tile(root)
         if neighbors == []:                                                                         #wenn filtered neighbors == []
             return return_hash, this_fish
         return_dict = {}
         for neighbor in neighbors:
-            if neighbor in self.check_list:
-                hash_dict, fish = self.extend_shape(neighbor)
+            if neighbor in self._check_list:
+                hash_dict, fish = self.make_group(neighbor)
                 return_dict = {**hash_dict, **return_dict}
                 this_fish = this_fish + fish
         return {**return_dict,**return_hash}, this_fish
+
+    def get_subgroups(self):
+        ''''''
 
     def make_tile(self, root: HexCoordinate):
         field = self.board.get_field(root)
@@ -226,6 +315,12 @@ class TriBoard:
                 return True
         return False
 
+    def __own_repr__(self):
+        from .print_extentions import print_group_board_color
+        for group in self.groups:
+            print_group_board_color(self.board, group, self.current_team.name.name)
+            print(group.fish,"  ", group.penguins)
+            print()
 
 #### TESTING ####"""
 """

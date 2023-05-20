@@ -16,6 +16,12 @@ colors = {
     }
 }
 
+def print_common(board: Board, team: str):
+    if team == 'ONE':
+        own_pretty_print_custom(board," ", "⛇", "ඞ")
+    else:
+        own_pretty_print_custom(board," ", "ඞ", "⛇")
+
 def tabulate_moves(move_list: List[Move]):
     table = [["Team", "From Cart.", "To Cart."]]
     for each in move_list:
@@ -35,7 +41,7 @@ def tabulate_group(group: Group):
         table.append([key, tile.root, enum or tile.fish, tile.inters, tile.spot])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
-def print_group_board(board: Board, group: Group, team: TeamEnum):
+def print_group_board(board: Board, group: Group, team: str):
     print("- - - - - - - - - - - - - - - - -")
     for y in range(8):
         if y % 2 == 1:
@@ -50,7 +56,7 @@ def print_group_board(board: Board, group: Group, team: TeamEnum):
             else:
                 this_field = board.get_field(coord)
                 if this_field.is_occupied():
-                    if this_field.penguin.team_enum.name == team.name:
+                    if this_field.penguin.team_enum.name == team:
                         print(" ⛇  ", end="")
                     else:
                         print(" ඞ  ", end="")
@@ -61,8 +67,7 @@ def print_group_board(board: Board, group: Group, team: TeamEnum):
         print()
     print("- - - - - - - - - - - - - - - - -")
 
-def print_group_board_color(board: Board, group: Group, team: TeamEnum):
-
+def print_group_board_color(board: Board, group: Group, team: str):
     print("- - - - - - - - - - - - - - - - -")
     for y in range(8):
         if y % 2 == 1:
@@ -77,7 +82,7 @@ def print_group_board_color(board: Board, group: Group, team: TeamEnum):
             else:
                 this_field = board.get_field(coord)
                 if this_field.is_occupied(): 
-                    if this_field.penguin.team_enum.name == team.name:
+                    if this_field.penguin.team_enum.name == team:
                         print(" ⛇ ", end=" ")
                     else:
                         print(" ඞ ", end=" ")
