@@ -6,10 +6,10 @@ import random
 from extention import *
 from utils import *
 
+
 class Logic(IClientHandler):
     def __init__(self):     
         self.game_state: GameState
-        self.tri_board: TriBoard
 
     @property
     def other_possible_moves(self):
@@ -27,31 +27,26 @@ class Logic(IClientHandler):
             return Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
 
     def on_update(self, state: GameState):
-        self.game_state = state    
+        self.game_state = state
        
     def calculate_move(self):
-        self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
-        print_common(self.game_state.board, self.game_state.current_team.name.name)
-        #self.tri_board.__own_repr__()
         logging.info(self.game_state.turn)
 
         if self.game_state.turn < 4:                            # Beginning Moves
             logging.info("most_possible_move")
             return AlphaBeta.get_most_possible_move(self)
         
-        if self.game_state.turn < 8:
+        if self.game_state.turn <8:
             logging.info("delta_cut")
-            return Intersection.get_beginning_move(self)
+            return Intersection.get_move(self)
         
         if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
             logging.info("least")
-            logic = self
-            return TriBoard.get_least_shapes_move(self.tri_board, logic)
+            return AlphaBeta.get_least_neighbor_move(self)
         
         if not self.inters_to:                            # Following Moves against enemy
             logging.info("least2")
-            logic = self
-            return TriBoard.get_least_shapes_move(self.tri_board, logic)
+            return AlphaBeta.get_least_neighbor_move(self)
         
         if self.inters_to:                                # Following Moves if no moves possible against enemies
             logging.info("get_alpha_beta_cut_move")
