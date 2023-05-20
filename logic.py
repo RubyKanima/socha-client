@@ -41,7 +41,7 @@ class Logic(IClientHandler):
         
         if self.game_state.turn < 8:
             logging.info("delta_cut")
-            return Intersection.get_move(self)
+            return AlphaBeta.get_alpha_beta_cut_move(self)
         
         if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
             logging.info("least")

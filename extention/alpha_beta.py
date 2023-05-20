@@ -5,31 +5,7 @@ from .intersections import *
 from .board_extentions import *
 class AlphaBeta():
     
-    def get_alpha_beta_cut_move(logic: Logic):
-        max_val = -1000
-        max_move: Move = logic.game_state.possible_moves[0]
-        # if turn <= 8 deleted
-        move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
-        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
-        del_list = remove_solo_fields(logic.game_state, move_list)
-        if not del_list == []:
-            move_list = del_list
-        #addition_turn = 1 if logic.game_state.turn > 8 else 0
-        length = len(move_list)
-        addition_len = 1 if length <= 12 else 2 if length <= 2 else 0
-        #logging.info(f"addition: {addition_len}, {addition_turn}")
-        
-        #print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
-        #own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
-        logging.info(addition_len)
-        for each in move_list:
-            mini_max = AlphaBeta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
-            val = mini_max
-            if val > max_val:
-                max_move = each
-                max_val = val
-        return max_move
-
+    
     def get_most_possible_move(logic: Logic):
         filter = neighbor_filter(logic.game_state.board, logic.game_state.possible_moves)
         if not filter:
@@ -81,6 +57,14 @@ class AlphaBeta():
             move_list.append(move_str)
         return str(set(move_list))
     
+    def evaluate_fish(logic: Logic, state: GameState):
+        if (logic.game_state.current_team.name == logic.game_state.first_team.name):
+            val = state.first_team.fish - state.second_team.fish
+        else:
+            val = state.second_team.fish - state.first_team.fish
+        return val
+
+
     def alpha_beta_fish(logic: Logic, state: GameState, depth: int, alpha, beta, memo : dict = {}):
         '''
         `alpha_beta_fish()` only uses the `fish` value for the evaluation aswell as the `possible_moves`
@@ -129,6 +113,27 @@ class AlphaBeta():
 
             memo[hash_list] = minEval
             return minEval
+
+    def get_alpha_beta_cut_move(logic: Logic, length: int):
+        max_val = -1000
+        max_move: Move = logic.game_state.possible_moves[0]
+        # if turn <= 8 deleted
+        move_list = Intersection.get_first_intersections(logic.game_state, logic.game_state.other_team)
+        move_list = Intersection.add_missing_direction_moves(logic.game_state, move_list, logic.game_state.current_team)
+        del_list = remove_solo_fields(logic.game_state, move_list)
+        if not del_list == []:
+            move_list = del_list
+        """ Printing the filtered moves in a board
+        print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
+        own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
+        """
+        for each in move_list:
+            mini_max = AlphaBeta.alpha_beta_cut(logic, logic.game_state.perform_move(each), length, max_val, 100)
+            val = mini_max
+            if val > max_val:
+                max_move = each
+                max_val = val
+        return max_move
 
     def alpha_beta_cut(logic: Logic, state: GameState, depth: int, alpha: int, beta: int, memo: dict = {}):
         '''
