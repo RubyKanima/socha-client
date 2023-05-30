@@ -6,3 +6,4 @@ from .print_extentions import *
 from .socha_extentions import *
 from .tree import *
 from .triangles import *
+from .ai import *
