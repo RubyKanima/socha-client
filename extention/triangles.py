@@ -322,6 +322,50 @@ class TriBoard:
             print(group.fish,"  ", group.penguins)
             print()
 
+    def get_possible_fish(self, tile: Tile) -> int:
+
+        fish = self.board.get_field(tile.root).fish
+
+        for direction in Vector().directions:
+            for i in range(1, 8):
+                destination = tile.root.add_vector(direction.scalar_product(i))
+                if self.board._is_destination_valid(destination):
+                    fish += self.board.get_field(destination).fish
+                else:
+                    break
+        
+        return fish
+
+    def get_possible_fish_average(self, tile: Tile) -> float:
+
+        fish = self.board.get_field(tile.root).fish
+        count = 1
+
+        for direction in Vector().directions:
+            for i in range(1, 8):
+                destination = tile.root.add_vector(direction.scalar_product(i))
+                if self.board._is_destination_valid(destination):
+                    fish += self.board.get_field(destination).fish
+                    count += 1
+                else:
+                    break
+                
+        return fish / count
+    
+    def get_possible_field(self, tile: Tile) -> int:
+
+        count = 0
+
+        for direction in Vector().directions:
+            for i in range(1, 8):
+                destination = tile.root.add_vector(direction.scalar_product(i))
+                if self.board._is_destination_valid(destination):
+                    count += 1
+                else:
+                    break
+        
+        return count
+
 #### TESTING ####"""
 """
 test_shape_1 = Shape(
