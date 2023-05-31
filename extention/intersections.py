@@ -44,19 +44,6 @@ class Intersection():
             val = -len(get_possible_movements(state, logic.game_state.first_team.name))
         return val
 
-    def delta_fish_possibles(logic:Logic, state: GameState) -> int:
-        '''
-        `delta_cut` returns the discrepancy of current's `fish` and the opponent's `fish`
-        '''
-        if (logic.game_state.current_team.name == logic.game_state.first_team.name):
-            max = get_possible_fish(logic.game_state, logic.game_state.first_team.name)
-            min = get_possible_fish(logic.game_state, logic.game_state.second_team.name)
-        else:
-            max = get_possible_fish(logic.game_state, logic.game_state.second_team.name)
-            min = get_possible_fish(logic.game_state, logic.game_state.first_team.name)
-        
-        return max - min
-
     def get_move(logic: Logic):
         max_val = -1000
         max_move = logic.game_state.possible_moves[0]
