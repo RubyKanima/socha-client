@@ -35,6 +35,30 @@ class Logic(IClientHandler):
         self.tri_board.__own_repr__()
         logging.info(self.game_state.turn)
 
+        for t in self.tri_board.tri_board:
+            print(t)
+            print("1", 1)
+
+        print(len(self.tri_board.tri_board))
+        '''
+        white 0/1
+        yellow 0/1
+        red 0/1
+        black 0/1
+        fish linear(1, 4, x)
+        group fish sigmoid(1, 80, x)
+        score/average score linear(1, 4, x)
+        tri inters linear(1, 6, x)
+        enemy inters linear(0, 4, x)
+        enemy behind sigmoid(0, 12, x)
+        enemy between sigmoid(0, 12, x)
+        mate inters linear(0, 3, x)
+        mate behind sigmoid(0, 12, x)
+        mate between sigmoid(0, 12, x)
+
+        instead of plugging fish values into function, plug average fish values
+        '''
+        
         return random.choice(self.game_state.possible_moves)
         
 if __name__ == "__main__":
