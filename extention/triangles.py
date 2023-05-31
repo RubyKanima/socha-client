@@ -80,7 +80,7 @@ class TriBoard:
     current_team: Team
     _check_list: list[str] = field(default_factory=[])
     _groups: list[Group] = field(default_factory=[])
-    _tri_board: list[Tile] = field(default_factory=[])
+    _tri_board: list[list[Tile]] = field(default_factory=[])
     
     @property
     def tri_board(self):
