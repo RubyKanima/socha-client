@@ -3,22 +3,6 @@ from typing import List
 
 from dataclasses import dataclass
 
-class Tile(Field):
-
-    def __init__(self):
-        self.neighbors = self.coordinate.get_neighbors()
-
-    def _expand(_tile) -> list:
-        list = []
-        for each in _tile.neighbors:
-            if each not in list:
-                list.append(Tile._expand(_tile, list))
-        return list.append(_tile)
-
-
-    def is_valuable(_tile) -> bool:
-        return _tile.fish in [2,3,4]
-
 class CustomBoard(Board):
     
     def __init__(self):
@@ -68,20 +52,3 @@ class CustomBoard(Board):
     def filter_fields(board: Board, filter: list = [0,1]):
         filter_list = [[0,1,2,3,4].remove(each) for each in filter]
         return CustomBoard.del_fields(board, filter_list)
-
-
-class Blob():
-    
-    def __init__(self, blob: List[Field]):
-        self.blob = blob
-        self.fish = self._get_fish_val()
-        self.quantity = len(blob)
-    
-    def _get_fish_val(self) -> int:
-        fish = 0
-        for each in self.blob:
-            fish += each.fish
-        return fish
-    
-    def _create_blob(self, _board: Board):
-        new_board = CustomBoard.del_fields(_board, 1)
