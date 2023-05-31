@@ -12,7 +12,7 @@ colors = {
         "white":    "\033[37m",
         "red":      "\033[31m",
         "black":    "\033[30m",
-        "end":      "\033[93m",
+        "yellow":   "\033[93m",
     }
 }
 
@@ -34,11 +34,11 @@ def tabulate_moves(move_list: List[Move]):
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def tabulate_group(group: Group):
-    table = [["hash", "root", "fish", "inters", "spot"]]
+    table = [["hash", "root", "fish", "inters", "spot", "group"]]
     for key in group.group:
         tile = group.group[key]
         enum = tile.penguin.team_enum.name if tile.penguin else None
-        table.append([key, tile.root, enum or tile.fish, tile.inters, tile.spot])
+        table.append([key, tile.root, enum or tile.fish, tile.inters, tile.spot, tile.group])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def print_group_board(board: Board, group: Group, team: str):

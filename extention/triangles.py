@@ -64,6 +64,7 @@ class Tile:
     shapes: dict[str, Shape] = field(default_factory={})
     inters: int = 0
     spot: str = None
+    group: int = None
     
 
 @dataclass(order=True)
@@ -102,7 +103,7 @@ class TriBoard:
         valid_list = []
 
         for move in logic.game_state.possible_moves:
-            if self.get_tile(move.to_value).spot == "end":
+            if self.get_tile(move.to_value).spot == "yellow":
                 valid_list.append(move)
 
         if not valid_list:        
@@ -143,7 +144,7 @@ class TriBoard:
             this_coord = self._check_list[0]
             print(this_coord)
             if own_is_destination_valid(self.board, this_coord):
-                group, fish = self._make_group(this_coord)   #initial call of the recursive function
+                group, fish = self._make_group(this_coord, len(groups))   #initial call of the recursive function
                 groups.append(Group(group, fish, []))
 
         penguins: list[Penguin] = []
@@ -156,19 +157,20 @@ class TriBoard:
                             group.penguins.append(penguin)
         return groups
 
-
-    def _make_group(self, root: HexCoordinate):
+    def _make_group(self, root: HexCoordinate, group_count: int):
+        root_cart = root.to_cartesian()
         self._check_list.remove(root)
         this_fish = self.board.get_field(root).fish
         neighbors = [n for n in root.get_neighbors() if n in self._check_list]
         this_dict: dict[str, Tile] = {}
         this_dict[own_hash(root)] = self.get_tile(root)
+        self._tri_board[root_cart.y][root_cart.x].group = group_count
         if neighbors == []:                                                                         #wenn filtered neighbors == []
             return this_dict, this_fish
         return_group = {}
         for neighbor in neighbors:
             if neighbor in self._check_list:
-                group, fish = self._make_group(neighbor)
+                group, fish = self._make_group(neighbor, group_count)
                 return_group = {**group, **return_group}
                 this_fish = this_fish + fish
         return {**return_group,**this_dict}, this_fish
@@ -276,7 +278,7 @@ class TriBoard:
         spot = "white"
 
         if count == 1 and redspot:
-            spot = "end"
+            spot = "yellow"
         elif blackspot and not mirror:
             spot = "black"
         elif redspot:
@@ -322,13 +324,13 @@ class TriBoard:
             print(group.fish,"  ", group.penguins)
             print()
 
-    def get_possible_fish(self, tile: Tile) -> int:
+    def get_possible_fish(self, coord: HexCoordinate) -> int:
 
-        fish = self.board.get_field(tile.root).fish
+        fish = self.board.get_field(coord).fish
 
         for direction in Vector().directions:
             for i in range(1, 8):
-                destination = tile.root.add_vector(direction.scalar_product(i))
+                destination = coord.add_vector(direction.scalar_product(i))
                 if self.board._is_destination_valid(destination):
                     fish += self.board.get_field(destination).fish
                 else:
@@ -336,14 +338,14 @@ class TriBoard:
         
         return fish
 
-    def get_possible_fish_average(self, tile: Tile) -> float:
+    def get_possible_fish_average(self, coord: HexCoordinate) -> float:
 
-        fish = self.board.get_field(tile.root).fish
+        fish = self.board.get_field(coord).fish
         count = 1
 
         for direction in Vector().directions:
             for i in range(1, 8):
-                destination = tile.root.add_vector(direction.scalar_product(i))
+                destination = coord.add_vector(direction.scalar_product(i))
                 if self.board._is_destination_valid(destination):
                     fish += self.board.get_field(destination).fish
                     count += 1
@@ -352,19 +354,22 @@ class TriBoard:
                 
         return fish / count
     
-    def get_possible_field(self, tile: Tile) -> int:
+    def get_possible_field(self, coord: HexCoordinate) -> int:
 
         count = 0
 
         for direction in Vector().directions:
             for i in range(1, 8):
-                destination = tile.root.add_vector(direction.scalar_product(i))
+                destination = coord.add_vector(direction.scalar_product(i))
                 if self.board._is_destination_valid(destination):
                     count += 1
                 else:
                     break
         
         return count
+    
+    def find_tile_in_group(self, coord: HexCoordinate) -> int:
+        pass
 
 #### TESTING ####"""
 """
