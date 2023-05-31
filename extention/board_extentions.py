@@ -81,9 +81,9 @@ def get_possible_fields_from(state: GameState, position: HexCoordinate, team_enu
 
 def get_possible_fields(state: GameState, team: TeamEnum = None)-> List[Field]:
     if team == None:
-        team = state.current_team
+        team = state.current_team.name
     possible_fields = []
-    penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
+    penguins: list[Penguin] = state.board.get_teams_penguins(team)
     for penguin in penguins:
         possible_fields.extend(get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
     return possible_fields
