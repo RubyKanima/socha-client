@@ -40,6 +40,15 @@ def tabulate_group(group: Group):
         enum = tile.penguin.team_enum.name if tile.penguin else None
         table.append([key, tile.root, enum or tile.fish, tile.inters, tile.spot, tile.group])
     logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
+    
+def tabulate_ai_infos(infos: list[dict[str, float | int]]):
+    table = [list(infos[0].keys())]
+    for i in infos:
+        row = []
+        for f in i:
+            row.append(i[f])
+        table.append(row)
+    logging.info("\n" + tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 def print_group_board(board: Board, group: Group, team: str):
     print("- - - - - - - - - - - - - - - - -")

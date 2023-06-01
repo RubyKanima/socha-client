@@ -6,6 +6,46 @@ import random
 from extention import *
 from utils import *
 
+
+def inters_for_ai(state: GameState, team: TeamEnum, op_team: TeamEnum) -> list[dict]:
+    
+    pm_from_peng_op = get_possible_fields(state, op_team)
+
+    intersections = {}
+    for p in state.board.get_teams_penguins(team):
+        for v in Vector().directions:
+            inters_for_dir = {}
+            for i in range(1, 8):
+                destination: HexCoordinate = p.coordinate.add_vector(v.scalar_product(i))
+                if own_is_valid(destination) and state.board.get_field(destination).fish > 0:
+                    
+                    for inter in inters_for_dir:
+                        inters_for_dir[inter]["behind"] += 1 * inters_for_dir[inter]["count"]
+
+                    count = pm_from_peng_op.count(state.board.get_field(destination))
+                    if count > 0:
+                        inters_for_dir[hash(destination)] = {"between": (i - 1) * count, "behind": 0, "count": count}
+                else:
+                    break
+                
+            # add inters_for_dir to intersections
+                    
+            for inter in inters_for_dir:
+                if inter in intersections:
+                    intersections[inter]["between"] += inters_for_dir[inter]["between"]
+                    intersections[inter]["behind"] += inters_for_dir[inter]["behind"]
+                    intersections[inter]["count"] += inters_for_dir[inter]["count"]
+                else:
+                    intersections[inter] = inters_for_dir[inter]
+            
+            
+
+    return intersections
+
+def hash(coordinate: HexCoordinate):
+    return (str(coordinate.x) + str(coordinate.y))
+
+
 class Logic(IClientHandler):
     def __init__(self):     
         self.game_state: GameState
@@ -44,15 +84,22 @@ class Logic(IClientHandler):
             all_fish += g.fish
 
         # inters
-        inters_from_own = inters_for_ai(self.game_state, self.game_state.current_team.name)
-        inters_from_op = inters_for_ai(self.game_state, self.game_state.current_team.opponent.name)
-
+        inters_from_own = inters_for_ai(self.game_state, self.game_state.current_team.name, self.game_state.current_team.opponent.name)
+        inters_from_op = inters_for_ai(self.game_state, self.game_state.current_team.opponent.name, self.game_state.current_team.name)     
+                
+        ai_infos = []
+        
         # make ai dict
         for move in self.game_state.possible_moves:
             
             tile = self.tri_board.get_tile(move.to_value)
+            _hash = hash(tile.root)
+            
+            has_e_int = True if _hash in inters_from_own else False
 
-            ai_infos = {
+            ai_info = {
+                "hash": _hash,
+                          
                 "white": 0,
                 "red": 0,
                 "black": 0,
@@ -67,28 +114,28 @@ class Logic(IClientHandler):
                 "tri_inters": tile.inters,
                 "tri_inters_mapped": linear_map(1, 6, tile.inters),
 
-                "enemy_inters": 0,
-                "enemy_inters_mapped": 0,
-                "enemy_behinds": 0,
-                "enemy_betweens": 0,
-                "enemy_own_behind": 0,
-                "enemy_own_between": 0,
+                "e_int": inters_from_own[_hash]["count"] if has_e_int else 0,
+                "e_int_mapped": round(linear_map(0, 9, inters_from_own[_hash]["count"], 3) if has_e_int else 0),
+                "e_int_behinds": inters_from_op[_hash]["behind"] if has_e_int else 0,
+                "e_int_between": inters_from_op[_hash]["between"] if has_e_int else 0,
+                "e_int_own_behind": inters_from_own[_hash]["behind"] if has_e_int else 0,
+                "e_int_own_between": inters_from_own[_hash]["between"] if has_e_int else 0,
 
                 #"mate_inters": 0,
                 #"mate_inters_mapped": 0,
                 #"mate_behinds": 0,
-                #"mate_betweens": 0,
+                #"mate_between": 0,
                 #"mate_own_behind": 0,
                 #"mate_own_between": 0,
             }
 
-            ai_infos[tile.spot] = 1
+            ai_info[tile.spot] = 1
 
-            print(move.to_value.x, move.to_value.y, ai_infos)
+            ai_infos.append(ai_info)
 
             # ai for each field here
             # evaluate best field
-
+        tabulate_ai_infos(ai_infos)
         # take best here
         # and eval your neural network
         
@@ -96,29 +143,3 @@ class Logic(IClientHandler):
         
 if __name__ == "__main__":
     Starter(Logic())
-
-
-def inters_for_ai(state: GameState, team: TeamEnum) -> list[dict]:
-    
-    pm_from_peng_op = get_possible_fields(state, team)
-
-    intersections = {}
-    for p in state.board.get_teams_penguins(team):
-        for v in Vector().directions:
-            inters_for_dir = {}
-            for i in range(1, 8):
-                destination: HexCoordinate = p.coordinate.add_vector(v.scalar_product(i))
-                if own_is_valid(destination) and state.board.get_field(destination).fish > 0:
-                    
-                    for inter in inters_for_dir:
-                        inters_for_dir[inter]["behind"] += 1
-
-                    if state.board.get_field(destination) in pm_from_peng_op:
-                        inters_for_dir[hash(destination)] = {"between": i - 1, "behind": 0}
-                else:
-                    break
-
-    return intersections
-
-def hash(coordinate: HexCoordinate):
-    return (str(coordinate.x) + str(coordinate.y))

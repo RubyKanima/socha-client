@@ -69,7 +69,7 @@ for i in range(1,7):
     print("each",list[index])
     print("each-1",list[index-1])
 
-dict1 = {"69": [1]}
+dict1 = {"69": [1], "54": [4]}
 dict2 = {"69": [2, 3]}
 dict3 = {}
 for each in dict1:
@@ -86,17 +86,22 @@ for each in dict2:
         dict3[each] = dict2[each]
 print(dict3)
 
+
 for i in range(0,6):
     print(i)
     print()
     print("each+1",list[(i+1) % 6 ])
     print("each",list[(i) % 6])
     print("each-1",list[(i-1) % 6])
-"""
+
 
 cool_list = [1,2,3,4,5,6,7,9]
 not_cool_list= [10,11,12]
 super_list = []
 super_list.extend(cool_list)
 super_list.extend(not_cool_list)
-print(super_list)
+print(super_list)"""
+_dict = {"fish": 0}
+_list = list(_dict.keys())
+_list.insert(0, "hash")
+print(_list)
