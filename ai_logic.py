@@ -2,12 +2,17 @@ from socha import *
 
 import logging
 import random
+import cProfile
+import pstats
+import os
+import gc
 
 from socha.api.protocol.protocol import Result
 
 from extention import *
 from utils import *
 
+collected = gc.collect()
 
 def inters_for_ai(state: GameState, team: TeamEnum, op_team: TeamEnum) -> list[dict]:
     
@@ -83,11 +88,11 @@ class Logic(IClientHandler):
 
     def on_update(self, state: GameState):
         self.game_state = state    
-       
+
     def calculate_move(self):
         
         if(not self.team): #get own team
-            self.team = self.game_state.current_team_from_turn(self.game_state.turn)
+            self.team = self.game_state.current_team
 
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
         print_common(self.game_state.board, self.game_state.current_team.name.name)
@@ -176,7 +181,7 @@ class Logic(IClientHandler):
 
 
 
-        tabulate_ai_infos(ai_infos)
+        #tabulate_ai_infos(ai_infos)
 
         # AI calculates move
         global net, wanted_keys
@@ -193,7 +198,7 @@ class Logic(IClientHandler):
 
         global games_won, learn, net
 
-        if ((not roomMessage.winner is None) and (str(self.team) == str(roomMessage.winner.team))): 
+        if ((not roomMessage.winner is None) and (self.team.name.name == roomMessage.winner.team)): 
             print("You won, Player {0}".format(roomMessage.winner))
             
             games_won += 1
@@ -203,6 +208,37 @@ class Logic(IClientHandler):
 
         if(learn):
             net.update_prep(evaluation)
+
+        global games_won_all, moves_made, Moves_made_all, games_played
+
+        if ((games_played + 1) % learning_interval == 0): #its learnin time
+            ask_to_save(net, "Loop_" + str((games_played + 1)))
+
+            log = "{0} loops complete, {1}/{2} games won".format((games_played + 1), games_won, learning_interval)
+
+            save_log(log)
+
+
+
+            print("[now evaluating]")
+
+            net.update(eta= 0.1, amount= learning_interval)
+
+
+
+
+            games_won_all += games_won
+            games_won = 0
+
+            Moves_made_all += moves_made
+            moves_made = 0
+
+        
+        games_played += 1
+
+        #clearing shit
+        self.history.clear()
+        #os.system('cls')
 
         return super().on_game_over(roomMessage)
 
@@ -218,6 +254,8 @@ Moves_made_all = 0
 invalid_moves = 0
 invalid_moves_all = 0
 
+games_played = 0
+
 wanted_keys = ["w", "r", "b", "y", "fish_m", "fish_gr_p", "tri_int_m", "e_int_m", "e_int_beh", "e_int_bet", "e_int_o_beh", "e_int_o_bet"]
 
 print("Neurons needed in first layer: {0}".format(len(wanted_keys)))
@@ -228,56 +266,7 @@ net = network(sizes= sizes, file= file)
 
 if __name__ == "__main__":
 
-    loops = int(input("How many games should be played(int): "))
     learn = (input("Should the AI learn(y/n): ") == "y")
     learning_interval = int(input("What should the logging and learning interval be(int): "))
 
-    save_log("\n\n\n\n\nStarting new loop with {0} games planned".format(loops))
-
-    for i in range(loops): # execution loops
-        print("[Starting {0}th loop]\n\n".format(i + 1))
-        
-        try:
-            Starter(logic=Logic(), survive= True)
-        except:
-            print("[Something went wrong]")
-            games_failed += 1
-            
-        if ((i + 1) % learning_interval == 0): #its learnin time
-            ask_to_save(net, "Loop_" + str((i + 1)))
-
-            log = "{0} loops complete, {1}/{2} games won, {3}/{4} moves invalid".format((i + 1), games_won, learning_interval - games_failed, invalid_moves, moves_made)
-
-            save_log(log)
-
-
-
-            print("[now evaluating]")
-
-            net.update(eta= 10, amount= learning_interval)
-
-
-
-
-            games_won_all += games_won
-            games_won = 0
-
-            games_failed_all += games_failed
-            games_failed = 0
-
-            invalid_moves_all += invalid_moves
-            invalid_moves = 0
-
-            Moves_made_all += moves_made
-            moves_made = 0
-
-
-        
-        print("[Loop complete]\n\n")
-
-    log = "\n[Final Result]\n{0} loops complete, {1}/{2} games won, {3}/{4} moves invalid".format(loops, games_won_all, loops - games_failed_all, invalid_moves_all, Moves_made_all)
-
-    save_log(log)
-
-    print("{0}/{1}".format(games_won_all, loops - games_failed_all))
-    ask_to_save(net)
+    test = Starter(logic=Logic(), survive= True, auto_reconnect= True)

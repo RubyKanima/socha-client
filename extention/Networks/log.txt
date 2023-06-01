@@ -16,3 +16,63 @@ Starting new loop with 1000 games planned Time: 2023-06-01 20:14:41.004728
 
 
 Starting new loop with 1000 games planned Time: 2023-06-01 20:15:35.981345
+100 loops complete, 0/0 games won, 0/0 moves invalid Time: 2023-06-01 20:49:01.699949
+
+
+
+
+
+Starting new loop with 1 games planned Time: 2023-06-01 20:52:39.653883
+1 loops complete, 0/0 games won, 0/0 moves invalid Time: 2023-06-01 20:52:47.355905
+
+[Final Result]
+1 loops complete, 0/0 games won, 0/0 moves invalid Time: 2023-06-01 20:52:47.356406
+
+
+
+
+
+Starting new loop with 1 games planned Time: 2023-06-01 20:53:53.127190
+1 loops complete, 0/0 games won, 0/0 moves invalid Time: 2023-06-01 20:53:57.799815
+
+[Final Result]
+1 loops complete, 0/0 games won, 0/0 moves invalid Time: 2023-06-01 20:53:57.800315
+100 loops complete, 0/100 games won, 0/0 moves invalid Time: 2023-06-01 21:58:14.646221
+200 loops complete, 0/100 games won, 0/0 moves invalid Time: 2023-06-01 22:01:20.948385
+300 loops complete, 0/100 games won, 0/0 moves invalid Time: 2023-06-01 22:04:41.318941
+1 loops complete, 0/1 games won Time: 2023-06-01 22:09:49.984762
+1 loops complete, 0/1 games won Time: 2023-06-01 22:10:40.001583
+1 loops complete, 0/1 games won Time: 2023-06-01 22:11:06.760976
+1 loops complete, 0/1 games won Time: 2023-06-01 22:11:48.874076
+1 loops complete, 0/1 games won Time: 2023-06-01 22:12:21.531585
+1 loops complete, 0/1 games won Time: 2023-06-01 22:12:44.589980
+1 loops complete, 0/1 games won Time: 2023-06-01 22:14:42.971106
+100 loops complete, 52/100 games won Time: 2023-06-01 22:26:18.231530
+200 loops complete, 54/100 games won Time: 2023-06-01 22:29:34.690452
+300 loops complete, 45/100 games won Time: 2023-06-01 22:32:57.227434
+400 loops complete, 54/100 games won Time: 2023-06-01 22:36:32.954970
+500 loops complete, 45/100 games won Time: 2023-06-01 22:40:21.609138
+600 loops complete, 51/100 games won Time: 2023-06-01 22:44:28.733501
+700 loops complete, 41/100 games won Time: 2023-06-01 22:49:17.038507
+800 loops complete, 46/100 games won Time: 2023-06-01 22:54:52.801531
+900 loops complete, 56/100 games won Time: 2023-06-01 23:01:25.764593
+1000 loops complete, 51/100 games won Time: 2023-06-01 23:09:11.929807
+100 loops complete, 91/100 games won Time: 2023-06-01 23:17:13.994273
+200 loops complete, 87/100 games won Time: 2023-06-01 23:21:33.827108
+300 loops complete, 70/100 games won Time: 2023-06-01 23:25:56.157190
+400 loops complete, 12/100 games won Time: 2023-06-01 23:30:26.700494
+500 loops complete, 3/100 games won Time: 2023-06-01 23:34:58.646563
+600 loops complete, 4/100 games won Time: 2023-06-01 23:39:35.586220
+700 loops complete, 2/100 games won Time: 2023-06-01 23:44:23.285895
+100 loops complete, 15/100 games won Time: 2023-06-01 23:52:14.587650
+200 loops complete, 9/100 games won Time: 2023-06-01 23:56:36.403199
+300 loops complete, 18/100 games won Time: 2023-06-02 00:00:58.082059
+400 loops complete, 85/100 games won Time: 2023-06-02 00:05:22.509838
+500 loops complete, 94/100 games won Time: 2023-06-02 00:09:58.993740
+600 loops complete, 93/100 games won Time: 2023-06-02 00:14:34.609175
+700 loops complete, 97/100 games won Time: 2023-06-02 00:19:18.716748
+800 loops complete, 92/100 games won Time: 2023-06-02 00:24:12.544047
+900 loops complete, 97/100 games won Time: 2023-06-02 00:29:25.643096
+1000 loops complete, 96/100 games won Time: 2023-06-02 00:35:14.402159
+1100 loops complete, 97/100 games won Time: 2023-06-02 00:41:09.080989
+1200 loops complete, 96/100 games won Time: 2023-06-02 00:47:09.496662

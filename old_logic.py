@@ -3,6 +3,8 @@ from socha import *
 import logging
 import random
 
+from socha.api.protocol.protocol import Result
+
 from extention import *
 from utils import *
 
@@ -54,7 +56,13 @@ class Logic(IClientHandler):
     
         logging.error("UNAVOIDABLE ERROR")
         return random.choice(self.game_state.possible_moves)
+    
+    def on_game_over(self, roomMessage: Result) -> None:
+        
+        self.history.clear()
+        
+        return super().on_game_over(roomMessage)
         
 if __name__ == "__main__":
-    Starter(Logic())
+    Starter(Logic(), survive= True, auto_reconnect= True)
 
