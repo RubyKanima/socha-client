@@ -43,6 +43,8 @@ def inters_for_ai(state: GameState, team: TeamEnum, op_team: TeamEnum) -> list[d
     return intersections
 
 def hash(coordinate: HexCoordinate):
+    if coordinate == None:
+        return None
     return (str(coordinate.x) + str(coordinate.y))
 
 
@@ -92,34 +94,40 @@ class Logic(IClientHandler):
         # make ai dict
         for move in self.game_state.possible_moves:
             
-            tile = self.tri_board.get_tile(move.to_value)
-            _hash = hash(tile.root)
+            f_tile = self.tri_board.get_tile(move.from_value) if self.tri_board.get_tile(move.from_value) != None else None
+            f_hash = hash(f_tile.root)
+
+            t_tile = self.tri_board.get_tile(move.to_value)
+            t_hash = hash(t_tile.root)
+
+
             
-            has_e_int = True if _hash in inters_from_own else False
+            has_e_int = True if t_hash in inters_from_own else False
 
             ai_info = {
-                "hash": _hash,
+                "f_hash": f_hash,
+                "t_hash": t_hash,
                           
-                "white": 0,
-                "red": 0,
-                "black": 0,
-                "yellow": 0,
+                "w": 0,                                                                                             # white 0 / 1
+                "r": 0,                                                                                             # red 0 / 1
+                "b": 0,                                                                                             # black 0 / 1
+                "y": 0,                                                                                             # yellow (dead end) 0 / 1
 
-                "fish": tile.fish,
-                "fish_mapped": linear_map(0, 4, tile.fish),
-                "fish_group": self.tri_board.groups[tile.group].fish, # value
-                "fish_group_percent": round(self.tri_board.groups[tile.group].fish / all_fish, 3), # percent of board
-                "fish_possible": self.tri_board.get_possible_fish(tile.root),
+                "fish": t_tile.fish,                                                                                # fish 1 - 4
+                "fish_m": linear_map(0, 4, t_tile.fish),                                                            # fish mapped 0 - 1    
+                "fish_gr": self.tri_board.groups[t_tile.group].fish,                                                # fish group 1 - x 
+                "fish_gr_p": round(self.tri_board.groups[t_tile.group].fish / all_fish, 3),                         # fish group percent 0 - 1
+                "fish_po": self.tri_board.get_possible_fish(t_tile.root),                                           # fish possible 1 - x
 
-                "tri_inters": tile.inters,
-                "tri_inters_mapped": linear_map(1, 6, tile.inters),
+                "tri_int": t_tile.inters,                                                                           # triangle intersections 0 - 6
+                "tri_int_m": linear_map(0, 6, t_tile.inters),                                                       # triangle intersections mapped 0 - 1
 
-                "e_int": inters_from_own[_hash]["count"] if has_e_int else 0,
-                "e_int_mapped": round(linear_map(0, 9, inters_from_own[_hash]["count"], 3) if has_e_int else 0),
-                "e_int_behinds": inters_from_op[_hash]["behind"] if has_e_int else 0,
-                "e_int_between": inters_from_op[_hash]["between"] if has_e_int else 0,
-                "e_int_own_behind": inters_from_own[_hash]["behind"] if has_e_int else 0,
-                "e_int_own_between": inters_from_own[_hash]["between"] if has_e_int else 0,
+                "e_int": inters_from_own[t_tile]["count"] if has_e_int else 0,                                      # intersections with enemy 0 - 9
+                "e_int_m": round(linear_map(0, 9, inters_from_own[t_tile]["count"], 3) if has_e_int else 0),        # intersections with enemy mapped 0 - 1
+                "e_int_beh": inters_from_op[t_tile]["behind"] if has_e_int else 0,                                  # behind enemy pov 0 - x
+                "e_int_bet": inters_from_op[t_tile]["between"] if has_e_int else 0,                                 # between enemy pov 0 - x
+                "e_int_o_beh": inters_from_own[t_tile]["behind"] if has_e_int else 0,                               # behind AI pov 0 - x
+                "e_int_o_bet": inters_from_own[t_tile]["between"] if has_e_int else 0,                              # between AI pov 0 - x
 
                 #"mate_inters": 0,
                 #"mate_inters_mapped": 0,
@@ -129,7 +137,14 @@ class Logic(IClientHandler):
                 #"mate_own_between": 0,
             }
 
-            ai_info[tile.spot] = 1
+            """
+            notes:
+
+            go through every poss move
+            instead of between and behind -> poss moves if move made
+            """
+
+            ai_info[t_tile.spot[0]] = 1
 
             ai_infos.append(ai_info)
 
