@@ -64,7 +64,7 @@ class Tile:
     shapes: dict[str, Shape] = field(default_factory={})
     inters: int = 0
     spot: str = None
-    
+    group: int = None
 
 @dataclass(order=True)
 class Group:
@@ -112,7 +112,7 @@ class FullGroup(Group):
                 neighbor_group.neighbors.append(black_spot)
             subgroups.append(black_spot)
         
-        for penguin in self.penguins: #could of course be in recursion but for that I'd need a global var that resets in every initial recursion call
+        for penguin in self.penguins:
             for neighbor in penguin.coordinate.get_neighbors():
                 for group in subgroups:
                         if own_hash(neighbor) in group.group and not penguin in group.penguins:
@@ -143,24 +143,6 @@ class FullGroup(Group):
             print_group_board_color(group)
             print(group.fish,"  ", group.penguins)
             print()
-        
-"""
-    def _make_group(self, root: HexCoordinate):
-        self._check_list.remove(root)
-        this_fish = self.board.get_field(root).fish
-        neighbors = [n for n in root.get_neighbors() if n in self._check_list]
-        this_dict: dict[str, Tile] = {}
-        this_dict[own_hash(root)] = self.get_tile(root)
-        if neighbors == []:                                                                         #wenn filtered neighbors == []
-            return this_dict, this_fish
-        return_group = {}
-        for neighbor in neighbors:
-            if neighbor in self._check_list:
-                group, fish = self._make_group(neighbor)
-                return_group = {**group, **return_group}
-                this_fish = this_fish + fish
-        return {**return_group,**this_dict}, this_fish
-""" 
 
 
 
@@ -171,7 +153,7 @@ class TriBoard:
     current_team: Team
     _check_list: list = field(default_factory=[])
     _groups: list[Group] = field(default_factory=[])
-    _tri_board: list[Tile] = field(default_factory=[])
+    _tri_board: list[list[Tile]] = field(default_factory=[])
     
     @property
     def tri_board(self):
@@ -193,7 +175,7 @@ class TriBoard:
         valid_list = []
 
         for move in logic.game_state.possible_moves:
-            if self.get_tile(move.to_value).spot == "end":
+            if self.get_tile(move.to_value).spot == "yellow":
                 valid_list.append(move)
 
         if not valid_list:        
@@ -228,14 +210,16 @@ class TriBoard:
 
     def _make_groups(self):
         groups: list[FullGroup] = []
+        index_count: int = 0
         self._check_list = [field.coordinate for row in self.board.board for field in row if field.fish > 0]
 
         while self._check_list:
             this_coord = self._check_list[0]
             print(this_coord)
             if own_is_destination_valid(self.board, this_coord):
-                group, fish = self._make_group(this_coord)   #initial call of the recursive function
+                group, fish = self._make_group(this_coord, index_count)   #initial call of the recursive function
                 groups.append(FullGroup(group, fish, [], [], []))
+                index_count+=1
 
         penguins: list[Penguin] = []
         penguins.extend(self.current_team.penguins)
@@ -248,12 +232,14 @@ class TriBoard:
         return groups
 
 
-    def _make_group(self, root: HexCoordinate):
+    def _make_group(self, root: HexCoordinate, group_count:int = 0):
         self._check_list.remove(root)
+        root_cart = root.to_cartesian()
         this_fish = self.board.get_field(root).fish
         neighbors = [n for n in root.get_neighbors() if n in self._check_list]
         this_dict: dict[str, Tile] = {}
         this_dict[own_hash(root)] = self.get_tile(root)
+        self._tri_board[root_cart.y][root_cart.x].group = group_count
         if neighbors == []:                                                                         #wenn filtered neighbors == []
             return this_dict, this_fish
         return_group = {}
@@ -367,7 +353,7 @@ class TriBoard:
         spot = "white"
 
         if count == 1 and redspot:
-            spot = "end"
+            spot = "yellow"
         elif blackspot and not mirror:
             spot = "black"
         elif redspot:
