@@ -49,6 +49,15 @@ def hash(coordinate: HexCoordinate):
         return None
     return (str(coordinate.x) + str(coordinate.y))
 
+def unhash(hash: str) -> HexCoordinate:
+    if hash == None:
+        return None
+    y = int(hash[-1])
+    x = int(hash[0:-1])
+    return HexCoordinate(x, y)
+
+def move_from_hashes(f_hash: str, t_hash: str, team: TeamEnum) -> Move:
+    return Move(team_enum=team, from_value=unhash(f_hash), to_value=unhash(t_hash))
 
 class Logic(IClientHandler):
     def __init__(self):     
@@ -96,20 +105,23 @@ class Logic(IClientHandler):
         # make ai dict
         for move in self.game_state.possible_moves:
             
-            f_tile = self.tri_board.get_tile(move.from_value) if self.tri_board.get_tile(move.from_value) != None else None
-            f_hash = hash(f_tile.root)
+            if move.from_value != None:
+                f_tile = self.tri_board.get_tile(move.from_value)
+                f_hash = hash(f_tile.root)
+            else:
+                f_tile = None
+                f_hash = None
 
             t_tile = self.tri_board.get_tile(move.to_value)
             t_hash = hash(t_tile.root)
 
 
-            
             has_e_int = True if t_hash in inters_from_own else False
 
             ai_info = {
                 "f_hash": f_hash,
                 "t_hash": t_hash,
-                          
+
                 "w": 0,                                                                                             # white 0 / 1
                 "r": 0,                                                                                             # red 0 / 1
                 "b": 0,                                                                                             # black 0 / 1
@@ -154,6 +166,9 @@ class Logic(IClientHandler):
 
             # ai for each field here
             # evaluate best field
+
+
+
 
         tabulate_ai_infos(ai_infos)
 
