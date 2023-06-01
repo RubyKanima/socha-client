@@ -63,14 +63,21 @@ def save_log(new_data):
     time = datetime.datetime.now()
 
     with open(file, "a") as text_file:
-        text_file.write("[{0}] Time: {1}\n".format(new_data, time))
+        text_file.write("{0} Time: {1}\n".format(new_data, time))
 
 # Adjust values
 
-def ai_infos_converter(ai_infos):
+def ai_infos_converter(ai_infos, wanted_keys):
     output = []
     
-    for i in ai_infos:
-        output.append(i)
+    for dict in ai_infos:
+        
+        output_element = []
+
+        for e in dict:
+            if e in wanted_keys:
+                output_element.append(dict[e])
+
+        output.append(output_element)
     
     return output

@@ -173,11 +173,11 @@ class Logic(IClientHandler):
         tabulate_ai_infos(ai_infos)
 
         # AI calculates move
-        global net
+        global net, wanted_keys
 
-        ai_infos_converter(ai_infos)
+        ai_infos_array = ai_infos_converter(ai_infos, wanted_keys)
 
-        result = net.calculateMove(ai_infos)
+        result = net.calculateMove(ai_infos_array)
         
         return self.game_state.possible_moves[result]
     
@@ -212,6 +212,10 @@ Moves_made_all = 0
 invalid_moves = 0
 invalid_moves_all = 0
 
+wanted_keys = ["w", "r", "b", "y", "fish_m", "fish_gr_p", "tri_int_m", "e_int_m", "e_int_beh", "e_int_bet", "e_int_o_beh", "e_int_o_bet"]
+
+print("Neurons needed in first layer: {0}".format(len(wanted_keys)))
+
 sizes, file = get_network()
 
 net = network(sizes= sizes, file= file)
@@ -227,11 +231,9 @@ if __name__ == "__main__":
     for i in range(loops): # execution loops
         print("[Starting {0}th loop]\n\n".format(i + 1))
         
-        try:
-            Starter(logic=Logic())
-        except:
-            print("[Something went wrong]")
-            games_failed += 1
+        
+        Starter(logic=Logic())
+        
 
         if ((i + 1) % learning_interval == 0): #its learnin time
             ask_to_save(net, "Loop_" + str((i + 1)))
