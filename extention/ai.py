@@ -37,9 +37,6 @@ class network(object):
 
         self.nabla_b = [np.zeros(b.shape) for b in self.biases]
         self.nabla_w = [np.zeros(w.shape) for w in self.weights]
-
-        self.results = []
-        self.activations
     
     def feedforward (self , a):
         """Return the output of the network if ‘‘a‘‘ is input."""
@@ -60,29 +57,34 @@ class network(object):
         """Calaculate the move to be done using feedforward"""
         
         result_final = 0
+        activations_final = 0
+        zs_final = 0
+        move_num = 0
+
 
         for i in range(len(inputs)):
             result, activations, zs = self.feedforward(np.asarray(inputs[i]))
             if result > result_final:
                 result_final = result
-                self.activations.append(activations)
-                self.zs.append(zs)
+                activations_final = activations
+                zs_final = zs
+                move_num = i
 
-        self.results.append(result_final)
+        self.activations.append(activations_final)
+        self.zs.append(zs_final)
 
-        return result_final
+        return move_num
     
-    def update_prep(self, result_evaluation, evaluation, moves_made):
+    def update_prep(self, evaluation):
         """Alters nabla_w and nabla_b"""
         delta_nabla_b = [np.zeros(b.shape) for b in self.network.biases]
         delta_nabla_w = [np.zeros(w.shape) for w in self.network.weights]
 
-        for i in range(len(result_evaluation)):
-            result_evaluation[i][moves_made[i]] = evaluation
-            delta_nabla_b , delta_nabla_w = self.mybackprop(result_evaluation[i], i)  # gradient descent
+        for i in range(len(self.activations)): #note the changes for weights and biases
+            delta_nabla_b , delta_nabla_w = self.mybackprop(evaluation, i)  # gradient descent
 
-            self.nabla_b = [nb+dnb for nb , dnb in zip(self.nabla_b , delta_nabla_b )]
-            self.nabla_w = [nw+dnw for nw , dnw in zip(self.nabla_w , delta_nabla_w )]
+            self.nabla_b = [(nb / len(self.activations)) +dnb for nb , dnb in zip(self.nabla_b , delta_nabla_b )]
+            self.nabla_w = [(nw / len(self.activations)) +dnw for nw , dnw in zip(self.nabla_w , delta_nabla_w )]
     
     def update (self, amount= 1, eta= 10):
         """Applies nabla_w and nabla_b"""

@@ -3,6 +3,8 @@ from socha import *
 import logging
 import random
 
+from socha.api.protocol.protocol import Result
+
 from extention import *
 from utils import *
 
@@ -153,14 +155,104 @@ class Logic(IClientHandler):
             # ai for each field here
             # evaluate best field
 
-
-
-            
         tabulate_ai_infos(ai_infos)
-        # take best here
-        # and eval your neural network
+
+        # AI calculates move
+        global net
+
+        ai_infos_converter(ai_infos)
+
+        result = net.calculateMove(ai_infos)
         
-        return random.choice(self.game_state.possible_moves)
-        
+        return self.game_state.possible_moves[result]
+    
+    def on_game_over(self, roomMessage: Result) -> None:
+
+        print("[game ended]")
+
+        global games_won, learn, net
+
+        if ((not roomMessage.winner is None) and (str(self.team) == str(roomMessage.winner.team))): 
+            print("You won, Player {0}".format(roomMessage.winner))
+            
+            games_won += 1
+            evaluation = max(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two) - min(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two)
+        else:
+            evaluation = min(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two) - max(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two)
+
+        if(learn):
+            net.update_prep(evaluation)
+
+        return super().on_game_over(roomMessage)
+
+games_won = 0
+games_won_all = 0
+
+games_failed = 0
+games_failed_all = 0
+
+moves_made = 0
+Moves_made_all = 0
+
+invalid_moves = 0
+invalid_moves_all = 0
+
+sizes, file = get_network()
+
+net = network(sizes= sizes, file= file)
+
 if __name__ == "__main__":
-    Starter(Logic())
+
+    loops = int(input("How many games should be played(int): "))
+    learn = (input("Should the AI learn(y/n): ") == "y")
+    learning_interval = int(input("What should the logging and learning interval be(int): "))
+
+    save_log("\n\n\n\n\nStarting new loop with {0} games planned".format(loops))
+
+    for i in range(loops): # execution loops
+        print("[Starting {0}th loop]\n\n".format(i + 1))
+        
+        try:
+            Starter(logic=Logic())
+        except:
+            print("[Something went wrong]")
+            games_failed += 1
+
+        if ((i + 1) % learning_interval == 0): #its learnin time
+            ask_to_save(net, "Loop_" + str((i + 1)))
+
+            log = "{0} loops complete, {1}/{2} games won, {3}/{4} moves invalid".format((i + 1), games_won, learning_interval - games_failed, invalid_moves, moves_made)
+
+            save_log(log)
+
+
+
+            print("[now evaluating]")
+
+            net.update(eta= 10, amount= learning_interval)
+
+
+
+
+            games_won_all += games_won
+            games_won = 0
+
+            games_failed_all += games_failed
+            games_failed = 0
+
+            invalid_moves_all += invalid_moves
+            invalid_moves = 0
+
+            Moves_made_all += moves_made
+            moves_made = 0
+
+
+        
+        print("[Loop complete]\n\n")
+
+    log = "\n[Final Result]\n{0} loops complete, {1}/{2} games won, {3}/{4} moves invalid".format(loops, games_won_all, loops - games_failed_all, invalid_moves_all, Moves_made_all)
+
+    save_log(log)
+
+    print("{0}/{1}".format(games_won_all, loops - games_failed_all))
+    ask_to_save(net)
