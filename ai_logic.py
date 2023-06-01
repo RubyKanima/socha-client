@@ -64,6 +64,8 @@ class Logic(IClientHandler):
         self.game_state: GameState
         self.tri_board: TriBoard
 
+        self.team = False
+
     @property
     def other_possible_moves(self):
          if not self.game_state.current_team == None:
@@ -83,6 +85,10 @@ class Logic(IClientHandler):
         self.game_state = state    
        
     def calculate_move(self):
+        
+        if(not self.team): #get own team
+            self.team = self.game_state.current_team_from_turn(self.game_state.turn)
+
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
         print_common(self.game_state.board, self.game_state.current_team.name.name)
         self.tri_board.__own_repr__()
@@ -136,12 +142,12 @@ class Logic(IClientHandler):
                 "tri_int": t_tile.inters,                                                                           # triangle intersections 0 - 6
                 "tri_int_m": linear_map(0, 6, t_tile.inters),                                                       # triangle intersections mapped 0 - 1
 
-                "e_int": inters_from_own[t_tile]["count"] if has_e_int else 0,                                      # intersections with enemy 0 - 9
-                "e_int_m": round(linear_map(0, 9, inters_from_own[t_tile]["count"], 3) if has_e_int else 0),        # intersections with enemy mapped 0 - 1
-                "e_int_beh": inters_from_op[t_tile]["behind"] if has_e_int else 0,                                  # behind enemy pov 0 - x
-                "e_int_bet": inters_from_op[t_tile]["between"] if has_e_int else 0,                                 # between enemy pov 0 - x
-                "e_int_o_beh": inters_from_own[t_tile]["behind"] if has_e_int else 0,                               # behind AI pov 0 - x
-                "e_int_o_bet": inters_from_own[t_tile]["between"] if has_e_int else 0,                              # between AI pov 0 - x
+                "e_int": inters_from_own[t_hash]["count"] if has_e_int else 0,                                      # intersections with enemy 0 - 9
+                "e_int_m": round(linear_map(0, 9, inters_from_own[t_hash]["count"], 3) if has_e_int else 0),        # intersections with enemy mapped 0 - 1
+                "e_int_beh": inters_from_op[t_hash]["behind"] if has_e_int else 0,                                  # behind enemy pov 0 - x
+                "e_int_bet": inters_from_op[t_hash]["between"] if has_e_int else 0,                                 # between enemy pov 0 - x
+                "e_int_o_beh": inters_from_own[t_hash]["behind"] if has_e_int else 0,                               # behind AI pov 0 - x
+                "e_int_o_bet": inters_from_own[t_hash]["between"] if has_e_int else 0,                              # between AI pov 0 - x
 
                 #"mate_inters": 0,
                 #"mate_inters_mapped": 0,
@@ -191,9 +197,9 @@ class Logic(IClientHandler):
             print("You won, Player {0}".format(roomMessage.winner))
             
             games_won += 1
-            evaluation = max(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two) - min(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two)
+            evaluation = max(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1]) - min(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1])
         else:
-            evaluation = min(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two) - max(self.game_state.fishes.fishes_one, self.game_state.fishes.fishes_two)
+            evaluation = min(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1]) - max(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1])
 
         if(learn):
             net.update_prep(evaluation)
@@ -231,10 +237,12 @@ if __name__ == "__main__":
     for i in range(loops): # execution loops
         print("[Starting {0}th loop]\n\n".format(i + 1))
         
-        
-        Starter(logic=Logic())
-        
-
+        try:
+            Starter(logic=Logic(), survive= True)
+        except:
+            print("[Something went wrong]")
+            games_failed += 1
+            
         if ((i + 1) % learning_interval == 0): #its learnin time
             ask_to_save(net, "Loop_" + str((i + 1)))
 

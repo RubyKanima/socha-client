@@ -49,7 +49,7 @@ class network(object):
             z = np.dot(w, activation )+b
             zs.append(z)
             activation = self.sigmoid(z)
-            activations.append(activations)
+            activations.append(activation)
             
         return activation, activations, zs
 
@@ -77,11 +77,11 @@ class network(object):
     
     def update_prep(self, evaluation):
         """Alters nabla_w and nabla_b"""
-        delta_nabla_b = [np.zeros(b.shape) for b in self.network.biases]
-        delta_nabla_w = [np.zeros(w.shape) for w in self.network.weights]
+        delta_nabla_b = [np.zeros(b.shape) for b in self.biases]
+        delta_nabla_w = [np.zeros(w.shape) for w in self.weights]
 
         for i in range(len(self.activations)): #note the changes for weights and biases
-            delta_nabla_b , delta_nabla_w = self.mybackprop(evaluation, i)  # gradient descent
+            delta_nabla_b , delta_nabla_w = self.mybackprop([evaluation], i)  # gradient descent
 
             self.nabla_b = [(nb / len(self.activations)) +dnb for nb , dnb in zip(self.nabla_b , delta_nabla_b )]
             self.nabla_w = [(nw / len(self.activations)) +dnw for nw , dnw in zip(self.nabla_w , delta_nabla_w )]
@@ -105,7 +105,6 @@ class network(object):
         
         
         # backward pass
-        
         delta = self. cost_derivative (self.activations[iterator] [-1], y) * self.sigmoid_prime (self.zs[iterator] [ -1])
         nabla_b [-1] = delta
         nabla_w [-1] = CoolVectorMultiply(delta, self.activations[iterator] [-2])
