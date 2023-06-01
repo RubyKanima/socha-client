@@ -43,8 +43,8 @@ def get_fields_in_direction(board: Board, origin: HexCoordinate, direction: Vect
                         for the given team_enum
     """
     if team_enum is None:
-        team_enum = board.get_field(origin).penguin.team_enum
-    if not board.get_field(origin).penguin or board.get_field(origin).penguin.team_enum != team_enum:
+        team_enum = board.get_field(origin).penguin.team_enum.name
+    if not board.get_field(origin).penguin or board.get_field(origin).penguin.team_enum != team_enum.name:
         return []
 
     fields = []
@@ -62,17 +62,17 @@ def get_possible_fields_from(state: GameState, position: HexCoordinate, team_enu
     if not state.board.is_valid(position):
         raise IndexError(f"Index out of range: [x={position.x}, y={position.y}]")
     if not state.board.get_field(position).penguin or (
-            team_enum and state.board.get_field(position).penguin.team_enum != team_enum):
+            team_enum and state.board.get_field(position).penguin.team_enum.name != team_enum):
         return []
     return [field for direction in Vector().directions for field in get_fields_in_direction(state.board, position, direction, team_enum)]
 
 def get_possible_fields(state: GameState, team: TeamEnum = None)-> List[Field]:
     if team == None:
-        team = state.current_team
+        team = state.current_team.name
     possible_fields = []
-    penguins: list[Penguin] = state.board.get_teams_penguins(team.name)
+    penguins: list[Penguin] = state.board.get_teams_penguins(team)
     for penguin in penguins:
-        possible_fields.extend(get_possible_fields_from(state, penguin.coordinate, penguin.team_enum))
+        possible_fields.extend(get_possible_fields_from(state, penguin.coordinate, penguin.team_enum.name))
     return possible_fields
 
 def get_penguin_neighbor_moves(board: Board,penguins: List[Penguin]):

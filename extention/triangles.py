@@ -72,13 +72,104 @@ class Group:
     group: dict[str, Tile]
     fish: int = 0
     penguins: list[Penguin] = field(default_factory=[])
+
+
+@dataclass
+class Subgroup(Group):
+
+    neighbors: list['Subgroup'] = field(default_factory=[])
+
+    def sub_group_testing(self, position):
+        ''''''
     
+@dataclass
+class FullGroup(Group):
+
+    _subgroups: list[Subgroup] = field(default_factory=[])
+    _check_list: list[str] = field(default_factory=[])
+
+    @property
+    def subgroups(self) -> list[Subgroup]:
+        if not self._subgroups:
+            self._subgroups = self._make_subgroups()
+        return self._subgroups
+
+    def _make_subgroups(self, spot:str = "black"):
+        subgroups: list[Subgroup] = []
+        self._check_list = [key for key in self.group]
+        black_spots = [self.group[tile] for tile in self.group if self.group[tile].spot == spot]
+
+        for tile in black_spots:
+            penguins = []
+            self._check_list.remove(own_hash(tile.root))
+
+            for neighbor in tile.root.get_neighbors():
+                if own_hash(neighbor) in self._check_list:
+                    new_subgroup = self._make_subgroup(neighbor)
+                    subgroups.append(new_subgroup)
+            black_spot = Subgroup({own_hash(tile.root):tile}, tile.fish, penguins, subgroups)
+            for neighbor_group in black_spot.neighbors:
+                neighbor_group.neighbors.append(black_spot)
+            subgroups.append(black_spot)
+        
+        for penguin in self.penguins: #could of course be in recursion but for that I'd need a global var that resets in every initial recursion call
+            for neighbor in penguin.coordinate.get_neighbors():
+                for group in subgroups:
+                        if own_hash(neighbor) in group.group and not penguin in group.penguins:
+                            group.penguins.append(penguin)
+
+        return subgroups
+
+    def _make_subgroup(self, tile: Tile):
+        this_hash = own_hash(tile.root)
+        self._check_list.remove(own_hash(this_hash))
+        this_fish = tile.fish
+        neighbors = [own_hash(n) for n in tile.root.get_neighbors() if own_hash(n) in self._check_list and self.group[own_hash(n)].spot != "black"] #check for penguin in penguins
+        this_dict: dict[str, Tile] = {}
+        this_dict[this_hash] = self.group[this_hash]
+        if neighbors == []:
+            return this_hash, this_fish
+        return_group = {}
+        for neighbor in neighbors:
+            if neighbor in self._check_list:
+                group, fish = self._make_subgroup(self.group[neighbor])
+                return_group = {**group, **return_group}
+                this_fish = this_fish + fish
+        return {**return_group, **this_dict}, this_fish
+    
+    def _own_repr_(self):
+        from .print_extentions import print_group_board_color
+        for group in self.subgroups:
+            print_group_board_color(group)
+            print(group.fish,"  ", group.penguins)
+            print()
+        
+"""
+    def _make_group(self, root: HexCoordinate):
+        self._check_list.remove(root)
+        this_fish = self.board.get_field(root).fish
+        neighbors = [n for n in root.get_neighbors() if n in self._check_list]
+        this_dict: dict[str, Tile] = {}
+        this_dict[own_hash(root)] = self.get_tile(root)
+        if neighbors == []:                                                                         #wenn filtered neighbors == []
+            return this_dict, this_fish
+        return_group = {}
+        for neighbor in neighbors:
+            if neighbor in self._check_list:
+                group, fish = self._make_group(neighbor)
+                return_group = {**group, **return_group}
+                this_fish = this_fish + fish
+        return {**return_group,**this_dict}, this_fish
+""" 
+
+
+
 @dataclass(order=True, repr=True)
 class TriBoard:
 
     board: Board
     current_team: Team
-    _check_list: list[str] = field(default_factory=[])
+    _check_list: list = field(default_factory=[])
     _groups: list[Group] = field(default_factory=[])
     _tri_board: list[Tile] = field(default_factory=[])
     
@@ -136,7 +227,7 @@ class TriBoard:
         return self.tri_board[coord.y][coord.x]
 
     def _make_groups(self):
-        groups: list[Group] = []
+        groups: list[FullGroup] = []
         self._check_list = [field.coordinate for row in self.board.board for field in row if field.fish > 0]
 
         while self._check_list:
@@ -144,7 +235,7 @@ class TriBoard:
             print(this_coord)
             if own_is_destination_valid(self.board, this_coord):
                 group, fish = self._make_group(this_coord)   #initial call of the recursive function
-                groups.append(Group(group, fish, []))
+                groups.append(FullGroup(group, fish, [], [], []))
 
         penguins: list[Penguin] = []
         penguins.extend(self.current_team.penguins)
@@ -173,8 +264,8 @@ class TriBoard:
                 this_fish = this_fish + fish
         return {**return_group,**this_dict}, this_fish
     
-    def make_groups_from(self) -> list[Group]:
-        groups: list[Group] = []
+    def make_groups_from(self) -> list[FullGroup]:
+        groups: list[FullGroup] = []
         self._check_list = get_all_coords(self.board)
 
         for penguin in self.current_team.penguins:
@@ -183,7 +274,7 @@ class TriBoard:
                     
                     group, fish = self.make_group(neighbor)   #initial call of the recursive function
 
-                    groups.append(Group(group, fish, [penguin])) #penguin isn't necessary here but whatever
+                    groups.append(FullGroup(group, fish, [penguin])) #penguin isn't necessary here but whatever
                 else:
                     for group in groups:
                         if own_hash(neighbor) in group.group and not penguin in group.penguins:
@@ -309,7 +400,7 @@ class TriBoard:
     def hash(self, coordinate: HexCoordinate):
         return (str(coordinate.x) + str(coordinate.y))
 
-    def in_groups(self, coord: HexCoordinate, groups: list[Group]) -> bool:
+    def in_groups(self, coord: HexCoordinate, groups: list[FullGroup]) -> bool:
         for group in groups:
             if own_hash(coord) in group.group:
                 return True
@@ -319,5 +410,3 @@ class TriBoard:
         from .print_extentions import print_group_board_color
         for group in self.groups:
             print_group_board_color(self.board, group, self.current_team.name.name)
-            print(group.fish,"  ", group.penguins)
-            print()
