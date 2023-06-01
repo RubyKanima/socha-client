@@ -203,3 +203,18 @@ def own_get_neighbors(coord: HexCoordinate):
 
 def own_hash(coordinate: HexCoordinate):
     return (str(coordinate.x) + str(coordinate.y))
+
+def get_possible_fish(state: GameState, team: TeamEnum = None) -> int:
+    if team == None:
+        team = state.current_team.name
+    penguins: list[Penguin] = state.board.get_teams_penguins(team)
+    fish = 0
+    for penguin in penguins:
+        for direction in Vector().directions:
+            for i in range(1, 8):
+                destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                if state.board._is_destination_valid(destination):
+                    fish += state.board.get_field(destination).fish
+                else:
+                    break
+    return fish

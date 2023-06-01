@@ -79,9 +79,16 @@ class Subgroup(Group):
 
     neighbors: list['Subgroup'] = field(default_factory=[])
 
-    def sub_group_testing(self, position):
-        ''''''
-    
+    def sub_group_testing(self, memo = []):
+        this_neighbors = []
+        for neighbor in self.neighbors:
+            if neighbor not in memo:
+                this_neighbors.append(neighbor)
+        if not this_neighbors:
+            return self.fish
+        for this_neighbor in this_neighbors:
+            return 
+        
 @dataclass
 class FullGroup(Group):
 
