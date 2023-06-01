@@ -148,8 +148,14 @@ class Logic(IClientHandler):
 
             ai_infos.append(ai_info)
 
+
+
             # ai for each field here
             # evaluate best field
+
+
+
+            
         tabulate_ai_infos(ai_infos)
         # take best here
         # and eval your neural network
