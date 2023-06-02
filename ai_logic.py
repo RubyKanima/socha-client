@@ -228,7 +228,7 @@ class Logic(IClientHandler):
         global games_won_all, moves_made, moves_made_all
 
         if ((games_played) % learning_interval == 0): #its learnin time
-            ask_to_save(net, "Loop_" + str((games_played + 1)))
+            ask_to_save(net, "Loop_" + str((games_played)))
 
             log = "{0} loops complete, {1}/{2} games won".format((games_played), games_won, learning_interval)
 
