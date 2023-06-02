@@ -24,7 +24,7 @@ class Logic(IClientHandler):
     @property
     def inters_to(self):
         if not self.other_possible_moves == [] and not self.game_state.possible_moves == []:
-            return Joins.inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
+            return Joins.left_inner_join_on(self.game_state.possible_moves, self.other_possible_moves, "to_value", True)
 
     def on_update(self, state: GameState):
         self.game_state = state    

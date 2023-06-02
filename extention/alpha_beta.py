@@ -189,20 +189,17 @@ class AlphaBeta():
         max_val = -1000
         max_move: Move = logic.game_state.possible_moves[0]
         # if turn <= 8 deleted
-        this_penguins: list[Penguin] = logic.tri_board.get_contesting_penguins()
+        own_moves = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.name)
+        other_moves = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.opponent.name)
+        move_list: list[Move] = Joins.left_inner_join_on(own_moves, other_moves, "to_value", False)
 
-        own_penguins = []
-        other_penguins = []
-        for each in this_penguins:
-            if each.team_enum.name == logic.game_state.current_team.name.name:
-                own_penguins.append(each)
-            else:
-                other_penguins.append(each)
+        print(" # # # # ")
+        print(move_list)
 
-        move_list: list[Move] = Intersection._get_best_moves_board(logic.game_state.board, own_penguins, other_penguins)
-        #print_moves_board(logic.game_state.board, move_list)
-        move_list.extend(Intersection._missing_direction_first_last(logic.game_state.board, move_list, own_penguins))
-        #print_moves_board(logic.game_state.board, move_list)
+        if logic.game_state.current_team.name.name == "ONE":
+            print_moves_board_custom(logic.game_state.board, move_list," ", "-", "⛇", "ඞ")
+        else:
+            print_moves_board_custom(logic.game_state.board, move_list," ", "-", "ඞ", "⛇")
 
         for each in move_list:
             mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), 2 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
@@ -223,23 +220,10 @@ class AlphaBeta():
                 this_max = max(this_max, each.fish)
             return this_max + fish
 
-        this_penguins: list[Penguin] = tri_board.get_contesting_penguins()
+        own_moves = get_possible_moves_from_team(tri_board.board, tri_board.current_team.name)
+        other_moves = get_possible_moves_from_team(tri_board.board, tri_board.current_team.opponent.name)
+        move_list: list[Move] = Joins.left_inner_join_on(own_moves, other_moves, "to_value", False)
 
-        own_penguins = []
-        other_penguins = []
-        for each in this_penguins:
-            if each.team_enum.name == tri_board.current_team.name.name:
-                own_penguins.append(each)
-            else:
-                other_penguins.append(each)
-        move_list: list[Move] = Intersection._get_best_moves_board(tri_board.board, own_penguins, other_penguins)
-        #move_list.extend(Intersection._missing_direction_first_last(tri_board.board, move_list, own_penguins))
-        """
-        if tri_board.current_team.name.name == "ONE":
-            print_moves_board_custom(tri_board.board, move_list," ", "-", "⛇", "ඞ")
-        else:
-            print_moves_board_custom(tri_board.board, move_list," ", "-", "ඞ", "⛇")
-        """
         if maximizing:
             maxEval = -100
             for move in move_list:

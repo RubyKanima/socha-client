@@ -218,3 +218,13 @@ def get_possible_fish(state: GameState, team: TeamEnum = None) -> int:
                 else:
                     break
     return fish
+
+def get_possible_moves_from_team(board: Board, teamenum: TeamEnum):
+    penguins = board.get_teams_penguins(teamenum)
+    
+    poss_moves = []
+
+    for each in penguins:
+        poss_moves.extend(board.possible_moves_from(each.coordinate, teamenum))
+
+    return poss_moves
