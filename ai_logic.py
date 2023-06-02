@@ -68,7 +68,6 @@ class Logic(IClientHandler):
     def __init__(self):     
         self.game_state: GameState
         self.tri_board: TriBoard
-
         self.team = False
 
     @property
@@ -195,47 +194,58 @@ class Logic(IClientHandler):
     def on_game_over(self, roomMessage: Result) -> None:
 
         print("[game ended]")
-
-        global games_won, learn, net
+        
+        global games_won, games_played, learn, net
+        
+        games_played += 1
 
         if ((not roomMessage.winner is None) and (self.team.name.name == roomMessage.winner.team)): 
-            print("You won, Player {0}".format(roomMessage.winner))
+            print("You won, Player {0}".format(self.team.name.name))
+            
+            log = "WIN"
             
             games_won += 1
             evaluation = max(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1]) - min(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1])
         else:
+            print("u stupid bro", self.team.name.name)
+            
+            log = "LOSS"
             evaluation = min(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1]) - max(roomMessage.scores.entry[0].score.part[1], roomMessage.scores.entry[1].score.part[1])
+
+        log += " ME:" + self.team.name.name
+        log += " ONE: " + str(roomMessage.scores.entry[0].score.part[0]) + " " + str(roomMessage.scores.entry[0].score.part[1])
+        log += " TWO: " + str(roomMessage.scores.entry[1].score.part[0]) + " " + str(roomMessage.scores.entry[1].score.part[1])
+        log += " RM: " + str(roomMessage.scores.entry[0].player.name)
+
+        save_log(log)
 
         if(learn):
             net.update_prep(evaluation)
+            
+        self.team = False
 
-        global games_won_all, moves_made, Moves_made_all, games_played
+        global games_won_all, moves_made, moves_made_all
 
-        if ((games_played + 1) % learning_interval == 0): #its learnin time
+        if ((games_played) % learning_interval == 0): #its learnin time
             ask_to_save(net, "Loop_" + str((games_played + 1)))
 
-            log = "{0} loops complete, {1}/{2} games won".format((games_played + 1), games_won, learning_interval)
+            log = "{0} loops complete, {1}/{2} games won".format((games_played), games_won, learning_interval)
 
             save_log(log)
-
-
+            
 
             print("[now evaluating]")
 
             net.update(eta= 0.1, amount= learning_interval)
-
-
-
+            
 
             games_won_all += games_won
             games_won = 0
 
-            Moves_made_all += moves_made
+            moves_made_all += moves_made
             moves_made = 0
 
         
-        games_played += 1
-
         #clearing shit
         self.history.clear()
         #os.system('cls')
@@ -245,14 +255,8 @@ class Logic(IClientHandler):
 games_won = 0
 games_won_all = 0
 
-games_failed = 0
-games_failed_all = 0
-
 moves_made = 0
-Moves_made_all = 0
-
-invalid_moves = 0
-invalid_moves_all = 0
+moves_made_all = 0
 
 games_played = 0
 
