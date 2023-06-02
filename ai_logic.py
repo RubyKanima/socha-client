@@ -217,7 +217,8 @@ class Logic(IClientHandler):
         log += " TWO: " + str(roomMessage.scores.entry[1].score.part[0]) + " " + str(roomMessage.scores.entry[1].score.part[1])
         log += " RM: " + str(roomMessage.scores.entry[0].player.name)
 
-        save_log(log)
+        # log each round
+        # save_log(log)
 
         if(learn):
             net.update_prep(evaluation)
