@@ -32,7 +32,14 @@ class Logic(IClientHandler):
     def calculate_move(self):
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
         print_common(self.game_state.board, self.game_state.current_team.name.name)
+        """
         self.tri_board.__own_repr__()
+        self.tri_board.__own_sub_repr__()
+
+        print(" ############################# ")
+        print(" PERFORM MOVE")
+        self.tri_board.perform_move(self.game_state.possible_moves[0]).__own_repr__(self.game_state.current_team.name.name)
+        """
         logging.info(self.game_state.turn)
 
         if self.game_state.turn < 4:                            # Beginning Moves
@@ -43,19 +50,25 @@ class Logic(IClientHandler):
             logging.info("delta_cut")
             return Intersection.get_move(self)
         
-        if not self.other_possible_moves:                       # Following Moves if the enemies don't matter
+        if not self.tri_board.is_any_contest():                       # Following Moves if the enemies don't matter
             logging.info("least")
             logic = self
             return TriBoard.get_least_shapes_move(self.tri_board, logic)
         
-        if not self.inters_to:                            # Following Moves against enemy
+        if self.tri_board.is_any_contest():                            # Following Moves against enemy
             logging.info("least2")
             logic = self
-            return TriBoard.get_least_shapes_move(self.tri_board, logic)
-        
+            return AlphaBeta.get_tri_alpha_move(logic)
+            
+        """
         if self.inters_to:                                # Following Moves if no moves possible against enemies
             logging.info("get_alpha_beta_cut_move")
             return Intersection.get_move(self)
+        
+        if not self.inters_to:
+            logging.info("get tri_cut_move")
+        """
+
     
         logging.error("UNAVOIDABLE ERROR")
         return random.choice(self.game_state.possible_moves)

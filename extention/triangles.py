@@ -3,6 +3,10 @@ from dataclasses import dataclass, field
 from copy import copy
 from .board_extentions import *
 from logic import Logic
+
+import _pickle as pickle
+import logging
+
 @dataclass(order=True)
 class Shape:
 
@@ -69,10 +73,19 @@ class Tile:
 @dataclass(order=True)
 class Group:
 
+    index: int
     group: dict[str, Tile]
     fish: int = 0
     penguins: list[Penguin] = field(default_factory=[])
 
+    def is_contestet(self):
+        if not self.penguins:
+            return False
+        team = self.penguins[0].team_enum.name
+        for each in self.penguins:
+            if each.team_enum.name != team:
+                return True
+        return False
 
 @dataclass
 class Subgroup(Group):
@@ -100,57 +113,83 @@ class FullGroup(Group):
         if not self._subgroups:
             self._subgroups = self._make_subgroups()
         return self._subgroups
+    
+    def _get_subgroup_by_coord(self, _subgroups: list[Subgroup], coord: HexCoordinate) -> Subgroup:
+        this_hash = own_hash(coord)
+        for subgroup in _subgroups:
+            if this_hash in subgroup.group:
+                return subgroup
+            
+    def get_subgroup_by_coord(self, coord: HexCoordinate) -> Subgroup:
+        this_hash = own_hash(coord)
+        for subgroup in self.subgroups:
+            if this_hash in subgroup.group:
+                return subgroup
 
     def _make_subgroups(self, spot:str = "black"):
+        index_count = 0
         subgroups: list[Subgroup] = []
         self._check_list = [key for key in self.group]
         black_spots = [self.group[tile] for tile in self.group if self.group[tile].spot == spot]
 
         for tile in black_spots:
-            penguins = []
             self._check_list.remove(own_hash(tile.root))
+            this_dict: dict[str, Tile] = {}
+            this_dict[own_hash(tile.root)] = tile
+            subgroups.append(Subgroup(index_count, this_dict, tile.fish, [], [],))
+            index_count+=1
 
+        for tile in black_spots:
             for neighbor in tile.root.get_neighbors():
-                if own_hash(neighbor) in self._check_list:
-                    new_subgroup = self._make_subgroup(neighbor)
+                if own_hash(neighbor) in self._check_list and self.group[own_hash(neighbor)].spot != "black":
+                    this_subgroup, new_fish = self._make_subgroup(neighbor) #initial recursive call
+                    new_subgroup = Subgroup(index_count, this_subgroup, new_fish, [], [])
                     subgroups.append(new_subgroup)
-            black_spot = Subgroup({own_hash(tile.root):tile}, tile.fish, penguins, subgroups)
-            for neighbor_group in black_spot.neighbors:
-                neighbor_group.neighbors.append(black_spot)
-            subgroups.append(black_spot)
-        
+                    index_count+=1
+
+        for tile in black_spots:
+            tile_group = self._get_subgroup_by_coord(_subgroups = subgroups, coord = tile.root)
+            if tile_group:
+                for neighbor in tile.root.get_neighbors():
+                    for subgroup in subgroups:
+                        if own_hash(neighbor) in subgroup.group and not subgroup in tile_group.neighbors:
+                            tile_group.neighbors.append(subgroup)
+                            subgroup.neighbors.append(tile_group)
+
         for penguin in self.penguins:
             for neighbor in penguin.coordinate.get_neighbors():
-                for group in subgroups:
-                        if own_hash(neighbor) in group.group and not penguin in group.penguins:
-                            group.penguins.append(penguin)
+                for subgroup in subgroups:
+                        if own_hash(neighbor) in subgroup.group and not penguin in subgroup.penguins:
+                            subgroup.penguins.append(penguin)
 
         return subgroups
 
-    def _make_subgroup(self, tile: Tile):
-        this_hash = own_hash(tile.root)
-        self._check_list.remove(own_hash(this_hash))
-        this_fish = tile.fish
-        neighbors = [own_hash(n) for n in tile.root.get_neighbors() if own_hash(n) in self._check_list and self.group[own_hash(n)].spot != "black"] #check for penguin in penguins
+    def _make_subgroup(self, coord: HexCoordinate):
+        this_hash = own_hash(coord)
+        this_fish = self.group[this_hash].fish
+        self._check_list.remove(this_hash)
+        neighbors = [n for n in coord.get_neighbors() if own_hash(n) in self._check_list] #check for penguin in penguins
+        for each in neighbors:
+            if self.group[own_hash(each)].spot == "black": 
+                neighbors.remove(each)
         this_dict: dict[str, Tile] = {}
         this_dict[this_hash] = self.group[this_hash]
         if neighbors == []:
-            return this_hash, this_fish
-        return_group = {}
+            return this_dict, this_fish
+        return_dict: dict[str, Tile] = {}
         for neighbor in neighbors:
-            if neighbor in self._check_list:
-                group, fish = self._make_subgroup(self.group[neighbor])
-                return_group = {**group, **return_group}
-                this_fish = this_fish + fish
-        return {**return_group, **this_dict}, this_fish
+            if own_hash(neighbor) in self._check_list:
+                group, fish = self._make_subgroup(neighbor)
+                return_dict = {**group, **return_dict}
+                this_fish: int = this_fish + fish
+        return {**return_dict, **this_dict}, this_fish
     
-    def _own_repr_(self):
+    def __own_board_repr__(self, board: Board, team: str):
         from .print_extentions import print_group_board_color
-        for group in self.subgroups:
-            print_group_board_color(group)
-            print(group.fish,"  ", group.penguins)
+        for subgroup in self.subgroups:
+            print_group_board_color(board, subgroup, team)
+            print(subgroup.fish,"  ", subgroup.penguins)
             print()
-
 
 
 @dataclass(order=True, repr=True)
@@ -176,6 +215,21 @@ class TriBoard:
             self._groups = self._make_groups()
             return self._groups
         
+    def is_any_contest(self):
+        for each in self.groups:
+            if each.is_contestet():
+                return True
+        return False
+    
+    def get_contesting_penguins(self):
+        this_penguins = []
+        for group in self.groups:
+            if group.is_contestet():
+                for penguin in group.penguins:
+                    if penguin not in this_penguins:
+                        this_penguins.append(penguin)
+        return this_penguins
+
     def get_least_shapes_move(self, logic: Logic):
         max_move = logic.game_state.possible_moves[0]
         min_val = 6
@@ -222,10 +276,9 @@ class TriBoard:
 
         while self._check_list:
             this_coord = self._check_list[0]
-            print(this_coord)
             if own_is_destination_valid(self.board, this_coord):
                 group, fish = self._make_group(this_coord, index_count)   #initial call of the recursive function
-                groups.append(FullGroup(group, fish, [], [], []))
+                groups.append(FullGroup(index_count, group, fish, [], [], []))
                 index_count+=1
 
         penguins: list[Penguin] = []
@@ -398,8 +451,47 @@ class TriBoard:
             if own_hash(coord) in group.group:
                 return True
         return False
+    
+    def perform_move(self, move: Move):
+        """
+        board_state: list[list[Field]] = pickle.loads(pickle.dumps(self.board.board, protocol=-1))
+        moving_penguin = Penguin(team_enum=move.team_enum, coordinate=move.to_value)
+        if move.from_value:
+            if not self.board.get_field(move.from_value).penguin:
+                logging.error(f"There is no penguin to move. Origin was: {self.board.get_field(move.from_value)}")
+                return self
+            
+            origin_field_coordinate = move.from_value.to_cartesian()
+            moving_penguin = board_state[origin_field_coordinate.y][origin_field_coordinate.x].penguin
+            moving_penguin.coordinate = move.to_value
+            board_state[origin_field_coordinate.y][origin_field_coordinate.x] = Field(coordinate=move.from_value, penguin=None, fish=0)
+            
+        destination_field_coordinate = move.to_value.to_cartesian()
+        board_state[destination_field_coordinate.y][destination_field_coordinate.x] = Field(coordinate=move.to_value, penguin = moving_penguin, fish=0)
 
-    def __own_repr__(self):
+        updated_board = Board(board_state)"""
+
+        updated_board = self.board.move(move)
+
+        next_team = self.current_team
+        for penguin in updated_board.get_teams_penguins(self.current_team.opponent.name):
+            if not updated_board.possible_moves_from(penguin.coordinate) == []:
+                next_team = self.current_team.opponent
+                break
+            break
+
+        return TriBoard(updated_board, next_team, [] , [], [])
+    
+    
+
+    def __own_repr__(self, team = None):
+        if not team:
+            team = self.current_team.name.name
         from .print_extentions import print_group_board_color
         for group in self.groups:
-            print_group_board_color(self.board, group, self.current_team.name.name)
+            print_group_board_color(self.board, group, team)
+
+    def __own_sub_repr__(self):
+        from .print_extentions import print_group_board_color
+        for group in self.groups:
+            group.__own_board_repr__(self.board,self.current_team.name.name)

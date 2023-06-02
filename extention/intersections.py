@@ -207,3 +207,127 @@ class Intersection():
                 value += state.board.get_field(destination).fish
         return value
                     
+    def _get_first_intersection_board(board: Board, own_penguins: list[Penguin], other_penguins: list[Penguin]):
+        ''' gets the first intersection from given list'''
+        if not own_penguins or not other_penguins:
+            logging.error(f"empty penguin list: {own_penguins} \n {other_penguins} ")
+
+        own_moves: list[Move] = []
+        for each in own_penguins:
+            own_moves.append(board.possible_moves_from(each.coordinate))
+
+        first_intersections = []
+        for penguin in other_penguins:
+            for direction in Vector().directions:
+                stop = False
+                for i in range(1, 8):
+                    if stop: break 
+                    destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                    if board._is_destination_valid(destination): # stop if end of board/ axis
+                        for each in own_moves: # add move if intersect
+                            if destination == each.to_value:
+                                first_intersections.append(each)
+                                stop = True
+                                break   # stop at first instance
+                    else:
+                        break
+        return first_intersections
+
+    def _get_first_last_move(board: Board, coord: HexCoordinate, team: TeamEnum):
+        
+        moves = []
+        for direction in Vector().directions:
+            first = coord.add_vector(direction.scalar_product(1))
+            if board._is_destination_valid(first):
+                moves.append(Move(team, first, coord))
+            else:
+                continue
+
+            if not board._is_destination_valid(coord.add_vector(direction.scalar_product(2))):
+                continue
+
+            for i in range(3, 8):
+                destination = coord.add_vector(direction.scalar_product(i))
+                if not board._is_destination_valid(destination): # stop if end of board/ axis
+                    moves.append(Move(team, coord.add_vector(direction.scalar_product(i-1)), coord))
+        return moves
+
+    def _get_best_moves_board(board: Board, own_penguins: list[Penguin], other_penguins: list[Penguin]):
+        ''' gets the first intersection from given list'''
+        if not own_penguins or not other_penguins:
+            logging.error(f"empty penguin list: {own_penguins} \n {other_penguins} ")
+
+        own_moves: list[Move] = []
+        for each in own_penguins:
+            own_moves.extend(board.possible_moves_from(each.coordinate))
+
+        if own_moves[0].team_enum.name:
+            print_moves_board_custom(board, own_moves," ", "-", "⛇", "ඞ")
+        else:
+            print_moves_board_custom(board, own_moves," ", "-", "ඞ", "⛇")
+
+        best_moves = []
+        for penguin in other_penguins:
+            for direction in Vector().directions:
+                stop = False
+                for i in range(1, 8):
+                    if stop: break 
+                    destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                    if board._is_destination_valid(destination): # stop if end of board/ axis
+                        for each in own_moves: # add move if intersect
+                            if destination == each.to_value:
+                                best_moves.append(each)
+                                stop = True
+                                break   # stop at first instance
+                    else:
+                        break
+        return best_moves
+    
+    def _missing_direction_first_last(board: Board, move_list: list[Move], own_penguins: list[Penguin]):
+        moves = []
+        new_own_penguins = own_penguins.copy()
+        
+        for penguin in own_penguins:
+            for move in move_list:
+                if penguin.coordinate == move.from_value:
+                    new_own_penguins.remove(penguin)
+                    break
+
+        for penguin in new_own_penguins:
+            for direction in Vector().directions:
+                first = penguin.coordinate.add_vector(direction.scalar_product(1))
+                if board._is_destination_valid(first):
+                    moves.append(Move(penguin.team_enum, first, penguin.coordinate))
+
+                    if not board._is_destination_valid(penguin.coordinate.add_vector(direction.scalar_product(2))):
+                        continue
+
+                    for i in range(3, 8):
+                        destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                        if not board._is_destination_valid(destination): # stop if end of board/ axis
+                            moves.append(Move(penguin.team_enum, penguin.coordinate.add_vector(direction.scalar_product(i-1)), penguin.coordinate))
+                            break
+        return moves
+    
+        """
+        for penguin in team.penguins:   # jeder pinguin
+            from_values = [each.from_value for each in move_list] # alle from values in move_list
+            if penguin.coordinate in from_values:   #if the penguin has no intersection
+                penguin_moves = [each for each in move_list if each.from_value == penguin.coordinate]
+                penguin_missing_dir : List[Vector] = Vector().directions    #beinhaltet alle richtungen
+
+                for move in penguin_moves:  #richtungen in der der pinguin schon einen move hat
+                    direction = get_dir_(Vector(move.to_value.x - move.from_value.x, move.to_value.y - move.from_value.y))
+                    if direction in penguin_missing_dir:
+                        penguin_missing_dir.remove(direction)
+
+                if not penguin_missing_dir == []:
+                    for direction in penguin_missing_dir:
+                        destination = penguin.coordinate.add_vector(direction.scalar_product(1))
+                        if state.board._is_destination_valid(destination):
+                            add_list.append(Move(team.name, destination, penguin.coordinate))
+            
+            move_list.extend(add_list)"""
+        return move_list
+    
+    

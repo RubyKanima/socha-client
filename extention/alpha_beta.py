@@ -183,3 +183,83 @@ class AlphaBeta():
             memo[hash_list] = minEval
             return minEval    
     
+
+
+    def get_tri_alpha_move(logic: Logic,):
+        max_val = -1000
+        max_move: Move = logic.game_state.possible_moves[0]
+        # if turn <= 8 deleted
+        this_penguins: list[Penguin] = logic.tri_board.get_contesting_penguins()
+
+        own_penguins = []
+        other_penguins = []
+        for each in this_penguins:
+            if each.team_enum.name == logic.game_state.current_team.name.name:
+                own_penguins.append(each)
+            else:
+                other_penguins.append(each)
+
+        move_list: list[Move] = Intersection._get_best_moves_board(logic.game_state.board, own_penguins, other_penguins)
+        #print_moves_board(logic.game_state.board, move_list)
+        move_list.extend(Intersection._missing_direction_first_last(logic.game_state.board, move_list, own_penguins))
+        #print_moves_board(logic.game_state.board, move_list)
+
+        for each in move_list:
+            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), 2 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
+            val = mini_max
+            if val > max_val:
+                max_move = each
+                max_val = val
+        return max_move
+
+    
+    def tri_alpha(tri_board: TriBoard, depth: int, fish: int, maximizing:bool, alpha: int, beta:int):
+        ''''''
+        print_common(tri_board.board, "ONE")
+        print(f"current team: {tri_board.current_team.name.name} | {maximizing}")
+        if not tri_board.is_any_contest() or depth == 0:
+            this_max = 0
+            for each in tri_board.groups:
+                this_max = max(this_max, each.fish)
+            return this_max + fish
+
+        this_penguins: list[Penguin] = tri_board.get_contesting_penguins()
+
+        own_penguins = []
+        other_penguins = []
+        for each in this_penguins:
+            if each.team_enum.name == tri_board.current_team.name.name:
+                own_penguins.append(each)
+            else:
+                other_penguins.append(each)
+        move_list: list[Move] = Intersection._get_best_moves_board(tri_board.board, own_penguins, other_penguins)
+        #move_list.extend(Intersection._missing_direction_first_last(tri_board.board, move_list, own_penguins))
+        """
+        if tri_board.current_team.name.name == "ONE":
+            print_moves_board_custom(tri_board.board, move_list," ", "-", "⛇", "ඞ")
+        else:
+            print_moves_board_custom(tri_board.board, move_list," ", "-", "ඞ", "⛇")
+        """
+        if maximizing:
+            maxEval = -100
+            for move in move_list:
+                updated_board = tri_board.perform_move(move)
+                eval = AlphaBeta.tri_alpha(updated_board, depth-1, fish + tri_board.board.get_field(move.to_value).fish, False, alpha, beta)
+                maxEval = max(maxEval, eval)
+                alpha = max(eval, alpha)
+                if beta <= alpha:
+                    break
+            return maxEval
+                
+        else:
+            for move in move_list:
+                minEval = 100
+                eval = AlphaBeta.tri_alpha(tri_board.perform_move(move), depth-1, fish + tri_board.board.get_field(move.to_value).fish, True, alpha, beta)
+                minEval = min(minEval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+            return 
+        
+    def tri_eval(tri_board: TriBoard):
+        """"""
