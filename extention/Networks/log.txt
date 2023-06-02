@@ -1,0 +1,10 @@
+100 loops complete, 24/100 games won Time: 2023-06-02 12:15:38.419112
+200 loops complete, 15/100 games won Time: 2023-06-02 12:25:44.306501
+300 loops complete, 14/100 games won Time: 2023-06-02 12:36:42.153427
+400 loops complete, 17/100 games won Time: 2023-06-02 12:47:56.226819
+500 loops complete, 17/100 games won Time: 2023-06-02 13:00:16.067694
+600 loops complete, 21/100 games won Time: 2023-06-02 13:16:41.699204
+700 loops complete, 12/100 games won Time: 2023-06-02 13:33:52.981704
+800 loops complete, 13/100 games won Time: 2023-06-02 13:47:03.542593
+900 loops complete, 19/100 games won Time: 2023-06-02 14:02:28.318221
+1000 loops complete, 15/100 games won Time: 2023-06-02 14:19:29.684776
