@@ -221,7 +221,7 @@ class Logic(IClientHandler):
         # save_log(log)
 
         if(learn):
-            net.update_prep(evaluation)
+            net.update_prep(net.sigmoid(evaluation))
             
         self.team = False
 
