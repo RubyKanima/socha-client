@@ -19,8 +19,16 @@ class Logic(IClientHandler):
 
             self.init = True
 
-        copy_m = self.copy()
-        move = self.gameState.possible_moves[0] if copy_m == None else copy_m
+        move = self.gameState.possible_moves[0]
+
+        if self.copy_mode:
+
+            if self.josef_stupid():
+                pass # smart move
+
+            else:
+                c = self.copy()
+                move = self.copy() if c else move
         
         return move
 
@@ -48,7 +56,7 @@ class Logic(IClientHandler):
 
         return None
     
-    def if_josef_stupid(self):
+    def josef_stupid(self):
 
         return False
 
