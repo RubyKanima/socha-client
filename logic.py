@@ -32,6 +32,9 @@ class Logic(IClientHandler):
     def calculate_move(self):
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
         print_common(self.game_state.board, self.game_state.current_team.name.name)
+        AlphaBeta.tri_eval_print(self.tri_board, self.game_state.current_team)
+        print(AlphaBeta.tri_eval2(self.tri_board, self.game_state.current_team))
+        
         """
         self.tri_board.__own_repr__()
         self.tri_board.__own_sub_repr__()
@@ -56,7 +59,7 @@ class Logic(IClientHandler):
             return TriBoard.get_least_shapes_move(self.tri_board, logic)
         
         if self.tri_board.is_any_contest():                            # Following Moves against enemy
-            logging.info("least2")
+            logging.info("tri_alpha")
             logic = self
             return AlphaBeta.get_tri_alpha_move(logic)
             

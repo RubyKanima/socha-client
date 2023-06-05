@@ -309,6 +309,7 @@ class Intersection():
                             break
         return moves
     
+    
         """
         for penguin in team.penguins:   # jeder pinguin
             from_values = [each.from_value for each in move_list] # alle from values in move_list
@@ -327,7 +328,30 @@ class Intersection():
                         if state.board._is_destination_valid(destination):
                             add_list.append(Move(team.name, destination, penguin.coordinate))
             
-            move_list.extend(add_list)"""
+            move_list.extend(add_list)
+        return move_list"""
+
+    def add_missing_direction_moves_board(board: Board, move_list: list[Move], team: Team = None):
+        add_list = []
+        
+        for penguin in team.penguins:   # jeder pinguin
+            inters_to = [each.from_value for each in move_list] # alle from values in move_list
+            if penguin.coordinate in inters_to:   #if the penguin has no intersection
+                penguin_moves = [each for each in move_list if each.from_value == penguin.coordinate]
+                penguin_missing_dir : List[Vector] = Vector().directions    #beinhaltet alle richtungen
+
+                for move in penguin_moves:  #richtungen in der der pinguin schon einen move hat
+                    direction = get_dir_(Vector(move.to_value.x - move.from_value.x, move.to_value.y - move.from_value.y))
+                    if direction in penguin_missing_dir:
+                        penguin_missing_dir.remove(direction)
+
+                if not penguin_missing_dir == []:
+                    for direction in penguin_missing_dir:
+                        destination = penguin.coordinate.add_vector(direction.scalar_product(1))
+                        if board._is_destination_valid(destination):
+                            add_list.append(Move(team.name, destination, penguin.coordinate))
+            
+            move_list.extend(add_list)
         return move_list
     
     

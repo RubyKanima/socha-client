@@ -4,9 +4,6 @@ from copy import copy
 from .board_extentions import *
 from logic import Logic
 
-import _pickle as pickle
-import logging
-
 @dataclass(order=True)
 class Shape:
 
@@ -78,7 +75,7 @@ class Group:
     fish: int = 0
     penguins: list[Penguin] = field(default_factory=[])
 
-    def is_contestet(self):
+    def is_contesting(self):
         if not self.penguins:
             return False
         team = self.penguins[0].team_enum.name
@@ -86,6 +83,13 @@ class Group:
             if each.team_enum.name != team:
                 return True
         return False
+    
+    def contains_team(self, team_str: str):
+        for penguin in self.penguins:
+            if team_str == penguin.team_enum.name:
+                return True
+        return False
+
 
 @dataclass
 class Subgroup(Group):
@@ -217,14 +221,14 @@ class TriBoard:
         
     def is_any_contest(self):
         for each in self.groups:
-            if each.is_contestet():
+            if each.is_contesting():
                 return True
         return False
     
     def get_contesting_penguins(self):
         this_penguins = []
         for group in self.groups:
-            if group.is_contestet():
+            if group.is_contesting():
                 for penguin in group.penguins:
                     if penguin not in this_penguins:
                         this_penguins.append(penguin)
@@ -492,6 +496,6 @@ class TriBoard:
             print_group_board_color(self.board, group, team)
 
     def __own_sub_repr__(self):
-        from .print_extentions import print_group_board_color
+        #from .print_extentions import print_group_board_color
         for group in self.groups:
             group.__own_board_repr__(self.board,self.current_team.name.name)

@@ -189,20 +189,23 @@ class AlphaBeta():
         max_val = -1000
         max_move: Move = logic.game_state.possible_moves[0]
         # if turn <= 8 deleted
-        own_moves = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.name)
+        move_list = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.name)
+        """
         other_moves = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.opponent.name)
         move_list: list[Move] = Joins.left_inner_join_on(own_moves, other_moves, "to_value", False)
-
-        print(" # # # # ")
-        print(move_list)
+        move_list = Intersection.add_missing_direction_moves_board(logic.game_state.board, move_list, logic.game_state.current_team)
+        """
+        """
+        print("TriEval")
+        print(AlphaBeta.tri_eval(logic.tri_board, logic.game_state.current_team))
 
         if logic.game_state.current_team.name.name == "ONE":
             print_moves_board_custom(logic.game_state.board, move_list," ", "-", "⛇", "ඞ")
         else:
             print_moves_board_custom(logic.game_state.board, move_list," ", "-", "ඞ", "⛇")
-
+        """
         for each in move_list:
-            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), 2 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
+            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), logic.game_state.current_team, 1 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
             val = mini_max
             if val > max_val:
                 max_move = each
@@ -210,25 +213,37 @@ class AlphaBeta():
         return max_move
 
     
-    def tri_alpha(tri_board: TriBoard, depth: int, fish: int, maximizing:bool, alpha: int, beta:int):
+    def tri_alpha(tri_board: TriBoard, global_team: Team, depth: int, fish: int, maximizing:bool, alpha: int, beta:int):
         ''''''
+        """
         print_common(tri_board.board, "ONE")
         print(f"current team: {tri_board.current_team.name.name} | {maximizing}")
-        if not tri_board.is_any_contest() or depth == 0:
-            this_max = 0
-            for each in tri_board.groups:
-                this_max = max(this_max, each.fish)
-            return this_max + fish
-
+        """
+        """
         own_moves = get_possible_moves_from_team(tri_board.board, tri_board.current_team.name)
         other_moves = get_possible_moves_from_team(tri_board.board, tri_board.current_team.opponent.name)
+
+        if not tri_board.is_any_contest() or depth == 0 or not own_moves or other_moves:
+            if maximizing:
+                return AlphaBeta.tri_eval(tri_board, global_team) - fish
+            else:
+                return AlphaBeta.tri_eval(tri_board, global_team) + fish
+
         move_list: list[Move] = Joins.left_inner_join_on(own_moves, other_moves, "to_value", False)
+        move_list = Intersection.add_missing_direction_moves_board(tri_board.board, move_list, tri_board.current_team)
+        if not move_list:
+            move_list = own_moves
+        """
+        move_list = get_possible_moves_from_team(tri_board.board, tri_board.current_team.name)
+
+        if not tri_board.is_any_contest() or depth == 0 or not move_list:
+            return AlphaBeta.tri_eval2(tri_board, global_team) + fish
 
         if maximizing:
-            maxEval = -100
+            maxEval = -1000
             for move in move_list:
                 updated_board = tri_board.perform_move(move)
-                eval = AlphaBeta.tri_alpha(updated_board, depth-1, fish + tri_board.board.get_field(move.to_value).fish, False, alpha, beta)
+                eval = AlphaBeta.tri_alpha(updated_board, global_team, depth-1, fish + tri_board.board.get_field(move.to_value).fish, False, alpha, beta)
                 maxEval = max(maxEval, eval)
                 alpha = max(eval, alpha)
                 if beta <= alpha:
@@ -236,14 +251,114 @@ class AlphaBeta():
             return maxEval
                 
         else:
+            minEval = 1000
             for move in move_list:
-                minEval = 100
-                eval = AlphaBeta.tri_alpha(tri_board.perform_move(move), depth-1, fish + tri_board.board.get_field(move.to_value).fish, True, alpha, beta)
+                updated_board = tri_board.perform_move(move)
+                eval = AlphaBeta.tri_alpha(updated_board, global_team, depth-1, fish - tri_board.board.get_field(move.to_value).fish, True, alpha, beta)
                 minEval = min(minEval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
                     break
-            return 
+            return minEval
         
-    def tri_eval(tri_board: TriBoard):
-        """"""
+    def tri_eval(tri_board: TriBoard, global_team: Team):
+        '''all subgroups'''
+        global_subgroups : list[Subgroup] = []
+        for group in tri_board.groups:
+            #print_group_board_color(tri_board.board, group, "ONE") 
+            for subgroups in group.subgroups:
+                global_subgroups.append(subgroups)
+        ''''''
+        value = 0
+
+        '''
+        for penguin in tri_board.board.get_teams_penguins(global_team.name):
+            penguin_subgroups = global_subgroups.copy()
+            for direction in Vector().directions:
+                for i in range(1,8):
+                    destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                    if not own_is_destination_valid(tri_board.board ,destination):
+                        break
+                    value += tri_board.board.get_field(destination).fish
+                    """
+                    this_hash = own_hash(destination)
+                    for subgroup in penguin_subgroups:
+                        if this_hash in subgroup.group:
+                            value += subgroup.fish  
+                            penguin_subgroups.remove(subgroup)"""
+
+        for penguin in tri_board.board.get_teams_penguins(global_team.opponent.name):
+            penguin_subgroups = global_subgroups.copy()
+            for direction in Vector().directions:
+                for i in range(1,8):
+                    destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                    if not own_is_destination_valid(tri_board.board ,destination):
+                        break
+                    value -= tri_board.board.get_field(destination).fish
+                    """
+                    this_hash = own_hash(destination)
+                    for subgroup in penguin_subgroups:
+                        if this_hash in subgroup.group:
+                            value -= subgroup.fish
+                            penguin_subgroups.remove(subgroup)"""
+                    '''
+        value += get_possible_fish_board(tri_board.board, global_team.name)
+        value -= get_possible_fish_board(tri_board.board, global_team.opponent.name)
+        
+        for this_group in tri_board.groups:
+            if this_group.contains_team(global_team.name.name):
+                value += this_group.fish
+            if this_group.contains_team(global_team.opponent.name.name):
+                value -= this_group.fish
+
+        return value
+    
+    def tri_eval2(tri_board: TriBoard, global_team: Team):
+        check_list = {}
+        for group in tri_board.groups:
+            if group.is_contesting():
+                for key in group.group:
+                    check_list[key] = group.group[key].fish
+
+        own_coords = [each.coordinate for each in tri_board.board.get_teams_penguins(global_team.name)]
+        other_coords = [each.coordinate for each in tri_board.board.get_teams_penguins(global_team.opponent.name)]
+        #print(other_coords)
+        own_value = get_depth_possibles(tri_board.board, check_list.copy(), own_coords)
+        other_value = get_depth_possibles(tri_board.board, check_list.copy(), other_coords)
+        #print(own_value, other_value)
+        value = 0
+        for group in tri_board.groups:
+            if group.is_contesting() or group.penguins == []:
+                continue
+            if group.penguins[0].team_enum.name == global_team.name.name:
+                value += group.fish
+            else:
+                value -= group.fish
+
+        return own_value - other_value + value
+    
+    def tri_eval_print(tri_board: TriBoard, global_team: Team):
+        check_list = {}
+        for group in tri_board.groups:
+            if group.is_contesting():
+                for key in group.group:
+                    check_list[key] = group.group[key].fish
+
+        own_coords = [each.coordinate for each in tri_board.board.get_teams_penguins(global_team.name)]
+        other_coords = [each.coordinate for each in tri_board.board.get_teams_penguins(global_team.opponent.name)]
+        #print(other_coords)
+        own_value = get_depth_possibles(tri_board.board, check_list.copy(), own_coords)
+        other_value = get_depth_possibles(tri_board.board, check_list.copy(), other_coords)
+
+        own_value2 = 0
+        other_value2 = 0
+        for group in tri_board.groups:
+            if group.is_contesting() or group.penguins == []:
+                continue
+            if group.penguins[0].team_enum.name == global_team.name.name:
+                own_value2 += group.fish
+            else:
+                other_value2 -= group.fish
+
+
+        print(own_value, -other_value, own_value2, other_value2)

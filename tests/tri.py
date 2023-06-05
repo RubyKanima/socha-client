@@ -93,10 +93,17 @@ for i in range(0,6):
     print("each",list[(i) % 6])
     print("each-1",list[(i-1) % 6])
 """
-
+"""
 cool_list = [1,2,3,4,5,6,7,9]
 not_cool_list= [10,11,12]
 super_list = []
 super_list.extend(cool_list)
 super_list.extend(not_cool_list)
 print(super_list)
+"""
+
+hash_list = {"1": 1, "2": 2}
+
+print(hash_list)
+hash_list.pop("1")
+print(hash_list)

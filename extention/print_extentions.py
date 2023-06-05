@@ -3,6 +3,7 @@ from tabulate import tabulate
 from typing import List
 import logging
 
+from .board_extentions import own_hash
 from extention.triangles import *
 
 

@@ -219,7 +219,7 @@ def get_possible_fish(state: GameState, team: TeamEnum = None) -> int:
                     break
     return fish
 
-def get_possible_moves_from_team(board: Board, teamenum: TeamEnum):
+def get_possible_moves_from_team(board: Board, teamenum: TeamEnum) -> list[Move]:
     penguins = board.get_teams_penguins(teamenum)
     
     poss_moves = []
@@ -228,3 +228,51 @@ def get_possible_moves_from_team(board: Board, teamenum: TeamEnum):
         poss_moves.extend(board.possible_moves_from(each.coordinate, teamenum))
 
     return poss_moves
+
+def get_possible_fish_board(board: Board, team: TeamEnum = None) -> int:
+    penguins: list[Penguin] = board.get_teams_penguins(team)
+    fish = 0
+    for penguin in penguins:
+        for direction in Vector().directions:
+            for i in range(1, 8):
+                destination = penguin.coordinate.add_vector(direction.scalar_product(i))
+                if board._is_destination_valid(destination):
+                    fish += board.get_field(destination).fish
+                else:
+                    break
+    return fish
+
+def get_penguins_moves_team(board: Board, team: TeamEnum = None):
+    penguins: list[Penguin] = board.get_teams_penguins(team)
+    penguins_moves = []
+    for penguin in penguins:
+        penguins_moves.append(board.possible_moves_from(penguin.coordinate, team))
+    return penguins_moves
+
+from .triangles import Tile
+
+def get_depth_possibles(board: Board, check_list: dict[str, Tile], check_coords: list[HexCoordinate]):
+    ''''''
+    
+    value = 0
+    iteration = 1
+    while not check_list == {}:
+        destinations = []
+        #print(f" ITERATION: {iteration}")
+        #print(check_list)
+        for coord in check_coords:
+            for direction in Vector().directions:
+                for i in range(1,8):
+                    destination = coord.add_vector(direction.scalar_product(i))
+                    this_hash = own_hash(destination)
+                    if this_hash in check_list:
+                        value += check_list[this_hash] / iteration
+                        check_list.pop(this_hash)
+                        destinations.append(destination)
+                    elif board._is_destination_valid(destination):
+                        break
+                    else: 
+                        continue
+        check_coords = destinations
+        iteration+=1
+    return value
