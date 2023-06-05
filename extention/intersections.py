@@ -96,7 +96,7 @@ class Intersection():
                     for direction in penguin_missing_dir:
                         destination = penguin.coordinate.add_vector(direction.scalar_product(1))
                         if state.board._is_destination_valid(destination):
-                            add_list.append(Move(team.name, destination, penguin.coordinate))
+                            add_list.append(Move(team.name, to_value=destination, from_value=penguin.coordinate))
             
             move_list.extend(add_list)
         return move_list

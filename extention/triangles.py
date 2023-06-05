@@ -73,6 +73,15 @@ class Group:
     group: dict[str, Tile]
     fish: int = 0
     penguins: list[Penguin] = field(default_factory=[])
+
+    def is_contestet(self):
+        if not self.penguins:
+            return False
+        team = self.penguins[0].team_enum.name
+        for each in self.penguins:
+            if each.team_enum.name != team:
+                return True
+        return False
     
 @dataclass(order=True, repr=True)
 class TriBoard:

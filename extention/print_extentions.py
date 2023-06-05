@@ -78,6 +78,7 @@ def print_group_board(board: Board, group: Group, team: str):
 
 def print_group_board_color(board: Board, group: Group, team: str):
     print("- - - - - - - - - - - - - - - - -")
+    print("contest:", group.is_contestet())
     for y in range(8):
         if y % 2 == 1:
             print("  ", end="")

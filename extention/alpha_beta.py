@@ -19,11 +19,11 @@ class AlphaBeta():
         addition_len = 1 if length <= 12 else 2 if length <= 2 else 0
         #logging.info(f"addition: {addition_len}, {addition_turn}")
         
-        #print_moves_board_custom(logic.game_state.board, move_list, " ", "-", "B", "E")
+        print_moves_board_custom(logic.game_state.board, move_list," ", "-", "⛇", "ඞ")
         #own_pretty_print_custom(logic.game_state.board, " ", "O", "T")
         logging.info(addition_len)
         for each in move_list:
-            mini_max = AlphaBeta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 1 + addition_len, max_val, 100)
+            mini_max = AlphaBeta.alpha_beta_cut(logic, logic.game_state.perform_move(each), 3, max_val, 100)
             val = mini_max
             if val > max_val:
                 max_move = each
