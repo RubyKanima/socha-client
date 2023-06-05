@@ -206,7 +206,7 @@ class AlphaBeta():
             print_moves_board_custom(logic.game_state.board, move_list," ", "-", "ඞ", "⛇")
         """
         for each in move_list:
-            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), logic.game_state.current_team, 0 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
+            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), logic.game_state.current_team, 2 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
             val = mini_max
             if val > max_val:
                 max_move = each
@@ -269,7 +269,7 @@ class AlphaBeta():
             #print_group_board_color(tri_board.board, group, "ONE") 
             for subgroups in group.subgroups:
                 global_subgroups.append(subgroups)
-        ''''''
+        '''- - - - - - -'''
         value = 0
 
         '''
