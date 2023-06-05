@@ -256,7 +256,7 @@ def get_depth_possibles(board: Board, check_list: dict[str, Tile], check_coords:
     
     value = 0
     iteration = 1
-    while not check_list == {}:
+    while check_coords:
         destinations = []
         #print(f" ITERATION: {iteration}")
         #print(check_list)
@@ -269,7 +269,7 @@ def get_depth_possibles(board: Board, check_list: dict[str, Tile], check_coords:
                         value += check_list[this_hash] / iteration
                         check_list.pop(this_hash)
                         destinations.append(destination)
-                    elif board._is_destination_valid(destination):
+                    elif not board._is_destination_valid(destination):
                         break
                     else: 
                         continue

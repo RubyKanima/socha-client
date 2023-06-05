@@ -28,10 +28,12 @@ class Logic(IClientHandler):
 
     def on_update(self, state: GameState):
         self.game_state = state    
+        logging.info(self.game_state.turn)
+        logging.info(str(self.game_state.first_team.fish)+" "+ str(self.game_state.second_team.fish))
+        print_common(self.game_state.board, self.game_state.first_team.name.name)
        
     def calculate_move(self):
         self.tri_board = TriBoard(self.game_state.board, self.game_state.current_team, [], [], [])
-        print_common(self.game_state.board, self.game_state.current_team.name.name)
         AlphaBeta.tri_eval_print(self.tri_board, self.game_state.current_team)
         print(AlphaBeta.tri_eval2(self.tri_board, self.game_state.current_team))
         
@@ -43,8 +45,8 @@ class Logic(IClientHandler):
         print(" PERFORM MOVE")
         self.tri_board.perform_move(self.game_state.possible_moves[0]).__own_repr__(self.game_state.current_team.name.name)
         """
-        logging.info(self.game_state.turn)
-
+        
+        """
         if self.game_state.turn < 4:                            # Beginning Moves
             logging.info("most_possible_move")
             return AlphaBeta.get_most_possible_move(self)
@@ -52,16 +54,17 @@ class Logic(IClientHandler):
         if self.game_state.turn < 8:
             logging.info("delta_cut")
             return Intersection.get_move(self)
-        
+        """
+        if self.game_state.turn == 0:
+            return AlphaBeta.get_most_possible_fish_move(self)
+
         if not self.tri_board.is_any_contest():                       # Following Moves if the enemies don't matter
             logging.info("least")
-            logic = self
-            return TriBoard.get_least_shapes_move(self.tri_board, logic)
+            return self.tri_board.get_least_shapes_move(self)
         
         if self.tri_board.is_any_contest():                            # Following Moves against enemy
             logging.info("tri_alpha")
-            logic = self
-            return AlphaBeta.get_tri_alpha_move(logic)
+            return AlphaBeta.get_tri_alpha_move(self)
             
         """
         if self.inters_to:                                # Following Moves if no moves possible against enemies

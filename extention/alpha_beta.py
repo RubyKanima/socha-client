@@ -50,7 +50,7 @@ class AlphaBeta():
 
         for move in logic.game_state.possible_moves:
             state = logic.game_state.perform_move(move)
-            val = get_possible_fish(logic.game_state, logic.game_state.current_team.name)
+            val = get_possible_fish(state, logic.game_state.current_team.name)
             if val >= max_val:
                 max_val = val
                 max_move = move
@@ -189,7 +189,8 @@ class AlphaBeta():
         max_val = -1000
         max_move: Move = logic.game_state.possible_moves[0]
         # if turn <= 8 deleted
-        move_list = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.name)
+        #move_list = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.name)
+        move_list = logic.game_state.possible_moves
         """
         other_moves = get_possible_moves_from_team(logic.game_state.board, logic.game_state.current_team.opponent.name)
         move_list: list[Move] = Joins.left_inner_join_on(own_moves, other_moves, "to_value", False)
@@ -205,7 +206,7 @@ class AlphaBeta():
             print_moves_board_custom(logic.game_state.board, move_list," ", "-", "ඞ", "⛇")
         """
         for each in move_list:
-            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), logic.game_state.current_team, 1 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
+            mini_max = AlphaBeta.tri_alpha(logic.tri_board.perform_move(each), logic.game_state.current_team, 0 , logic.tri_board.board.get_field(each.to_value).fish, False, max_val, 1000)
             val = mini_max
             if val > max_val:
                 max_move = each
@@ -316,9 +317,8 @@ class AlphaBeta():
     def tri_eval2(tri_board: TriBoard, global_team: Team):
         check_list = {}
         for group in tri_board.groups:
-            if group.is_contesting():
-                for key in group.group:
-                    check_list[key] = group.group[key].fish
+            for key in group.group:
+                check_list[key] = group.group[key].fish
 
         own_coords = [each.coordinate for each in tri_board.board.get_teams_penguins(global_team.name)]
         other_coords = [each.coordinate for each in tri_board.board.get_teams_penguins(global_team.opponent.name)]
@@ -326,16 +326,16 @@ class AlphaBeta():
         own_value = get_depth_possibles(tri_board.board, check_list.copy(), own_coords)
         other_value = get_depth_possibles(tri_board.board, check_list.copy(), other_coords)
         #print(own_value, other_value)
-        value = 0
-        for group in tri_board.groups:
-            if group.is_contesting() or group.penguins == []:
-                continue
-            if group.penguins[0].team_enum.name == global_team.name.name:
-                value += group.fish
-            else:
-                value -= group.fish
+        #value = 0
+        #for group in tri_board.groups:
+        #    if group.is_contesting() or group.penguins == []:
+        #        continue
+        #    if group.penguins[0].team_enum.name == global_team.name.name:
+        #        value += group.fish
+        #    else:
+        #        value -= group.fish
 
-        return own_value - other_value + value
+        return own_value - other_value# + value
     
     def tri_eval_print(tri_board: TriBoard, global_team: Team):
         check_list = {}
@@ -359,6 +359,6 @@ class AlphaBeta():
                 own_value2 += group.fish
             else:
                 other_value2 -= group.fish
-
+        
 
         print(own_value, -other_value, own_value2, other_value2)
