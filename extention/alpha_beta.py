@@ -43,7 +43,7 @@ class AlphaBeta():
         move_list = get_possible_moves_from_team(tri_board.board, tri_board.current_team.name)
 
         if not tri_board.is_any_contest() or depth == 0 or not move_list:
-            return AlphaBeta.tri_eval2(tri_board, global_team) + fish
+            return AlphaBeta.tri_eval2(tri_board, global_team) + fish + AlphaBeta._get_move(tri_board, move_list, global_team)
             
         if maximizing:
             maxEval = -1000
@@ -119,7 +119,7 @@ class AlphaBeta():
                         destination = coord.add_vector(direction.scalar_product(i))
                         this_hash = own_hash(destination)
                         if this_hash in check_list:
-                            value += check_list[this_hash] / (iteration*0.5)
+                            value += check_list[this_hash] / iteration
                             check_list.pop(this_hash)
                             destinations.append(destination)
                         elif not board._is_destination_valid(destination):
@@ -136,14 +136,20 @@ class AlphaBeta():
         move_list = possible_moves
         move_list = [move for move in move_list if tri_board.tri_board()[move.to_value.x>>1][move.to_value.y].spot == "white" or tri_board.tri_board()[move.to_value.x>>1][move.to_value.y].spot == "yellow"]
         #print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
+        
+        this_team = global_team.opponent if global_team.name.name != possible_moves[0].team_enum.name else global_team
 
+            
         for move in move_list:
-            val = AlphaBeta.get_fish_evaluate(tri_board.board, move.to_value, global_team)
+            val = AlphaBeta.get_fish_evaluate(tri_board.board, move.to_value, this_team)
             if val >= max_val:
                 max_val = val
-                max_move = move
-        return max_move
-    
+        
+        if global_team.name.name == possible_moves[0].team_enum.name:
+            return max_val
+        else:
+            return -max_val
+
     def get_move(logic: Logic):
         max_val = -1000
         max_move = logic.game_state.possible_moves[0]
@@ -160,8 +166,8 @@ class AlphaBeta():
     
     def get_fish_evaluate(board: Board, origin: HexCoordinate, global_team: Team):
         value = 0
-        other_possibles = get_possible_moves_from_team(board, global_team.opponent.name)
-        intersections = AlphaBeta.get_first_inters_from_with(board, origin, other_possibles)
+        #other_possibles = get_possible_moves_from_team(board, global_team.opponent.name)
+        #intersections = AlphaBeta.get_first_inters_from_with(board, origin, other_possibles)
         for direction in Vector().directions:
             factor = 1
             for i in range(1,8):
@@ -171,8 +177,6 @@ class AlphaBeta():
 
                 if board.get_field(destination).fish == 0:
                     break
-                if destination in intersections:
-                    factor = 1.25
                 value += board.get_field(destination).fish * factor
         return value
     
