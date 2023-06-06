@@ -21,7 +21,7 @@ class Logic(IClientHandler):
         self.copy = True if self.game_state.current_team.name.name == "TWO" and self.copy else False
         copy_move: Move
         if self.copy:
-            print(self.copy)
+            #print(self.copy)
             copy_move = copycat(self.game_state.last_move, self.game_state.current_team.name)
             self.copy = copycat_validity(copy_move, self.tri_board) if self.game_state.turn > 1 else True
             self.copy = True if copy_move in self.game_state.possible_moves else False
@@ -40,8 +40,8 @@ class Logic(IClientHandler):
         
         if self.tri_board.is_any_contest():                            # Following Moves against enemy
             #logging.info("tri_alpha")
-            #return AlphaBeta.get_tri_alpha_move(self)
-            return AlphaBeta.get_move(self)
+            return AlphaBeta.get_tri_alpha_move(self)
+            #return AlphaBeta.get_move(self)
 
         #logging.error("UNAVOIDABLE ERROR")
         return choice(self.game_state.possible_moves)

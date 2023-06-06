@@ -24,7 +24,7 @@ class AlphaBeta():
             penguins = logic.tri_board.get_contesting_penguins()
             
             for penguin in penguins:
-                print(penguin)
+                #print(penguin)
                 if penguin.team_enum.name == logic.game_state.current_team.name.name:
                     move_list.extend(logic.game_state.board.possible_moves_from(penguin.coordinate))
         else:
@@ -44,7 +44,7 @@ class AlphaBeta():
 
         if not tri_board.is_any_contest() or depth == 0 or not move_list:
             return AlphaBeta.tri_eval2(tri_board, global_team) + fish
-
+            
         if maximizing:
             maxEval = -1000
             for move in move_list:
@@ -129,18 +129,19 @@ class AlphaBeta():
             check_coords = destinations
             iteration+=1
         return value
-
-    def get_delta_cut_move(logic: Logic):
+    
+    def _get_move(tri_board: TriBoard, possible_moves: list[Move], global_team: Team):
         max_val = -1000
-        max_move: Move = None
-        if not filter:
-            move_list = logic.game_state.possible_moves
-        for move in move_list:
-            perform = logic.game_state.perform_move(move)
-            val = AlphaBeta.delta_possibles(logic, perform)
-            if val > max_val:
-                max_val = val
+        max_move = possible_moves[0]
+        move_list = possible_moves
+        move_list = [move for move in move_list if tri_board.tri_board()[move.to_value.x>>1][move.to_value.y].spot == "white" or tri_board.tri_board()[move.to_value.x>>1][move.to_value.y].spot == "yellow"]
+        #print_moves_board_custom(logic.game_state.board , move_list, one_char="B", two_char="E")
 
+        for move in move_list:
+            val = AlphaBeta.get_fish_evaluate(tri_board.board, move.to_value, global_team)
+            if val >= max_val:
+                max_val = val
+                max_move = move
         return max_move
     
     def get_move(logic: Logic):
@@ -171,8 +172,8 @@ class AlphaBeta():
                 if board.get_field(destination).fish == 0:
                     break
                 if destination in intersections:
-                    factor = -1
-                value += board.get_field(destination).fish
+                    factor = 1.25
+                value += board.get_field(destination).fish * factor
         return value
     
     def get_first_inters_from_with(board: Board, origin: HexCoordinate, other_list: list[Move]) ->list[HexCoordinate]:
@@ -182,12 +183,9 @@ class AlphaBeta():
             for i in range(1, 8):
                 if stop: 
                     break 
-
                 destination = origin.add_vector(direction.scalar_product(i))
-
                 if not own_is_valid(destination):
                     break
-
                 if board.get_field(destination).fish != 0: # stop if end of board/ axis
                     for each in other_list: # add move if intersect
                         if destination == each.to_value:

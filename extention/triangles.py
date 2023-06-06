@@ -189,10 +189,12 @@ class TriBoard:
 
     def get_least_shapes_move(self, logic: Logic):
         max_move = logic.game_state.possible_moves[0]
+        check_groups = self.get_best_tiles(logic.game_state.current_team.penguins)
+        better_moves = [move for move in logic.game_state.possible_moves if own_hash(move.to_value) in check_groups]
         min_val = 6
         valid_list = []
 
-        for move in logic.game_state.possible_moves:
+        for move in better_moves:
             if self.get_tile(move.to_value).spot == "yellow":
                 valid_list.append(move)
 
@@ -211,6 +213,22 @@ class TriBoard:
                 min_val = val
                 max_move = move
         return max_move
+    
+    def get_best_tiles(self, penguins: list[Penguin]):
+        best_tiles = []
+        for penguin in penguins:
+            this_groups: list[Group] = []
+            for group in self.groups():
+                if penguin in group.penguins:
+                    this_groups.append(group)
+            if not this_groups:
+                break
+            this_best_group = this_groups[0]
+            for each in this_groups:
+                if each.fish > this_best_group.fish:
+                    this_best_group = each
+            best_tiles.extend(this_best_group.group)
+        return best_tiles
         
     def _make_tri_board(self) -> list[list[Tile]]:
         tri_board = []
